@@ -7,6 +7,7 @@ import Qt3D.Extras 2.0
 
 Entity {
     id: root
+    property string scanSource
 
     // Render from the mainCamera
     components: [
@@ -42,9 +43,8 @@ Entity {
 
         Mesh {
             id: mesh
-            source: "file:/C:/Users/dillo/Documents/Qt/ImportObj/PT18E.obj"
+            source: root.scanSource
         }
-
     }
 }
 

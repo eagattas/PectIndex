@@ -1,17 +1,20 @@
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include <Qt3DQuick/QQmlAspectEngine>
 #include <Qt3DQuickExtras/qt3dquickwindow.h>
-
-
-#include <QGuiApplication>
-#include <QtQml>
-
+#include "pectusviewer.h"
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
-
     QQmlApplicationEngine engine;
+    PectusViewer myViewer;
+    QQmlContext* context = engine.rootContext();
+    context->setContextProperty("myViewer", &myViewer);
+    qmlRegisterUncreatableType<PectusViewer>("PectusViewer", 1, 1, "PectusViewer", "Do not instantiate");
+
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
