@@ -1,6 +1,6 @@
 import QtQuick 2.6
-import QtQuick.Window 2.2 as QW
 import QtQuick.Controls 2.2
+import QtQuick.Controls 1.4
 import PectusViewer 1.1
 import QtQuick.Dialogs 1.2
 import Qt3D.Core 2.0
@@ -8,12 +8,98 @@ import Qt3D.Render 2.0
 import Qt3D.Input 2.0
 import Qt3D.Extras 2.0
 import QtQuick.Scene3D 2.0
+import Qt.labs.settings 1.0
 
-QW.Window {
+
+ApplicationWindow {
     visible: true
     width: 1000
     height: 600
     title: qsTr("PectIndex")
+
+    menuBar: MenuBar {
+            Menu {
+                title: "File"
+                MenuItem { text: "Open..." }
+                MenuItem { text: "Close" }
+            }
+
+            Menu {
+                title: "Edit"
+                MenuItem { text: "Cut" }
+                MenuItem { text: "Copy" }
+                MenuItem { text: "Paste" }
+            }
+
+            Menu {
+                title: "Help"
+                MenuItem {
+                    text: "Settings"
+                    onTriggered: settingsDialog.open()
+                }
+            }
+    }
+
+    Dialog {
+        id: settingsDialog
+        visible: false
+        title: "Settings"
+
+        contentItem: Rectangle {
+            implicitWidth: 400
+            implicitHeight: 100
+            Button{
+                id: greenModelButton
+                width: 40
+                height: 20
+                text: "GREEN"
+                anchors.leftMargin: 10
+                onClicked: {
+                    settings.modelColor = Qt.rgba(0.0, 0.6, 0.0, 1.0)
+                }
+            }
+            Button{
+                id: blueModelButton
+                width: 40
+                height: 20
+                anchors.left: greenModelButton.right
+                anchors.leftMargin: 10
+                text: "BLUE"
+                onClicked: {
+                    settings.modelColor = Qt.rgba(0.0, 0.0, 0.6, 1.0)
+                }
+            }
+            Button{
+                id: redModelButton
+                width: 40
+                height: 20
+                anchors.left: blueModelButton.right
+                anchors.leftMargin: 10
+                text: "RED"
+                onClicked: {
+                    settings.modelColor = Qt.rgba(0.6, 0.0, 0.0, 1.0)
+                }
+            }
+                Button{
+                    id: grayModelButton
+                    width: 40
+                    height: 20
+                    anchors.left: redModelButton.right
+                    anchors.leftMargin: 10
+                    text: "GRAY"
+                    onClicked: {
+                        settings.modelColor = Qt.rgba(0.6, 0.6, 0.6, 1.0)
+                    }
+                }
+            }
+
+    }
+
+
+    Settings {
+        id: settings
+        property color modelColor: Qt.rgba(0.6, 0.6, 0.6, 1.0)
+    }
 
     Rectangle {
         id: background
@@ -48,6 +134,7 @@ QW.Window {
                 aspects: ["input", "logic"]
                 ChestModel {
                     scanSource: myViewer.renderStatus ? myViewer.scanFileName : ""
+                    modelColor: settings.modelColor
                 }
             }
         }

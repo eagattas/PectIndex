@@ -8,6 +8,7 @@ import Qt3D.Extras 2.0
 Entity {
     id: root
     property string scanSource
+    property color modelColor
 
     // Render from the mainCamera
     components: [
@@ -37,7 +38,10 @@ Entity {
     Entity {
         id: chestObject
 
-        property Material material: PhongMaterial {}
+        property Material material: PhongMaterial {
+            ambient: root.modelColor
+            diffuse: Qt.rgba( 0.6, 0.6, 0.6, 1.0 )
+        }
 
         components: [ mesh, chestObject.material ]
 
