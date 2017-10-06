@@ -106,6 +106,15 @@ ApplicationWindow {
         anchors.fill: parent
         color: "lightgrey"
 
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                if (myViewer.notesActive){
+                    myViewer.toggleNotesActive();
+                }
+            }
+        }
+
         Rectangle {
             id: viewerContainer
             width: (parent.width / 2) - 40
