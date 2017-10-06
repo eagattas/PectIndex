@@ -26,12 +26,13 @@ Entity {
         id: mainCamera
         projectionType: CameraLens.PerspectiveProjection
         fieldOfView: 22.5
-        position: Qt.vector3d( 0.19195, 0.180172, 2.01201 )
+        position: Qt.vector3d( 0.19195, 0.180172, 2.01201)
         viewCenter: Qt.vector3d(7.04184, 8.03178, -99.4669)
     }
 
     OrbitCameraController {
         camera: mainCamera
+
     }
 
 
@@ -46,9 +47,9 @@ Entity {
         Transform {
             id: logoTransform
             scale: 1
-            rotation: fromEulerAngles( 0,
-                                       rotateSlider.value * 360,
-                                       0 )
+            rotation: fromEulerAngles( rotateSliderX.value * 360,
+                                       rotateSliderY.value * 360,
+                                       rotateSliderZ.value * 360 )
         }
 
         components: [ mesh, chestObject.material, logoTransform ]

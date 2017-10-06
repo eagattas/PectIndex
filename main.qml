@@ -20,8 +20,14 @@ ApplicationWindow {
     menuBar: MenuBar {
             Menu {
                 title: "File"
-                MenuItem { text: "Open..." }
-                MenuItem { text: "Close" }
+                MenuItem {
+                    text: "Open..."
+                    onTriggered: fileDialog.open()
+                }
+                MenuItem {
+                    text: "Close"
+                    onTriggered: Qt.quit()
+                }
             }
 
             Menu {
@@ -33,6 +39,11 @@ ApplicationWindow {
 
             Menu {
                 title: "Help"
+                MenuItem { text: "Tutorial" }
+                MenuItem { text: "Project ReadME" }
+            }
+            Menu {
+                title: "Preferences"
                 MenuItem {
                     text: "Settings"
                     onTriggered: settingsDialog.open()
@@ -144,14 +155,8 @@ ApplicationWindow {
                 ChestModel {
                     scanSource: myViewer.renderStatus ? myViewer.scanFileName : ""
                     modelColor: settings.modelColor
-                }
-            }
 
-            Slider {
-                id: rotateSlider
-                visible: true
-                anchors.top: scene3d.bottom
-                width: scene3d.width
+                }
             }
         }
 
@@ -172,6 +177,70 @@ ApplicationWindow {
             text: "..."
             onClicked: {
                 fileDialog.open();
+            }
+        }
+
+        Rectangle {
+            id: controlsContainer
+            height: viewerContainer.height / 2
+            width: viewerContainer.width / 2
+            anchors.left: viewerContainer.right
+            anchors.top: viewerContainer.top
+            anchors.leftMargin: 10
+            color: parent.color
+
+            Text {
+                id:xLabel
+                text: qsTr("Rotate X:")
+                anchors.top: controlsContainer.top
+            }
+
+            Slider {
+                id: rotateSliderX
+                visible: true
+                width: parent.width
+                anchors.top: xLabel.bottom
+            }
+
+            Text {
+                id: yLabel
+                text: qsTr("Rotate Y:")
+                anchors.top: rotateSliderX.bottom
+            }
+
+            Slider {
+                id: rotateSliderY
+                visible: true
+                width: parent.width
+                anchors.top: yLabel.bottom
+            }
+
+            Text {
+                id: zLabel
+                text: qsTr("Rotate Z:")
+                anchors.top: rotateSliderY.bottom
+            }
+
+            Slider {
+                id: rotateSliderZ
+                visible: true
+                width: parent.width
+                anchors.top: zLabel.bottom
+            }
+
+            Text {
+                id: zoomLabel
+                text: qsTr("Zoom:")
+                anchors.top: rotateSliderZ.bottom
+            }
+
+            Slider {
+                id: rotateSliderZoom
+                visible: true
+                width: parent.width
+                anchors.top: zoomLabel.bottom
+                minimumValue: 1
+                maximumValue: 3.5
             }
         }
 
