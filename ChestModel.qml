@@ -43,7 +43,15 @@ Entity {
             diffuse: Qt.rgba( 0.6, 0.6, 0.6, 1.0 )
         }
 
-        components: [ mesh, chestObject.material ]
+        Transform {
+            id: logoTransform
+            scale: 1
+            rotation: fromEulerAngles( 0,
+                                       rotateSlider.value * 360,
+                                       0 )
+        }
+
+        components: [ mesh, chestObject.material, logoTransform ]
 
         Mesh {
             id: mesh

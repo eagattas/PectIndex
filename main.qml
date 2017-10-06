@@ -137,6 +137,13 @@ ApplicationWindow {
                     modelColor: settings.modelColor
                 }
             }
+
+            Slider {
+                id: rotateSlider
+                visible: true
+                anchors.top: scene3d.bottom
+                width: scene3d.width
+            }
         }
 
         Text {

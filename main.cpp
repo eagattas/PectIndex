@@ -9,6 +9,8 @@ int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
+    QCoreApplication::setAttribute(Qt::AA_UseSoftwareOpenGL);
+
     QQmlApplicationEngine engine;
     PectusViewer myViewer;
     QQmlContext* context = engine.rootContext();
