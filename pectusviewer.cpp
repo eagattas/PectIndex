@@ -1,6 +1,6 @@
 #include "pectusviewer.h"
 
-PectusViewer::PectusViewer(QObject *parent) : QObject(parent), m_scanFileName(""), m_renderStatus(false)
+PectusViewer::PectusViewer(QObject *parent) : QObject(parent), m_scanFileName(""), m_renderStatus(false), m_notesActive(false), m_notes("")
 {
 
 }
@@ -11,6 +11,14 @@ QString PectusViewer::getScanFileName(){
 
 bool PectusViewer::getRenderStatus(){
     return m_renderStatus;
+}
+
+bool PectusViewer::getNotesActive(){
+    return m_notesActive;
+}
+
+QString PectusViewer::getNotes(){
+    return m_notes;
 }
 
 void PectusViewer::setScanFileName(const QString & arg){
@@ -25,4 +33,14 @@ void PectusViewer::renderScan(){
         m_renderStatus = true;
         emit renderStatusChanged(true);
     }
+}
+
+void PectusViewer::toggleNotesActive(){
+    m_notesActive = !m_notesActive;
+    emit notesActiveChanged(m_notesActive);
+}
+
+void PectusViewer::updateNotes(const QString &arg){
+    m_notes = arg;
+    emit notesChanged(arg);
 }

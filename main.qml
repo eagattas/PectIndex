@@ -216,5 +216,10 @@ ApplicationWindow {
                 this.close();
             }
         }
+
+        NotesTab {
+            x: background.width - 80
+            y: 0
+        }
     }
 }

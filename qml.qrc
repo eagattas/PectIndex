@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>ChestModel.qml</file>
         <file>main.qml</file>
+        <file>NotesTab.qml</file>
     </qresource>
 </RCC>
