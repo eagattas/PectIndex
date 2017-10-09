@@ -2,6 +2,7 @@ import QtQuick 2.6
 import QtQuick.Controls 2.2
 import QtQuick.Controls 1.4
 import PectusViewer 1.1
+import PectusProcessor 1.1
 import QtQuick.Dialogs 1.2
 import Qt3D.Core 2.0
 import Qt3D.Render 2.0
@@ -262,7 +263,7 @@ ApplicationWindow {
                 height: parent.height
                 text: myViewer.scanFileName
                 onAccepted: {
-                    myViewer.setScanFileName(this.text)
+                    myViewer.setScanFileName(this.text);
                 }
                 selectByMouse: true
                 layer.enabled: true
@@ -285,6 +286,7 @@ ApplicationWindow {
             text: "Render 3D Scan"
             onClicked: {
                 myViewer.renderScan();
+                myProcessor.setFileName(fileDialog.fileUrl);
             }
         }
 
@@ -294,7 +296,7 @@ ApplicationWindow {
             folder: shortcuts.home
             nameFilters: ["3D Scan Files (*.obj)"]
             onAccepted: {
-                myViewer.setScanFileName(fileDialog.fileUrl)
+                myViewer.setScanFileName(fileDialog.fileUrl);
                 this.close();
             }
             onRejected: {
