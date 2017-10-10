@@ -23,19 +23,19 @@ void PectusProcessor::processFile(){
           QString line = in.readLine();
           QStringList parts = line.split(" ");
           if(parts[0] == "v"){
-              std::vector<double> v = {parts[1].toDouble(), parts[2].toDouble(), parts[3].toDouble()};
+              Vertex v(parts[1].toDouble(), parts[2].toDouble(), parts[3].toDouble());
               vertices.push_back(v);
           }
           else if(parts[0] == "vt"){
-              std::vector<double> v = {parts[1].toDouble(), parts[2].toDouble()};
+              Texture v(parts[1].toDouble(), parts[2].toDouble());
               textures.push_back(v);
           }
           else if(parts[0] == "vn"){
-              std::vector<double> v = {parts[1].toDouble(), parts[2].toDouble(), parts[3].toDouble()};
+              Vertex v(parts[1].toDouble(), parts[2].toDouble(), parts[3].toDouble());
               normals.push_back(v);
           }
           else if(parts[0] == "f"){
-              std::vector<QString> v = {parts[1], parts[2], parts[3]};
+              Face v(parts[1], parts[2], parts[3]);
               faces.push_back(v);
           }
        }

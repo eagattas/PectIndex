@@ -3,7 +3,24 @@
 
 #include <QObject>
 #include <QDebug>
-#include <vector>
+
+struct Vertex{
+    double x,y,z;
+    Vertex(double xx, double yy, double zz) : x(xx), y(yy), z(zz) {}
+    Vertex() : x(0), y(0), z(0) {}
+};
+
+struct Texture{
+    double x,y;
+    Texture(double xx, double yy) : x(xx), y(yy) {}
+    Texture() : x(0), y(0) {}
+};
+
+struct Face{
+    QString vertexX, vertexY, vertexZ;
+    Face(QString x, QString y, QString z) : vertexX(x), vertexY(y), vertexZ(z) {}
+    Face() : vertexX(""), vertexY(""), vertexZ("") {}
+};
 
 class PectusProcessor : public QObject
 {
@@ -22,8 +39,9 @@ public:
 
 private:
     QString m_fileName;
-    std::vector<std::vector<double>> vertices, textures, normals;
-    std::vector<std::vector<QString>> faces;
+    QVector<Vertex> vertices, normals;
+    QVector<Texture> textures;
+    QVector<Face> faces;
 
 
 signals:
