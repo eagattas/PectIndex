@@ -17,9 +17,10 @@ struct Texture{
 };
 
 struct Face{
-    QString vertexX, vertexY, vertexZ;
-    Face(QString x, QString y, QString z) : vertexX(x), vertexY(y), vertexZ(z) {}
-    Face() : vertexX(""), vertexY(""), vertexZ("") {}
+    QString vertex1String, vertex2String, vertex3String;
+    int vertex1Index, vertex2Index, vertex3Index;
+    Face(QString x, QString y, QString z) : vertex1String(x), vertex2String(y), vertex3String(z) {}
+    Face() : vertex1String(""), vertex2String(""), vertex3String("") {}
 };
 
 class PectusProcessor : public QObject
@@ -36,6 +37,7 @@ public:
     void processFile();
 
     Q_INVOKABLE void setFileName(const QString & filename);
+    Q_INVOKABLE void calculateIntersection(double yPlane);
 
 private:
     QString m_fileName;
