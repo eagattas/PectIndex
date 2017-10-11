@@ -45,6 +45,9 @@ private:
     QVector<Texture> textures;
     QVector<Face> faces;
 
+    QPair<Vertex, Vertex> findSegment(const Face & f, double yPlane);
+    Vertex findVertex(const Vertex & a, const Vertex & b, double yPlane);
+
 
 signals:
     void fileNameChanged(const QString & arg);

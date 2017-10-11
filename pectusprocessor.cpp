@@ -59,6 +59,7 @@ void PectusProcessor::calculateIntersection(double yPlane){
 
     for(int i = 0; i < faces.size(); i++){
         bool above = false, below = false;
+        int on = 0; //Still intersects if 2 points are on the plane (3 shouldn't happen)
         Vertex v1 = vertices[faces[i].vertex1Index];
         Vertex v2 = vertices[faces[i].vertex2Index];
         Vertex v3 = vertices[faces[i].vertex3Index];
@@ -66,10 +67,95 @@ void PectusProcessor::calculateIntersection(double yPlane){
             above = true;
         if(v1.y < yPlane || v2.y < yPlane || v3.y < yPlane)
             below = true;
-        if(above && below){
+        if(v1.y == yPlane)
+            on++;
+        if(v2.y == yPlane)
+            on++;
+        if(v3.y == yPlane)
+            on++;
+        if((above && below) || on == 2){
             intersectedFaces.push_back(faces[i]);
         }
     }
     //need to find intersection on each face now
+    QVector<QPair<Vertex, Vertex>> sliceSegments;
+    for (int i = 0; i < intersectedFaces.size(); i++){
+        sliceSegments.push_back(findSegment(intersectedFaces[i], yPlane));
+    }
+    // Now, need to graph segments in 2D space.
+}
 
+// Returns the line segment (represented by a pair of vertices) where Face f intersects plane yPlane
+QPair<Vertex, Vertex> PectusProcessor::findSegment(const Face & f, double yPlane){
+    QPair<Vertex, Vertex> segment;
+    Vertex a(vertices[f.vertex1Index]);
+    Vertex b(vertices[f.vertex2Index]);
+    Vertex c(vertices[f.vertex3Index]);
+    if(a.y == yPlane || b.y == yPlane || c.y == yPlane){
+        // Each possible case
+        // A-B is the segment
+        if (a.y == yPlane && b.y == yPlane){
+            segment.first = a;
+            segment.second = b;
+        }
+        // A-C is the segment
+        else if (a.y == yPlane && c.y == yPlane){
+            segment.first = a;
+            segment.second = c;
+        }
+        // B-C is the segment
+        else if (b.y == yPlane && c.y == yPlane){
+            segment.first = b;
+            segment.second = c;
+        }
+        // A is in the segment
+        else if (a.y == yPlane){
+            segment.first = a;
+            segment.second = findVertex(b, c, yPlane);
+        }
+        // B is in the segment
+        else if (b.y == yPlane){
+            segment.first = b;
+            segment.second = findVertex(a, c, yPlane);
+        }
+        // C is in the segment
+        else if (c.y == yPlane){
+            segment.first = c;
+            segment.second = findVertex(a, b, yPlane);
+        }
+    }
+    // A and B are on the same side of the plane
+    // The vertices are on AC and BC
+    else if ((a.y > yPlane && b.y > yPlane) ||
+             (a.y < yPlane && b.y < yPlane)){
+        segment.first = findVertex(a, c, yPlane);
+        segment.second = findVertex(b, c, yPlane);
+    }
+    // A and C are on the same side of the plane
+    // The vertices are on AB and BC
+    else if ((a.y > yPlane && c.y > yPlane) ||
+             (a.y < yPlane && c.y < yPlane)){
+        segment.first = findVertex(a, b, yPlane);
+        segment.second = findVertex(b, c, yPlane);
+    }
+    // B and C are on the same side of the plane
+    // The vertices are on AB and AC
+    else if ((b.y > yPlane && c.y > yPlane) ||
+             (b.y < yPlane && c.y < yPlane)){
+        segment.first = findVertex(a, b, yPlane);
+        segment.second = findVertex(a, c, yPlane);
+    }
+    else {
+        qDebug() << "An error ocurred trying to find an intersection for a plane";
+        segment.first = Vertex(0, 0, 0);
+        segment.second = Vertex(0, 0, 0);
+    }
+    return segment;
+}
+
+// Returns the vertex where the line segment (a-b) intersects the plane.
+Vertex PectusProcessor::findVertex(const Vertex & a, const Vertex & b, double yPlane){
+    double xcross = a.x - ((a.y - yPlane) / (a.y - b.y) * (a.x - b.x));
+    double zcross = a.z - ((a.y - yPlane) / (a.y - b.y) * (a.z - b.z));
+    return Vertex(xcross, yPlane, zcross);
 }
