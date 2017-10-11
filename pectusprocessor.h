@@ -50,6 +50,7 @@ private:
     QVector<Vertex> vertices, normals;
     QVector<Texture> textures;
     QVector<Face> faces;
+    QVector<QPair<Vertex, Vertex>> sliceSegments;
 
     QPair<Vertex, Vertex> findSegment(const Face & f, double yPlane);
     Vertex findVertex(const Vertex & a, const Vertex & b, double yPlane);

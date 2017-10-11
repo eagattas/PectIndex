@@ -56,7 +56,6 @@ void PectusProcessor::setRootQmlObject(QObject *obj)
 
 void PectusProcessor::drawLineSegments()
 {
-
     QVector<double> x_start = {50, 100, 150};
     QVector<double> y_start = {50, 100, 150};
     QVector<double> x_end = {75, 125, 175};
@@ -64,13 +63,12 @@ void PectusProcessor::drawLineSegments()
 
     QObject *canvas = rootQmlObject->findChild<QObject*>("canvas");
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i <sliceSegments.size(); i++) {
         QVariant returnedValue;
-
         QMetaObject::invokeMethod(canvas, "drawLine",
             Q_RETURN_ARG(QVariant, returnedValue),
-            Q_ARG(QVariant, x_start[i]), Q_ARG(QVariant, y_start[i]),
-            Q_ARG(QVariant, x_end[i]), Q_ARG(QVariant, y_end[i]));
+            Q_ARG(QVariant, sliceSegments[i].first.x*750), Q_ARG(QVariant, sliceSegments[i].first.z*750),
+            Q_ARG(QVariant, sliceSegments[i].second.x*750), Q_ARG(QVariant, sliceSegments[i].second.z*750));
 
     }
 }
@@ -103,7 +101,6 @@ void PectusProcessor::calculateIntersection(double yPlane){
         }
     }
     //need to find intersection on each face now
-    QVector<QPair<Vertex, Vertex>> sliceSegments;
     for (int i = 0; i < intersectedFaces.size(); i++){
         sliceSegments.push_back(findSegment(intersectedFaces[i], yPlane));
     }
