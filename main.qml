@@ -265,7 +265,7 @@ ApplicationWindow {
                 id: sliceLabel
                 visible: sliceSingle.checked
                 text: qsTr("Slice:")
-                anchors.top: sliceSingle.bottom
+                anchors.top: rotateSliderZoom.bottom
                 anchors.left: parent.left
             }
 
