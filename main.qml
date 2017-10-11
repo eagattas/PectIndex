@@ -13,6 +13,7 @@ import Qt.labs.settings 1.0
 
 
 ApplicationWindow {
+    id: root
     visible: true
     width: 1000
     height: 600
@@ -168,22 +169,9 @@ ApplicationWindow {
             anchors.left: viewerContainer.left
         }
 
-        Button {
-            id: searchFiles
-            width: 30
-            height: 20
-            anchors.right: parent.right
-            anchors.rightMargin: 20
-            anchors.verticalCenter: parent.verticalCenter
-            text: "..."
-            onClicked: {
-                fileDialog.open();
-            }
-        }
-
         Rectangle {
             id: controlsContainer
-            height: viewerContainer.height / 2
+            height: viewerContainer.height / 2.3
             width: viewerContainer.width / 2
             anchors.left: viewerContainer.right
             anchors.top: viewerContainer.top
@@ -316,18 +304,18 @@ ApplicationWindow {
 
         Rectangle {
             id: dialogHolder
-            width: parent.width / 4
+            width: parent.width / 5
             height: 20
-            anchors.right: searchFiles.left
-            anchors.rightMargin: 10
-            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: controlsContainer.right
+            anchors.top: controlsContainer.top
+            anchors.topMargin: 30
+            anchors.leftMargin: 30
             color: "white"
             border.color: "black"
             border.width: 1
 
             TextInput {
                 id: fileNameInput
-                anchors.centerIn: parent
                 width: parent.width - 10
                 height: parent.height
                 text: myViewer.scanFileName
@@ -337,41 +325,100 @@ ApplicationWindow {
                 selectByMouse: true
                 layer.enabled: true
             }
-        }
 
-        Text {
-            text: qsTr("Select File for 3D Rendering:")
-            anchors.bottom: dialogHolder.top
-            anchors.left: dialogHolder.left
-            anchors.bottomMargin: 3
-        }
+            Text {
+                text: qsTr("Select File for 3D Rendering:")
+                anchors.bottom: fileNameInput.top
+                anchors.left: fileNameInput.left
+                anchors.bottomMargin: 3
+            }
 
-        Button {
-            anchors.top: dialogHolder.bottom
-            anchors.topMargin: 10
-            anchors.horizontalCenter: dialogHolder.horizontalCenter
-            width: 130
-            height: 20
-            text: "Render 3D Scan"
-            onClicked: {
-                myViewer.renderScan();
-                myProcessor.setFileName(fileDialog.fileUrl);
+            Button {
+                id: renderScanButton
+                anchors.top: dialogHolder.bottom
+                anchors.topMargin: 10
+                anchors.horizontalCenter: dialogHolder.horizontalCenter
+                width: 130
+                height: 20
+                text: "Render 3D Scan"
+                onClicked: {
+                    myViewer.renderScan();
+                    myProcessor.setFileName(fileDialog.fileUrl);
+                }
+            }
+
+            FileDialog {
+                id: fileDialog
+                title: "Choose a 3D Model File"
+                folder: shortcuts.home
+                nameFilters: ["3D Scan Files (*.obj)"]
+                onAccepted: {
+                    myViewer.setScanFileName(fileDialog.fileUrl);
+                    this.close();
+                }
+                onRejected: {
+                    this.close();
+                }
+            }
+
+            Button {
+                id: searchFiles
+                width: 30
+                height: 20
+                anchors.left: fileNameInput.right
+                anchors.leftMargin: 20
+                text: "..."
+                onClicked: {
+                    fileDialog.open();
+                }
             }
         }
 
-        FileDialog {
-            id: fileDialog
-            title: "Choose a 3D Model File"
-            folder: shortcuts.home
-            nameFilters: ["3D Scan Files (*.obj)"]
-            onAccepted: {
-                myViewer.setScanFileName(fileDialog.fileUrl);
-                this.close();
+        Rectangle {
+            id: sliceRect
+            anchors.top: controlsContainer.bottom
+            anchors.left: viewerContainer.right
+            anchors.leftMargin: 20
+            anchors.right: parent.right
+            anchors.rightMargin: 20
+
+            height: 300
+
+            Row {
+                id: sliceButtonRow
+                anchors.bottom: sliceCanvas.top
+                anchors.bottomMargin: 5
+                spacing: 3
+                Button {
+                   id: clear
+                   text: "Clear"
+                   onClicked: {
+                        sliceCanvas.clear()
+                   }
+                }
+                Button {
+                   id: plotLine
+                   text: "Plot Lines"
+                   onClicked: {
+                        myProcessor.drawLineSegments()
+                   }
+                }
+
             }
-            onRejected: {
-                this.close();
+
+            SliceCanvas {
+                id: sliceCanvas
+                objectName: "canvas"
+                anchors.fill: parent
+
+
+
+
             }
+
         }
+
+
 
         NotesTab {
             x: background.width - 80

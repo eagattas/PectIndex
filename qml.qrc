@@ -3,5 +3,6 @@
         <file>ChestModel.qml</file>
         <file>main.qml</file>
         <file>NotesTab.qml</file>
+        <file>SliceCanvas.qml</file>
     </qresource>
 </RCC>

@@ -35,9 +35,15 @@ public:
 
     QString getFileName();
     void processFile();
+    void setRootQmlObject(QObject* obj);
+
+    Q_INVOKABLE void drawLineSegments();
 
     Q_INVOKABLE void setFileName(const QString & filename);
     Q_INVOKABLE void calculateIntersection(double yPlane);
+
+
+
 
 private:
     QString m_fileName;
@@ -47,6 +53,9 @@ private:
 
     QPair<Vertex, Vertex> findSegment(const Face & f, double yPlane);
     Vertex findVertex(const Vertex & a, const Vertex & b, double yPlane);
+
+    // rootQmlObject - allows interaction with QML
+    QObject* rootQmlObject;
 
 
 signals:

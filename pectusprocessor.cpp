@@ -6,7 +6,6 @@ PectusProcessor::PectusProcessor(QObject *parent) : QObject(parent), m_fileName(
 
 }
 
-
 void PectusProcessor::setFileName(const QString & filename){
     QString newname = filename.right(filename.size() - 8);//removes file:///
     m_fileName = newname;
@@ -47,6 +46,32 @@ void PectusProcessor::processFile(){
     }
     else{
         qDebug() << QString("Not open");
+    }
+}
+
+void PectusProcessor::setRootQmlObject(QObject *obj)
+{
+    rootQmlObject = obj;
+}
+
+void PectusProcessor::drawLineSegments()
+{
+
+    QVector<double> x_start = {50, 100, 150};
+    QVector<double> y_start = {50, 100, 150};
+    QVector<double> x_end = {75, 125, 175};
+    QVector<double> y_end = {75, 125, 175};
+
+    QObject *canvas = rootQmlObject->findChild<QObject*>("canvas");
+
+    for (int i = 0; i < 3; i++) {
+        QVariant returnedValue;
+
+        QMetaObject::invokeMethod(canvas, "drawLine",
+            Q_RETURN_ARG(QVariant, returnedValue),
+            Q_ARG(QVariant, x_start[i]), Q_ARG(QVariant, y_start[i]),
+            Q_ARG(QVariant, x_end[i]), Q_ARG(QVariant, y_end[i]));
+
     }
 }
 
