@@ -26,7 +26,7 @@ Entity {
         id: mainCamera
         projectionType: CameraLens.PerspectiveProjection
         fieldOfView: 22.5
-        position: Qt.vector3d( 0.19195, 0.180172, 2.01201)
+        position: Qt.vector3d( 0.19195, 0.180172, 10 - sliderZoom.value)
         viewCenter: Qt.vector3d(7.04184, 8.03178, -99.4669)
     }
 

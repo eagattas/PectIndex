@@ -4,6 +4,7 @@ Canvas {
     id: root
     property int lastX: 0
     property int lastY: 0
+    property int mode: 0
 
     function clear() {
         var ctx = getContext("2d");
@@ -13,6 +14,7 @@ Canvas {
 
     function drawLine(x_start, y_start, x_end, y_end) {
         var ctx = getContext("2d")
+        ctx.globalCompositeOperation="source-over";
         ctx.lineWidth = 2
         ctx.strokeStyle = color.red
         ctx.beginPath()
@@ -24,14 +26,23 @@ Canvas {
 
     onPaint: {
         var ctx = getContext("2d")
-        ctx.lineWidth = 2
-        ctx.strokeStyle = "blue"
         ctx.beginPath()
-        ctx.moveTo(lastX, lastY)
+        if (mode == 0) {
+            ctx.globalCompositeOperation="source-over";
+            ctx.lineWidth = 2
+            ctx.strokeStyle = "blue"
+            ctx.beginPath()
+            ctx.moveTo(lastX, lastY)
+            ctx.lineTo(area.mouseX, area.mouseY)
+            ctx.stroke()
+        }
+        else if (mode == 1) {
+            ctx.globalCompositeOperation="destination-out";
+            ctx.arc(lastX,lastY,8,0,Math.PI*2,false);
+            ctx.fill();
+        }
         lastX = area.mouseX
         lastY = area.mouseY
-        ctx.lineTo(lastX, lastY)
-        ctx.stroke()
     }
 
     MouseArea {

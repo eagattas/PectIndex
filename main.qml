@@ -224,59 +224,24 @@ ApplicationWindow {
             }
 
             Slider {
-                id: rotateSliderZoom
+                id: sliderZoom
                 visible: true
                 width: parent.width
                 anchors.top: zoomLabel.bottom
-                minimumValue: 1
-                maximumValue: 3.5
-            }
-//            ExclusiveGroup {id: sliceSetting}
-//            RadioButton {
-//                id: sliceSingle
-//                text: "Single Slice"
-//                anchors.top: rotateSliderZoom.bottom
-//                anchors.left: parent.left
-//                exclusiveGroup: sliceSetting
-//                checked: true
-//            }
-
-//            RadioButton {
-//                id: sliceRange
-//                text: "Slice Range"
-//                anchors.top: rotateSliderZoom.bottom
-//                anchors.right: parent.right
-//                exclusiveGroup: sliceSetting
-//            }
-
-            Text {
-                id: sliceLabel
-                visible: sliceSingle.checked
-                text: qsTr("Slice:")
-                anchors.top: rotateSliderZoom.bottom
-                anchors.left: parent.left
-            }
-
-            Slider {
-                id: sliceSlider
-                visible: sliceSingle.checked
-                width: parent.width
-                anchors.top: sliceLabel.bottom
                 minimumValue: 0
-                maximumValue: 1
+                maximumValue: 10
+                value: 8
             }
 
             Text {
                 id: sliceRangeLabel
-                visible: sliceRange.checked
                 text: qsTr("Slice Range:")
-                anchors.top: sliceSlider.bottom
+                anchors.top: sliderZoom.bottom
                 anchors.left: parent.left
             }
 
             Slider {
                 id: sliceRangeSlider
-                visible: sliceRange.checked
                 width: parent.width
                 anchors.top: sliceRangeLabel.bottom
                 minimumValue: 0
@@ -285,7 +250,6 @@ ApplicationWindow {
 
             Text {
                 id: sliceRangeAmount
-                visible: sliceRange.checked
                 text: qsTr("Range Amount:")
                 anchors.top: sliceRangeSlider.bottom
                 anchors.left: parent.left
@@ -293,7 +257,6 @@ ApplicationWindow {
 
             Slider {
                 id: sliceRangeAmountSlider
-                visible: sliceRange.checked
                 width: parent.width
                 anchors.top: sliceRangeAmount.bottom
                 minimumValue: 0
@@ -390,6 +353,21 @@ ApplicationWindow {
                 anchors.bottomMargin: 5
                 spacing: 3
                 Button {
+                    id: pen
+                    text: "Pen"
+                    onClicked: {
+                        sliceCanvas.mode = 0
+                    }
+                }
+                Button {
+                    id: eraser
+                    text: "Eraser"
+                    onClicked: {
+                        sliceCanvas.mode = 1
+                    }
+                }
+
+                Button {
                    id: clear
                    text: "Clear"
                    onClicked: {
@@ -403,6 +381,7 @@ ApplicationWindow {
                         myProcessor.drawLineSegments()
                    }
                 }
+
 
             }
 
