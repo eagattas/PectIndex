@@ -3,14 +3,13 @@
 
 #include <QObject>
 #include <QDebug>
+#include <limits>
 
-#include <QtDataVisualization/Q3DSurface>
-#include <QtDataVisualization/QSurfaceDataProxy>
-#include <QtDataVisualization/QHeightMapSurfaceDataProxy>
-#include <QtDataVisualization/QSurface3DSeries>
-#include <QtWidgets/QSlider>
-
-using namespace QtDataVisualization;
+//#include <QtDataVisualization/Q3DSurface>
+//#include <QtDataVisualization/QSurfaceDataProxy>
+//#include <QtDataVisualization/QHeightMapSurfaceDataProxy>
+//#include <QtDataVisualization/QSurface3DSeries>
+//#include <QtWidgets/QSlider>
 
 struct Vertex{
     double x,y,z;
@@ -50,9 +49,8 @@ public:
 
     Q_INVOKABLE void setFileName(const QString & filename);
     Q_INVOKABLE void calculateIntersection(double yPlane);
-
-
-
+    Q_INVOKABLE double getMaxY();
+    Q_INVOKABLE double getMinY();
 
 private:
     QString m_fileName;
@@ -60,13 +58,14 @@ private:
     QVector<Texture> textures;
     QVector<Face> faces;
     QVector<QPair<Vertex, Vertex>> sliceSegments;
+    double miny = std::numeric_limits<double>::max();
+    double maxy = std::numeric_limits<double>::min();
 
     QPair<Vertex, Vertex> findSegment(const Face & f, double yPlane);
     Vertex findVertex(const Vertex & a, const Vertex & b, double yPlane);
 
     // rootQmlObject - allows interaction with QML
     QObject* rootQmlObject;
-
 
 signals:
     void fileNameChanged(const QString & arg);

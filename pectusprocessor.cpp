@@ -24,6 +24,12 @@ void PectusProcessor::processFile(){
           QStringList parts = line.split(" ");
           if(parts[0] == "v"){
               Vertex v(parts[1].toDouble(), parts[2].toDouble(), parts[3].toDouble());
+              double y = parts[2].toDouble();
+              if (y < miny) {
+                  miny = y;
+              } if (y > maxy) {
+                  maxy = y;
+              }
               vertices.push_back(v);
           }
           else if(parts[0] == "vt"){
@@ -199,6 +205,14 @@ Vertex PectusProcessor::findVertex(const Vertex & a, const Vertex & b, double yP
     double xcross = a.x - ((a.y - yPlane) / (a.y - b.y) * (a.x - b.x));
     double zcross = a.z - ((a.y - yPlane) / (a.y - b.y) * (a.z - b.z));
     return Vertex(xcross, yPlane, zcross);
+}
+
+double PectusProcessor:: getMaxY() {
+    return maxy;
+}
+
+double PectusProcessor:: getMinY() {
+    return miny;
 }
 
 //void PectusProcessor::createSurfaceModel(const QVector<Vertex> & vertices, const QVector<Face> & faces) {

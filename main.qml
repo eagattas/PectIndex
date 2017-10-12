@@ -59,14 +59,21 @@ ApplicationWindow {
         title: "Settings"
 
         contentItem: Rectangle {
-            implicitWidth: 400
-            implicitHeight: 100
+            implicitWidth: 600
+            implicitHeight: 400
+
+            Text {
+                id: modelColorLabel
+                text: qsTr("Model Color:")
+            }
+
             Button{
                 id: greenModelButton
                 width: 40
                 height: 20
                 text: "GREEN"
-                anchors.leftMargin: 10
+                anchors.left: modelColorLabel.right
+                anchors.leftMargin: 5
                 onClicked: {
                     settings.modelColor = Qt.rgba(0.0, 0.6, 0.0, 1.0)
                 }
@@ -102,6 +109,19 @@ ApplicationWindow {
                     text: "GRAY"
                     onClicked: {
                         settings.modelColor = Qt.rgba(0.6, 0.6, 0.6, 1.0)
+                    }
+                }
+
+                Button{
+                    id: closeSettings
+                    width: 40
+                    height: 20
+                    anchors.bottom: parent.bottom
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottomMargin: 5
+                    text: "Close"
+                    onClicked: {
+                        settingsDialog.close()
                     }
                 }
             }
@@ -234,24 +254,27 @@ ApplicationWindow {
             }
 
             Text {
-                id: sliceRangeLabel
-                text: qsTr("Slice Range:")
+                id: sliceLabel
+                text: qsTr("Slice:")
                 anchors.top: sliderZoom.bottom
                 anchors.left: parent.left
             }
 
             Slider {
-                id: sliceRangeSlider
+                id: sliceSlider
                 width: parent.width
-                anchors.top: sliceRangeLabel.bottom
-                minimumValue: 0
-                maximumValue: 1
+                anchors.top: sliceLabel.bottom
+                minimumValue: myProcessor.getMinY()
+                maximumValue: myProcessor.getMaxY()
+                onValueChanged: {
+                    myProcessor.calculateIntersection(sliceSlider.value)
+                }
             }
 
             Text {
                 id: sliceRangeAmount
                 text: qsTr("Range Amount:")
-                anchors.top: sliceRangeSlider.bottom
+                anchors.top: sliceSlider.bottom
                 anchors.left: parent.left
             }
 
@@ -381,20 +404,13 @@ ApplicationWindow {
                         myProcessor.drawLineSegments()
                    }
                 }
-
-
             }
 
             SliceCanvas {
                 id: sliceCanvas
                 objectName: "canvas"
                 anchors.fill: parent
-
-
-
-
             }
-
         }
 
 
