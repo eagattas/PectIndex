@@ -53,7 +53,6 @@ void PectusProcessor::processFile(){
           }
        }
        inputFile.close();
-       this->calculateIntersection(0.3);
     }
     else{
         qDebug() << QString("Not open");
@@ -107,7 +106,9 @@ QString PectusProcessor::getFileName(){
 }
 
 void PectusProcessor::calculateIntersection(double yPlane){
+    qDebug() << yPlane;
     QVector<Face> intersectedFaces;
+    sliceSegments.clear();
 
     for(int i = 0; i < faces.size(); i++){
         bool above = false, below = false;
