@@ -8,7 +8,11 @@ PectusProcessor::PectusProcessor(QObject *parent) : QObject(parent), m_fileName(
 }
 
 void PectusProcessor::setFileName(const QString & filename){
+#if defined(Q_OS_WIN)
     QString newname = filename.right(filename.size() - 8);//removes file:///
+#else
+    QString newname = filename.right(filename.size() - 7);
+#endif
     m_fileName = newname;
     processFile();
 }
