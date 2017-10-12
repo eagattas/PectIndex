@@ -5,11 +5,11 @@
 #include <QDebug>
 #include <limits>
 
-//#include <QtDataVisualization/Q3DSurface>
-//#include <QtDataVisualization/QSurfaceDataProxy>
-//#include <QtDataVisualization/QHeightMapSurfaceDataProxy>
-//#include <QtDataVisualization/QSurface3DSeries>
-//#include <QtWidgets/QSlider>
+#include <QtDataVisualization/Q3DSurface>
+#include <QtDataVisualization/QSurfaceDataProxy>
+#include <QtDataVisualization/QHeightMapSurfaceDataProxy>
+#include <QtDataVisualization/QSurface3DSeries>
+#include <QtWidgets/QSlider>
 
 struct Vertex{
     double x,y,z;
@@ -43,7 +43,7 @@ public:
     QString getFileName();
     void processFile();
     void setRootQmlObject(QObject* obj);
-    //void createSurfaceModel(const QVector<Vertex> & vertices, const QVector<Face> & faces);
+    void createSurfaceModel(const QVector<Vertex> & vertices, const QVector<Face> & faces);
 
     Q_INVOKABLE void drawLineSegments();
 
