@@ -1,4 +1,4 @@
-QT += 3dcore 3drender 3dinput 3dquick qml quick 3dquickextras
+QT += 3dcore 3drender 3dinput 3dquick qml quick 3dquickextras datavisualization
 CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
