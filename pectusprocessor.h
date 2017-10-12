@@ -4,6 +4,14 @@
 #include <QObject>
 #include <QDebug>
 
+#include <QtDataVisualization/Q3DSurface>
+#include <QtDataVisualization/QSurfaceDataProxy>
+#include <QtDataVisualization/QHeightMapSurfaceDataProxy>
+#include <QtDataVisualization/QSurface3DSeries>
+#include <QtWidgets/QSlider>
+
+using namespace QtDataVisualization;
+
 struct Vertex{
     double x,y,z;
     Vertex(double xx, double yy, double zz) : x(xx), y(yy), z(zz) {}
@@ -36,6 +44,7 @@ public:
     QString getFileName();
     void processFile();
     void setRootQmlObject(QObject* obj);
+    //void createSurfaceModel(const QVector<Vertex> & vertices, const QVector<Face> & faces);
 
     Q_INVOKABLE void drawLineSegments();
 
