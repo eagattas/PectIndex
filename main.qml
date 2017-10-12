@@ -264,10 +264,10 @@ ApplicationWindow {
                 id: sliceSlider
                 width: parent.width
                 anchors.top: sliceLabel.bottom
-                minimumValue: myProcessor.getMinY()
-                maximumValue: myProcessor.getMaxY()
+                minimumValue: 0
+                maximumValue: 1
                 onValueChanged: {
-                    myProcessor.calculateIntersection(sliceSlider.value)
+
                 }
             }
 
@@ -401,6 +401,7 @@ ApplicationWindow {
                    id: plotLine
                    text: "Plot Lines"
                    onClicked: {
+                        myProcessor.calculateIntersection(myProcessor.getMinY() + sliceSlider.value*(myProcessor.getMaxY() - myProcessor.getMinY()))
                         myProcessor.drawLineSegments()
                    }
                 }
