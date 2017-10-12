@@ -390,6 +390,21 @@ ApplicationWindow {
                 anchors.bottomMargin: 5
                 spacing: 3
                 Button {
+                    id: pen
+                    text: "Pen"
+                    onClicked: {
+                        sliceCanvas.mode = 0
+                    }
+                }
+                Button {
+                    id: eraser
+                    text: "Eraser"
+                    onClicked: {
+                        sliceCanvas.mode = 1
+                    }
+                }
+
+                Button {
                    id: clear
                    text: "Clear"
                    onClicked: {
@@ -403,6 +418,7 @@ ApplicationWindow {
                         myProcessor.drawLineSegments()
                    }
                 }
+
 
             }
 
