@@ -1,6 +1,7 @@
 #include "pectusprocessor.h"
 #include <QFile>
-
+#include <limits>
+#include <cmath>
 
 PectusProcessor::PectusProcessor(QObject *parent) : QObject(parent), m_fileName(""), vertices(), faces(){
 
@@ -56,21 +57,39 @@ void PectusProcessor::setRootQmlObject(QObject *obj)
 
 void PectusProcessor::drawLineSegments()
 {
-    QVector<double> x_start = {50, 100, 150};
-    QVector<double> y_start = {50, 100, 150};
-    QVector<double> x_end = {75, 125, 175};
-    QVector<double> y_end = {75, 125, 175};
-
     QObject *canvas = rootQmlObject->findChild<QObject*>("canvas");
 
-    for (int i = 0; i <sliceSegments.size(); i++) {
-        QVariant returnedValue;
+    for (int i = 0; i < sliceSegments.size(); i++) {
+
         QMetaObject::invokeMethod(canvas, "drawLine",
-            Q_RETURN_ARG(QVariant, returnedValue),
             Q_ARG(QVariant, sliceSegments[i].first.x*750), Q_ARG(QVariant, sliceSegments[i].first.z*750),
             Q_ARG(QVariant, sliceSegments[i].second.x*750), Q_ARG(QVariant, sliceSegments[i].second.z*750));
+    }
+
+    // fill in the gaps between the segments
+    for (int i = 0; i < sliceSegments.size() - 1; i++) {
+        double lowestDist = std::numeric_limits<double>::infinity();
+        int lowestIndex = std::numeric_limits<int>::max();
+
+        for (int j = 0; j < sliceSegments.size(); j++) {
+            if (j == i) continue;
+
+            double xDiff = std::fabs(sliceSegments[i].second.x - sliceSegments[j].first.x);
+            double zDiff = std::fabs(sliceSegments[i].second.z - sliceSegments[j].first.z);
+
+            double dist = (xDiff * xDiff) + (zDiff * zDiff);
+            if (dist < lowestDist) {
+                lowestDist = dist;
+                lowestIndex = j;
+            }
+        }
+
+        QMetaObject::invokeMethod(canvas, "drawLine",
+            Q_ARG(QVariant, sliceSegments[i].second.x*750), Q_ARG(QVariant, sliceSegments[i].second.z*750),
+            Q_ARG(QVariant, sliceSegments[lowestIndex].first.x*750), Q_ARG(QVariant, sliceSegments[lowestIndex].first.z*750));
 
     }
+
 }
 
 QString PectusProcessor::getFileName(){
