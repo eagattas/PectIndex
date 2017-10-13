@@ -27,8 +27,8 @@ void PectusProcessor::processFile(){
           QString line = in.readLine();
           QStringList parts = line.split(" ");
           if(parts[0] == "v"){
-              Vertex v(parts[1].toDouble(), parts[2].toDouble(), parts[3].toDouble());
-              double y = parts[2].toDouble();
+              double x = parts[1].toDouble(), y = parts[2].toDouble(), z = parts[3].toDouble();
+              Vertex v(x, y, z);
               if (y < miny) {
                   miny = y;
               } if (y > maxy) {
@@ -67,37 +67,55 @@ void PectusProcessor::setRootQmlObject(QObject *obj)
 void PectusProcessor::drawLineSegments()
 {
     QObject *canvas = rootQmlObject->findChild<QObject*>("canvas");
-
+    double midpoint = (minx.x + maxx.x) / 2;
+    Vertex v1, v2;//v1 and v2 will be two vertices that have the same x value (+- .01)
+                 //as the midpoint of the horizontal distance, one will be at top of chest, one at bottom
     for (int i = 0; i < sliceSegments.size(); i++) {
-
+        if((sliceSegments[i].first.x < midpoint && sliceSegments[i].first.x + .01 > midpoint) ||
+           (sliceSegments[i].first.x > midpoint && sliceSegments[i].first.x - .01 < midpoint)){
+            if(v1.x != 0)
+                v2 = sliceSegments[i].first;
+            else v1 = sliceSegments[i].first;
+            qDebug() << i;
+        }
         QMetaObject::invokeMethod(canvas, "drawLine",
             Q_ARG(QVariant, sliceSegments[i].first.x*750), Q_ARG(QVariant, sliceSegments[i].first.z*750),
             Q_ARG(QVariant, sliceSegments[i].second.x*750), Q_ARG(QVariant, sliceSegments[i].second.z*750));
     }
 
+    //NEED TO REWRITE THIS ALGORITHM TO ONLY CHECK FOR CLOSEST VERTEX THAT HASN"T BEEN VISITED YET, THEN IT CAN FORM A CLOSED SHAPE
     // fill in the gaps between the segments
-    for (int i = 0; i < sliceSegments.size() - 1; i++) {
-        double lowestDist = std::numeric_limits<double>::infinity();
-        int lowestIndex = std::numeric_limits<int>::max();
+//    for (int i = 0; i < sliceSegments.size() - 1; i++) {
+//        double lowestDist = std::numeric_limits<double>::infinity();
+//        int lowestIndex = std::numeric_limits<int>::max();
 
-        for (int j = 0; j < sliceSegments.size(); j++) {
-            if (j == i) continue;
+//        for (int j = 0; j < sliceSegments.size(); j++) {
+//            if (j == i) continue;
 
-            double xDiff = std::fabs(sliceSegments[i].second.x - sliceSegments[j].first.x);
-            double zDiff = std::fabs(sliceSegments[i].second.z - sliceSegments[j].first.z);
+//            double xDiff = std::fabs(sliceSegments[i].second.x - sliceSegments[j].first.x);
+//            double zDiff = std::fabs(sliceSegments[i].second.z - sliceSegments[j].first.z);
 
-            double dist = (xDiff * xDiff) + (zDiff * zDiff);
-            if (dist < lowestDist) {
-                lowestDist = dist;
-                lowestIndex = j;
-            }
-        }
+//            double dist = (xDiff * xDiff) + (zDiff * zDiff);
+//            if (dist < lowestDist) {
+//                lowestDist = dist;
+//                lowestIndex = j;
+//            }
+//        }
 
-        QMetaObject::invokeMethod(canvas, "drawLine",
-            Q_ARG(QVariant, sliceSegments[i].second.x*750), Q_ARG(QVariant, sliceSegments[i].second.z*750),
-            Q_ARG(QVariant, sliceSegments[lowestIndex].first.x*750), Q_ARG(QVariant, sliceSegments[lowestIndex].first.z*750));
+//        QMetaObject::invokeMethod(canvas, "drawLine",
+//            Q_ARG(QVariant, sliceSegments[i].second.x*750), Q_ARG(QVariant, sliceSegments[i].second.z*750),
+//            Q_ARG(QVariant, sliceSegments[lowestIndex].first.x*750), Q_ARG(QVariant, sliceSegments[lowestIndex].first.z*750));
 
-    }
+//    }
+
+    QMetaObject::invokeMethod(canvas, "drawLine",
+        Q_ARG(QVariant, minx.x*750), Q_ARG(QVariant, minx.z*750),
+        Q_ARG(QVariant, maxx.x*750), Q_ARG(QVariant, maxx.z*750));
+
+    QMetaObject::invokeMethod(canvas, "drawLine",
+        Q_ARG(QVariant, v1.x*750), Q_ARG(QVariant, v1.z*750),
+        Q_ARG(QVariant, v2.x*750), Q_ARG(QVariant, v2.z*750));
+
 
 }
 
@@ -106,7 +124,6 @@ QString PectusProcessor::getFileName(){
 }
 
 void PectusProcessor::calculateIntersection(double yPlane){
-    qDebug() << yPlane;
     QVector<Face> intersectedFaces;
     sliceSegments.clear();
 
@@ -130,9 +147,37 @@ void PectusProcessor::calculateIntersection(double yPlane){
             intersectedFaces.push_back(faces[i]);
         }
     }
+
+    minx.x = std::numeric_limits<double>::max();
+    minz.z = std::numeric_limits<double>::max();
+    maxx.x = std::numeric_limits<double>::min();
+    maxz.z = std::numeric_limits<double>::min();
+
+
     //need to find intersection on each face now
     for (int i = 0; i < intersectedFaces.size(); i++){
-        sliceSegments.push_back(findSegment(intersectedFaces[i], yPlane));
+        QPair<Vertex, Vertex> segment = findSegment(intersectedFaces[i], yPlane);
+        sliceSegments.push_back(segment);
+        if (segment.first.x < minx.x) {
+            minx = segment.first;
+        } if (segment.first.x > maxx.x) {
+            maxx = segment.first;
+        }
+        if (segment.second.x < minx.x) {
+            minx = segment.second;
+        } if (segment.first.x > maxx.x) {
+            maxx = segment.second;
+        }
+        if (segment.first.z < minz.z) {
+            minz = segment.first;
+        } if (segment.first.z > maxz.z) {
+            maxz = segment.first;
+        }
+        if (segment.second.z < minz.z) {
+            minz = segment.second;
+        } if (segment.second.z > maxz.z) {
+            maxz = segment.second;
+        }
     }
     // Now, need to graph segments in 2D space.
 }

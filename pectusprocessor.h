@@ -58,6 +58,7 @@ private:
     QVector<Texture> textures;
     QVector<Face> faces;
     QVector<QPair<Vertex, Vertex>> sliceSegments;
+    Vertex minx, maxx, minz, maxz;
     double miny = std::numeric_limits<double>::max();
     double maxy = std::numeric_limits<double>::min();
 
