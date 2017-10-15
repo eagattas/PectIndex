@@ -59,73 +59,155 @@ ApplicationWindow {
         title: "Settings"
 
         contentItem: Rectangle {
-            implicitWidth: 600
-            implicitHeight: 400
+            implicitWidth: 500
+            implicitHeight: 150
+            color: "lightGray"
 
-            Text {
-                id: modelColorLabel
-                text: qsTr("Model Color:")
-            }
+            Row {
+                id: modelColorRow
+                spacing: 5
+                anchors.top: parent.top
+                anchors.topMargin: 20
+                anchors.left: parent.left
+                anchors.leftMargin: 20
 
-            Button{
-                id: greenModelButton
-                width: 40
-                height: 20
-                text: "GREEN"
-                anchors.left: modelColorLabel.right
-                anchors.leftMargin: 5
-                onClicked: {
-                    settings.modelColor = Qt.rgba(0.0, 0.6, 0.0, 1.0)
+                Text {
+                    text: qsTr("Model Color:")
                 }
-            }
-            Button{
-                id: blueModelButton
-                width: 40
-                height: 20
-                anchors.left: greenModelButton.right
-                anchors.leftMargin: 10
-                text: "BLUE"
-                onClicked: {
-                    settings.modelColor = Qt.rgba(0.0, 0.0, 0.6, 1.0)
-                }
-            }
-            Button{
-                id: redModelButton
-                width: 40
-                height: 20
-                anchors.left: blueModelButton.right
-                anchors.leftMargin: 10
-                text: "RED"
-                onClicked: {
-                    settings.modelColor = Qt.rgba(0.6, 0.0, 0.0, 1.0)
-                }
-            }
+
                 Button{
-                    id: grayModelButton
-                    width: 40
+                    width: 50
                     height: 20
-                    anchors.left: redModelButton.right
-                    anchors.leftMargin: 10
-                    text: "GRAY"
+                    text: "Green"
                     onClicked: {
-                        settings.modelColor = Qt.rgba(0.6, 0.6, 0.6, 1.0)
+                        settings.modelColor = "green"
                     }
                 }
 
                 Button{
-                    id: closeSettings
-                    width: 40
+                    width: 50
                     height: 20
-                    anchors.bottom: parent.bottom
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.bottomMargin: 5
-                    text: "Close"
+                    text: "Blue"
                     onClicked: {
-                        settingsDialog.close()
+                        settings.modelColor = "blue"
+                    }
+                }
+
+                Button{
+                    width: 50
+                    height: 20
+                    text: "Red"
+                    onClicked: {
+                        settings.modelColor = "red"
+                    }
+                }
+
+                Button{
+                    width: 50
+                    height: 20
+                    text: "Teal"
+                    onClicked: {
+                        settings.modelColor = "teal"
+                    }
+                }
+
+                Button{
+                    width: 50
+                    height: 20
+                    text: "Yellow"
+                    onClicked: {
+                        settings.modelColor = "yellow"
+                    }
+                }
+
+                Button{
+                    width: 50
+                    height: 20
+                    text: "Pink"
+                    onClicked: {
+                        settings.modelColor = "pink"
+                    }
+                }
+
+                Button{
+                    width: 50
+                    height: 20
+                    text: "Gray"
+                    onClicked: {
+                        settings.modelColor = "gray"
                     }
                 }
             }
 
+            Row {
+                id: drawingColorRow
+                spacing: 5
+                anchors.top: modelColorRow.bottom
+                anchors.topMargin: 20
+                anchors.left: parent.left
+                anchors.leftMargin: 20
+
+                Text {
+                    text: qsTr("Canvas Drawing Color:")
+                }
+
+                Button {
+                    width: 50
+                    height: 20
+                    text: "Black"
+                    onClicked: {
+                        sliceCanvas.sliceColor = "black"
+                    }
+                }
+                Button {
+                    width: 50
+                    height: 20
+                    text: "Blue"
+                    onClicked: {
+                        sliceCanvas.sliceColor = "blue"
+                    }
+                }
+                Button {
+                    width: 50
+                    height: 20
+                    text: "Red"
+                    onClicked: {
+                        sliceCanvas.sliceColor = "red"
+                    }
+                }
+                Button {
+                    width: 50
+                    height: 20
+                    text: "Green"
+                    onClicked: {
+                        sliceCanvas.sliceColor = "darkGreen"
+                    }
+                }
+                Button {
+                    width: 50
+                    height: 20
+                    text: "Purple"
+                    onClicked: {
+                        sliceCanvas.sliceColor = "purple"
+                    }
+                }
+
+            }
+
+
+            Button{
+                id: closeSettings
+                width: 50
+                height: 20
+                anchors.bottom: parent.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottomMargin: 20
+                text: "Close"
+                onClicked: {
+                    settingsDialog.close()
+                }
+            }
+        }
     }
 
 
