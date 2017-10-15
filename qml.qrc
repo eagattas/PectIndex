@@ -5,4 +5,9 @@
         <file>NotesTab.qml</file>
         <file>SliceCanvas.qml</file>
     </qresource>
+    <qresource prefix="/QtQuick/Controls/Shaders">
+        <file>blur.frag</file>
+        <file>blur.vert</file>
+        <file>glow.frag</file>
+    </qresource>
 </RCC>
