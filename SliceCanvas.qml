@@ -5,6 +5,7 @@ Canvas {
     property int lastX: 0
     property int lastY: 0
     property int mode: 0
+    property color sliceColor: "blue"
 
     function clear() {
         var ctx = getContext("2d");
@@ -30,7 +31,7 @@ Canvas {
         if (mode == 0) {
             ctx.globalCompositeOperation="source-over";
             ctx.lineWidth = 2
-            ctx.strokeStyle = "blue"
+            ctx.strokeStyle = root.sliceColor
             ctx.beginPath()
             ctx.moveTo(lastX, lastY)
             ctx.lineTo(area.mouseX, area.mouseY)
