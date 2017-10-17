@@ -52,6 +52,9 @@ public:
     Q_INVOKABLE double getMaxY();
     Q_INVOKABLE double getMinY();
 
+    // Erases arms that are completely disconnected from the drawing
+    Q_INVOKABLE void eraseArms(int canvasWidth, int canvasHeight);
+
 private:
     QString m_fileName;
     QVector<Vertex> vertices, normals;
@@ -61,6 +64,8 @@ private:
     Vertex minx, maxx, minz, maxz;
     double miny = std::numeric_limits<double>::max();
     double maxy = std::numeric_limits<double>::min();
+
+    int getArmStart(int canvasWidth, bool isLeft);
 
     QPair<Vertex, Vertex> findSegment(const Face & f, double yPlane);
     Vertex findVertex(const Vertex & a, const Vertex & b, double yPlane);
