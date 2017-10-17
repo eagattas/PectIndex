@@ -33,15 +33,11 @@ ApplicationWindow {
             }
 
             Menu {
-                title: "Edit"
-                MenuItem { text: "Cut" }
-                MenuItem { text: "Copy" }
-                MenuItem { text: "Paste" }
-            }
-
-            Menu {
                 title: "Help"
-                MenuItem { text: "Tutorial" }
+                MenuItem {
+                    text: "Tutorial"
+                    onTriggered: tutorial.open()
+                }
                 MenuItem { text: "Project ReadME" }
             }
             Menu {
@@ -194,7 +190,6 @@ ApplicationWindow {
 
             }
 
-
             Button{
                 id: closeSettings
                 width: 50
@@ -210,6 +205,61 @@ ApplicationWindow {
         }
     }
 
+    Dialog {
+        id: tutorial
+        visible: false
+        title: "Tutorial"
+        contentItem: Rectangle {
+            id: tutorialContainer
+            implicitWidth: 800
+            implicitHeight: 500
+            color: "lightGray"
+
+            Rectangle {
+                height: parent.height - 50
+                width: parent.width
+                color: "lightGrey"
+                Text {
+                    id: tutorialContent
+                    width: parent.width
+                    anchors.top: parent.top
+                    wrapMode: Text.WordWrap
+                    text: "<h2>PectIndex Tutorial</h2><h4>Opening a File</h4>" +
+                          "<p>When opening a file in PectIndex you can either go the the menu and " +
+                          "select File>Open or you can select the [...] button on the right side of the screen." +
+                          "  Once either option is completed, a dialog box will appear asking you to select a file" +
+                          "  (This application only supports '.obj' files).  Once a file is selected, click the 'Open' " +
+                          "button on the dialog box and then click the 'Render 3D Scan' button which is under the file name.</p>" +
+                          "<h4>3D Viewer</h4><p>Once the 3D image is rendered, it will appear in the 3D Viewer on the left of " +
+                          "screen.  If the mouse is over the 3D Viewing area you will be able to click to change the position " +
+                          "of the model or you can scroll to zoom in and zoom out.  Furthermore, there are sliders on the right " +
+                          "of the 3D Viewer that contol rotation in the X, Y, and Z axes and zoom.  If you would like to change " +
+                          "the color of the 3D model, this can be done in the settings page.</p><h4>Canvas</h4><p>The canvas is " +
+                          "located in the bottom right of the application, and can be used to view the slices of the 3D model." +
+                          "  To view a slice use the Slice slider found above the Canvas Area and then click Plot Lines.  " +
+                          "To draw on the Canvas area, click the Pen button found above it, and then left-click to draw.  " +
+                          "To part of the slice or any lines that are drawn, you can click the eraser button and left-click "+
+                          "to erase any of the lines.  To clear all of the drawn lines on the canvas, click the clear button.  "+
+                          "You can change the color of the pen in Settings.</p><h4>Taking Notes</h4><p> To take notes, click the " +
+                          "Notes button on the top right of the application.  Left-click the text area that appears after the button " +
+                          "is clicked, and begin typing.  Click the notes button to disable the text area."
+                }
+            }
+
+            Button{
+                id: closeTutorial
+                width: 50
+                height: 20
+                anchors.bottom: parent.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottomMargin: 20
+                text: "Ok"
+                onClicked: {
+                    tutorial.close()
+                }
+            }
+        }
+    }
 
     Settings {
         id: settings
@@ -353,20 +403,20 @@ ApplicationWindow {
                 }
             }
 
-            Text {
-                id: sliceRangeAmount
-                text: qsTr("Range Amount:")
-                anchors.top: sliceSlider.bottom
-                anchors.left: parent.left
-            }
+//            Text {
+//                id: sliceRangeAmount
+//                text: qsTr("Range Amount:")
+//                anchors.top: sliceSlider.bottom
+//                anchors.left: parent.left
+//            }
 
-            Slider {
-                id: sliceRangeAmountSlider
-                width: parent.width
-                anchors.top: sliceRangeAmount.bottom
-                minimumValue: 0
-                maximumValue: 1
-            }
+//            Slider {
+//                id: sliceRangeAmountSlider
+//                width: parent.width
+//                anchors.top: sliceRangeAmount.bottom
+//                minimumValue: 0
+//                maximumValue: 1
+//            }
 
         }
 
@@ -495,8 +545,6 @@ ApplicationWindow {
                 anchors.fill: parent
             }
         }
-
-
 
         NotesTab {
             x: background.width - 80
