@@ -38,7 +38,7 @@ ApplicationWindow {
                     text: "Tutorial"
                     onTriggered: tutorial.open()
                 }
-                MenuItem { text: "Project ReadME" }
+                //MenuItem { text: "Project ReadME" }
             }
             Menu {
                 title: "Preferences"
