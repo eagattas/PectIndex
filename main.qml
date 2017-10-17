@@ -50,7 +50,24 @@ ApplicationWindow {
                     text: "Settings"
                     onTriggered: settingsDialog.open()
                 }
+                MenuItem {
+                    text: "Color"
+                    onTriggered: colorDialog.open()
+                }
             }
+    }
+
+    ColorDialog {
+        id: colorDialog
+
+        onAccepted: {
+            sliceCanvas.sliceColor = color
+        }
+
+        onRejected: {
+
+        }
+
     }
 
     Dialog {
@@ -80,7 +97,7 @@ ApplicationWindow {
                     height: 20
                     text: "Green"
                     onClicked: {
-                        settings.modelColor = "green"
+                        chestModel.modelColor = "green"
                     }
                 }
 
@@ -89,7 +106,7 @@ ApplicationWindow {
                     height: 20
                     text: "Blue"
                     onClicked: {
-                        settings.modelColor = "blue"
+                        chestModel.modelColor = "blue"
                     }
                 }
 
@@ -98,7 +115,7 @@ ApplicationWindow {
                     height: 20
                     text: "Red"
                     onClicked: {
-                        settings.modelColor = "red"
+                        chestModel.modelColor = "red"
                     }
                 }
 
@@ -107,7 +124,7 @@ ApplicationWindow {
                     height: 20
                     text: "Teal"
                     onClicked: {
-                        settings.modelColor = "teal"
+                        chestModel.modelColor = "teal"
                     }
                 }
 
@@ -116,7 +133,7 @@ ApplicationWindow {
                     height: 20
                     text: "Yellow"
                     onClicked: {
-                        settings.modelColor = "yellow"
+                        chestModel.modelColor = "yellow"
                     }
                 }
 
@@ -125,7 +142,7 @@ ApplicationWindow {
                     height: 20
                     text: "Pink"
                     onClicked: {
-                        settings.modelColor = "pink"
+                        chestModel.modelColor = "pink"
                     }
                 }
 
@@ -134,7 +151,7 @@ ApplicationWindow {
                     height: 20
                     text: "Gray"
                     onClicked: {
-                        settings.modelColor = "gray"
+                        chestModel.modelColor = "gray"
                     }
                 }
             }
@@ -157,6 +174,7 @@ ApplicationWindow {
                     text: "Black"
                     onClicked: {
                         sliceCanvas.sliceColor = "black"
+
                     }
                 }
                 Button {
@@ -210,12 +228,6 @@ ApplicationWindow {
         }
     }
 
-
-    Settings {
-        id: settings
-        property color modelColor: Qt.rgba(0.6, 0.6, 0.6, 1.0)
-    }
-
     Rectangle {
         id: background
         anchors.fill: parent
@@ -257,9 +269,9 @@ ApplicationWindow {
                 anchors.fill: parent
                 aspects: ["input", "logic"]
                 ChestModel {
+                    id: chestModel
                     scanSource: myViewer.renderStatus ? myViewer.scanFileName : ""
-                    modelColor: settings.modelColor
-
+                    modelColor: Qt.rgba(0.6, 0.6, 0.6, 1.0)
                 }
             }
         }
@@ -464,6 +476,7 @@ ApplicationWindow {
                         sliceCanvas.mode = 0
                     }
                 }
+
                 Button {
                     id: eraser
                     text: "Eraser"
@@ -485,6 +498,13 @@ ApplicationWindow {
                    onClicked: {
                         myProcessor.calculateIntersection(myProcessor.getMinY() + sliceSlider.value*(myProcessor.getMaxY() - myProcessor.getMinY()))
                         myProcessor.drawLineSegments()
+                   }
+                }
+                Button {
+                   id: eraseArms
+                   text: "Erase Arms"
+                   onClicked: {
+                        myProcessor.eraseArms(sliceCanvas.width, sliceCanvas.height)
                    }
                 }
             }
