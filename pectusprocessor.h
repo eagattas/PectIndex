@@ -35,11 +35,13 @@ class PectusProcessor : public QObject
 
     Q_OBJECT
     Q_PROPERTY(QString fileName READ getFileName NOTIFY fileNameChanged)
+    Q_PROPERTY(double hallerIndex READ getHallerIndex NOTIFY hallerIndexChanged)
 
 public:
 
     explicit PectusProcessor(QObject *parent = nullptr);
 
+    double hallerIndex = 0;
     QString getFileName();
     void processFile();
     void setRootQmlObject(QObject* obj);
@@ -51,6 +53,7 @@ public:
     Q_INVOKABLE void calculateIntersection(double yPlane);
     Q_INVOKABLE double getMaxY();
     Q_INVOKABLE double getMinY();
+    Q_INVOKABLE double getHallerIndex();
 
     // Erases arms that are completely disconnected from the drawing
     Q_INVOKABLE void eraseArms(int canvasWidth, int canvasHeight);
@@ -75,6 +78,7 @@ private:
 
 signals:
     void fileNameChanged(const QString & arg);
+    void hallerIndexChanged(const double & arg);
 
 public slots:
 

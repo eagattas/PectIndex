@@ -475,7 +475,7 @@ ApplicationWindow {
                 anchors.horizontalCenter: dialogHolder.horizontalCenter
                 width: 130
                 height: 20
-                text: "Render 3D Scan"
+                text: "Render 3D Model"
                 onClicked: {
                     myViewer.setScanFileName(myViewer.visibleFileName);
                     myViewer.renderScan();
@@ -563,6 +563,16 @@ ApplicationWindow {
                         myProcessor.eraseArms(sliceCanvas.width, sliceCanvas.height)
                    }
                 }
+
+            }
+
+            Text {
+                id: hallerIndex
+                text: "Haller Index: " + myProcessor.hallerIndex
+                anchors.right: sliceRect.right
+                anchors.rightMargin: 10
+                anchors.bottom: sliceRect.top
+                anchors.bottomMargin: 10
             }
 
             SliceCanvas {
