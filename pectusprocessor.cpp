@@ -23,6 +23,11 @@ void PectusProcessor::processFile(){
     QFile inputFile(m_fileName);
     if (inputFile.open(QIODevice::ReadOnly))
     {
+       // Clear out values from previous file
+       vertices.clear();
+       normals.clear();
+       textures.clear();
+       faces.clear();
        QTextStream in(&inputFile);
        while (!in.atEnd())
        {

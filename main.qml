@@ -453,9 +453,9 @@ ApplicationWindow {
                 id: fileNameInput
                 width: parent.width - 10
                 height: parent.height
-                text: myViewer.scanFileName
+                text: myViewer.visibleFileName
                 onAccepted: {
-                    myViewer.setScanFileName(this.text);
+                    myViewer.setVisibleFileName(this.text)
                 }
                 selectByMouse: true
                 layer.enabled: true
@@ -477,6 +477,7 @@ ApplicationWindow {
                 height: 20
                 text: "Render 3D Scan"
                 onClicked: {
+                    myViewer.setScanFileName(myViewer.visibleFileName);
                     myViewer.renderScan();
                     myProcessor.setFileName(fileDialog.fileUrl);
                 }
@@ -488,7 +489,7 @@ ApplicationWindow {
                 folder: shortcuts.home
                 nameFilters: ["3D Scan Files (*.obj)"]
                 onAccepted: {
-                    myViewer.setScanFileName(fileDialog.fileUrl);
+                    myViewer.setVisibleFileName(fileDialog.fileUrl);
                     this.close();
                 }
                 onRejected: {

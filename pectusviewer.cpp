@@ -5,6 +5,10 @@ PectusViewer::PectusViewer(QObject *parent) : QObject(parent), m_scanFileName(""
 
 }
 
+QString PectusViewer::getVisibleFileName(){
+    return m_visibleFileName;
+}
+
 QString PectusViewer::getScanFileName(){
     return m_scanFileName;
 }
@@ -19,6 +23,13 @@ bool PectusViewer::getNotesActive(){
 
 QString PectusViewer::getNotes(){
     return m_notes;
+}
+
+void PectusViewer::setVisibleFileName(const QString &arg){
+    if (arg.endsWith(".obj")){
+        m_visibleFileName = arg;
+        emit visibleFileNameChanged(arg);
+    }
 }
 
 void PectusViewer::setScanFileName(const QString & arg){
