@@ -11,7 +11,7 @@ PectIndex is a desktop application for doctors to analyze scans of patients with
 
 ## Running the Program
 
-First, download the executable from this [https://drive.google.com/drive/folders/0BwjIAH_fBQ0Rb283cjJ5ZmFjM1U?usp=sharing](this link) (umich email required).
+First, download the executable from [this link (umich email required).](https://drive.google.com/drive/folders/0BwjIAH_fBQ0Rb283cjJ5ZmFjM1U?usp=sharing)
 
 Download the entire folder pectindex1 (right-click->download), then simply extract the zip file to any folder, and run the exectuable inside. If you notice that the graphics are not rendering well (can be the case for systems with no dedicated GPU), try downloading pectindex2, which uses a different OpenGL implementation. If you download pectindex2, the application must be in the same directory as the two provided .dll files.
 
@@ -19,7 +19,7 @@ Both pectindex1 and pectindex2 contain a folder with scans that you can use with
 
 From Source
 
-To run our program from the source, first you must download Qt from [https://www1.qt.io/download-open-source/?hsCtaTracking=f977210e-de67-475f-a32b-65cec207fd03%7Cd62710cd-e1db-46aa-8d4d-2f1c1ffdacea](this link)
+To run our program from the source, first you must download Qt from [this link.](https://www1.qt.io/download-open-source/?hsCtaTracking=f977210e-de67-475f-a32b-65cec207fd03%7Cd62710cd-e1db-46aa-8d4d-2f1c1ffdacea)
 
 Afterwards, clone this repo at https://github.com/eagattas/PectIndex.git
 
