@@ -15,7 +15,11 @@ Adi requested that we add a screenshot of our UI. A screenshot of our Alpha Rele
 Format: ![Alt Text](url)
 
 ## Running the Program
-From Source
+First, download the executable from [this link (umich email required).](https://drive.google.com/drive/folders/0BwjIAH_fBQ0Rb283cjJ5ZmFjM1U?usp=sharing)
+
+Download the entire folder pectindex1 (right-click->download), then simply extract the zip file to any folder, and run the exectuable inside.  The excutable can be found in the bin folder and the scans to upload to our application can be found the the scans folder.
+
+From Source (Mac and Windows):
 
 To run our program from the source, first you must download Qt from [this link.](https://www1.qt.io/download-open-source/?hsCtaTracking=f977210e-de67-475f-a32b-65cec207fd03%7Cd62710cd-e1db-46aa-8d4d-2f1c1ffdacea)
 
