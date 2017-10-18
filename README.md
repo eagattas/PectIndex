@@ -10,16 +10,13 @@ Team Members:
 PectIndex is a desktop application for doctors to analyze scans of patients with Pectus Excavatum deformities. It allows the doctor to upload a scan of a patient, render the image, and select a slice or range of slices to analyze for different medical indexes. The application is designed for Windows 10 only.
 
 ## Running the Program
-
-From Source:
-
-If you don't have Windows 10 or the above methods are not working, then you should download Qt and run it from source.
+From Source
 
 To run our program from the source, first you must download Qt from [this link.](https://www1.qt.io/download-open-source/?hsCtaTracking=f977210e-de67-475f-a32b-65cec207fd03%7Cd62710cd-e1db-46aa-8d4d-2f1c1ffdacea)
 
 Afterwards, clone this repo at https://github.com/eagattas/PectIndex.git
 
-Lastly, load the project in Qt (using pectindex.pro) and run it.
+Lastly, load the project in Qt (using pectindex.pro), build and run it.
 
 
 ## Tutorial:
