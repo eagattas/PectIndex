@@ -248,18 +248,24 @@ ApplicationWindow {
                           "  (This application only supports '.obj' files).  Once a file is selected, click the 'Open' " +
                           "button on the dialog box and then click the 'Render 3D Scan' button which is under the file name.</p>" +
                           "<h4>3D Viewer</h4><p>Once the 3D image is rendered, it will appear in the 3D Viewer on the left of " +
-                          "screen.  If the mouse is over the 3D Viewing area you will be able to click to change the position " +
+                          "screen.  If the mouse is over the 3D Viewing area you will be able to left-click to change the position " +
                           "of the model or you can scroll to zoom in and zoom out.  Furthermore, there are sliders on the right " +
                           "of the 3D Viewer that contol rotation in the X, Y, and Z axes and zoom.  If you would like to change " +
                           "the color of the 3D model, this can be done in the settings page.</p><h4>Canvas</h4><p>The canvas is " +
                           "located in the bottom right of the application, and can be used to view the slices of the 3D model." +
-                          "  To view a slice use the Slice slider found above the Canvas Area and then click Plot Lines.  " +
+                          "  To view a slice use the Slice slider found above the Canvas Area and then click Plot Slice.  " +
                           "To draw on the Canvas area, click the Pen button found above it, and then left-click to draw.  " +
-                          "To part of the slice or any lines that are drawn, you can click the eraser button and left-click "+
-                          "to erase any of the lines.  To clear all of the drawn lines on the canvas, click the clear button.  "+
+                          "To erase part of the slice or any lines that are drawn, you can click the eraser button and left-click "+
+                          "to erase.  To clear all of the drawn lines on the canvas, click the clear button.  "+
                           "You can change the color of the pen in Settings.</p><h4>Taking Notes</h4><p> To take notes, click the " +
                           "Notes button on the top right of the application.  Left-click the text area that appears after the button " +
-                          "is clicked, and begin typing.  Click the notes button to disable the text area."
+                          "is clicked, and begin typing.  Click the notes button to disable the text area.</p>" +
+                          "<h4>Erasing Arms</h4><p>After plotting the slice on the canvas, you may notice that the arms of the model " +
+                          "appear. To fix this issue, click on the Erase Arms button to remove them. " +
+                          "Currently, this button will only remove arms that are completely disconnected from the torso.</p>" +
+                          "<h4>Haller Index</h4><p>To generate the Haller Index for the slice (the width of the chest divided its depth), " +
+                          "click on the Haller Index button after you have selected your slice. Please note that this functionality it not " +
+                          "complete, and may be inaccurate due to arms."
                 }
             }
 
@@ -550,7 +556,7 @@ ApplicationWindow {
                 }
                 Button {
                    id: plotLine
-                   text: "Plot Lines"
+                   text: "Plot Slice"
                    onClicked: {
                         myProcessor.calculateIntersection(myProcessor.getMinY() + sliceSlider.value*(myProcessor.getMaxY() - myProcessor.getMinY()))
                         myProcessor.drawLineSegments()

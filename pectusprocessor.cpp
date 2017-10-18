@@ -115,14 +115,6 @@ void PectusProcessor::drawLineSegments()
 
 //    }
 
-    QMetaObject::invokeMethod(canvas, "drawLine",
-        Q_ARG(QVariant, minx.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, minx.z*CANVAS_DRAWING_FACTOR),
-        Q_ARG(QVariant, maxx.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, maxx.z*CANVAS_DRAWING_FACTOR));
-
-    QMetaObject::invokeMethod(canvas, "drawLine",
-        Q_ARG(QVariant, v1.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, v1.z*CANVAS_DRAWING_FACTOR),
-        Q_ARG(QVariant, v2.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, v2.z*CANVAS_DRAWING_FACTOR));
-
     hallerV1 = v1;
     hallerV2 = v2;
 
@@ -285,6 +277,17 @@ bool PectusProcessor::getHallerIndexVisible() {
 void PectusProcessor::calculateHallerIndex(){
     if (sliceSegments.isEmpty())
         return;
+
+    QObject *canvas = rootQmlObject->findChild<QObject*>("canvas");
+
+    QMetaObject::invokeMethod(canvas, "drawLine",
+        Q_ARG(QVariant, minx.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, minx.z*CANVAS_DRAWING_FACTOR),
+        Q_ARG(QVariant, maxx.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, maxx.z*CANVAS_DRAWING_FACTOR));
+
+    QMetaObject::invokeMethod(canvas, "drawLine",
+        Q_ARG(QVariant, hallerV1.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, hallerV1.z*CANVAS_DRAWING_FACTOR),
+        Q_ARG(QVariant, hallerV2.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, hallerV2.z*CANVAS_DRAWING_FACTOR));
+
     double horizontalDistance = std::sqrt(std::pow(maxx.x - minx.x, 2) + std::pow(maxx.z - minx.z, 2));
     double verticalDistance = std::sqrt(std::pow(hallerV2.x - hallerV1.x, 2) + std::pow(hallerV2.z - hallerV1.z, 2));
     hallerIndex = horizontalDistance / verticalDistance;

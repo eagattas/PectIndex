@@ -60,7 +60,6 @@ Canvas {
         onPressed: {
             root.lastX = mouseX
             root.lastY = mouseY
-            console.log("mouseX: " + mouseX + ", mouseY: " + mouseY)
         }
         onPositionChanged: {
             root.requestPaint()
