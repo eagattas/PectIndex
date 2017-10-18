@@ -123,11 +123,8 @@ void PectusProcessor::drawLineSegments()
         Q_ARG(QVariant, v1.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, v1.z*CANVAS_DRAWING_FACTOR),
         Q_ARG(QVariant, v2.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, v2.z*CANVAS_DRAWING_FACTOR));
 
-    double horizontalDistance = std::sqrt(std::pow(maxx.x - minx.x, 2) + std::pow(maxx.z - minx.z, 2));
-    double verticalDistance = std::sqrt(std::pow(v2.x - v1.x, 2) + std::pow(v2.z - v1.z, 2));
-    hallerIndex = horizontalDistance / verticalDistance;
-    hallerIndex = std::round(hallerIndex * 1000) / 1000;
-    emit hallerIndexChanged(hallerIndex);
+    hallerV1 = v1;
+    hallerV2 = v2;
 
 }
 
@@ -279,6 +276,22 @@ double PectusProcessor:: getMinY() {
 
 double PectusProcessor:: getHallerIndex() {
     return hallerIndex;
+}
+
+bool PectusProcessor::getHallerIndexVisible() {
+    return hallerIndexVisible;
+}
+
+void PectusProcessor::calculateHallerIndex(){
+    if (sliceSegments.isEmpty())
+        return;
+    double horizontalDistance = std::sqrt(std::pow(maxx.x - minx.x, 2) + std::pow(maxx.z - minx.z, 2));
+    double verticalDistance = std::sqrt(std::pow(hallerV2.x - hallerV1.x, 2) + std::pow(hallerV2.z - hallerV1.z, 2));
+    hallerIndex = horizontalDistance / verticalDistance;
+    hallerIndex = std::round(hallerIndex * 1000) / 1000;
+    emit hallerIndexChanged(hallerIndex);
+    hallerIndexVisible = true;
+    emit hallerIndexVisibleChanged(true);
 }
 
 void PectusProcessor::eraseArms(int canvasWidth, int canvasHeight)

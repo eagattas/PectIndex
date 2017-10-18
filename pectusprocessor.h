@@ -36,6 +36,7 @@ class PectusProcessor : public QObject
     Q_OBJECT
     Q_PROPERTY(QString fileName READ getFileName NOTIFY fileNameChanged)
     Q_PROPERTY(double hallerIndex READ getHallerIndex NOTIFY hallerIndexChanged)
+    Q_PROPERTY(bool hallerIndexVisible READ getHallerIndexVisible NOTIFY hallerIndexVisibleChanged)
 
 public:
 
@@ -54,6 +55,8 @@ public:
     Q_INVOKABLE double getMaxY();
     Q_INVOKABLE double getMinY();
     Q_INVOKABLE double getHallerIndex();
+    Q_INVOKABLE bool getHallerIndexVisible();
+    Q_INVOKABLE void calculateHallerIndex();
 
     // Erases arms that are completely disconnected from the drawing
     Q_INVOKABLE void eraseArms(int canvasWidth, int canvasHeight);
@@ -67,6 +70,9 @@ private:
     Vertex minx, maxx, minz, maxz;
     double miny = std::numeric_limits<double>::max();
     double maxy = std::numeric_limits<double>::min();
+    bool hallerIndexVisible = false;
+    Vertex hallerV1 = Vertex(0, 0, 0);
+    Vertex hallerV2 = Vertex(0, 0, 0);
 
     int getArmStart(int canvasWidth, bool isLeft);
 
@@ -79,6 +85,7 @@ private:
 signals:
     void fileNameChanged(const QString & arg);
     void hallerIndexChanged(const double & arg);
+    void hallerIndexVisibleChanged(const bool arg);
 
 public slots:
 

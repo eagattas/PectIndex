@@ -563,16 +563,22 @@ ApplicationWindow {
                         myProcessor.eraseArms(sliceCanvas.width, sliceCanvas.height)
                    }
                 }
+                Button {
+                    id: hallerIndex
+                    text: "Haller Index"
+                    onClicked: {
+                        myProcessor.calculateHallerIndex();
+                    }
+                }
 
             }
-
             Text {
-                id: hallerIndex
+                id: hallerText
+                visible: myProcessor.hallerIndexVisible
                 text: "Haller Index: " + myProcessor.hallerIndex
-                anchors.right: sliceRect.right
-                anchors.rightMargin: 10
-                anchors.bottom: sliceRect.top
-                anchors.bottomMargin: 10
+                anchors.right: sliceButtonRow.right
+                anchors.bottom: sliceButtonRow.top
+                anchors.topMargin: 10
             }
 
             SliceCanvas {
