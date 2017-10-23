@@ -44,7 +44,7 @@ ApplicationWindow {
                 title: "Preferences"
                 MenuItem {
                     text: "Settings"
-                    onTriggered: settingsDialog.open()
+                    onTriggered: settingsDialogContainer.open()
                 }
                 MenuItem {
                     text: "Color"
@@ -67,161 +67,19 @@ ApplicationWindow {
     }
 
     Dialog {
-        id: settingsDialog
+        id: settingsDialogContainer
         visible: false
         title: "Settings"
-
-        contentItem: Rectangle {
-            implicitWidth: 500
-            implicitHeight: 150
-            color: "lightGray"
-
-            Row {
-                id: modelColorRow
-                spacing: 5
-                anchors.top: parent.top
-                anchors.topMargin: 20
-                anchors.left: parent.left
-                anchors.leftMargin: 20
-
-                Text {
-                    text: qsTr("Model Color:")
-                }
-
-                Button{
-                    width: 50
-                    height: 20
-                    text: "Green"
-                    onClicked: {
-                        chestModel.modelColor = "green"
-                    }
-                }
-
-                Button{
-                    width: 50
-                    height: 20
-                    text: "Blue"
-                    onClicked: {
-                        chestModel.modelColor = "blue"
-                    }
-                }
-
-                Button{
-                    width: 50
-                    height: 20
-                    text: "Red"
-                    onClicked: {
-                        chestModel.modelColor = "red"
-                    }
-                }
-
-                Button{
-                    width: 50
-                    height: 20
-                    text: "Teal"
-                    onClicked: {
-                        chestModel.modelColor = "teal"
-                    }
-                }
-
-                Button{
-                    width: 50
-                    height: 20
-                    text: "Yellow"
-                    onClicked: {
-                        chestModel.modelColor = "yellow"
-                    }
-                }
-
-                Button{
-                    width: 50
-                    height: 20
-                    text: "Pink"
-                    onClicked: {
-                        chestModel.modelColor = "pink"
-                    }
-                }
-
-                Button{
-                    width: 50
-                    height: 20
-                    text: "Gray"
-                    onClicked: {
-                        chestModel.modelColor = "gray"
-                    }
-                }
-            }
-
-            Row {
-                id: drawingColorRow
-                spacing: 5
-                anchors.top: modelColorRow.bottom
-                anchors.topMargin: 20
-                anchors.left: parent.left
-                anchors.leftMargin: 20
-
-                Text {
-                    text: qsTr("Canvas Drawing Color:")
-                }
-
-                Button {
-                    width: 50
-                    height: 20
-                    text: "Black"
-                    onClicked: {
-                        sliceCanvas.sliceColor = "black"
-
-                    }
-                }
-                Button {
-                    width: 50
-                    height: 20
-                    text: "Blue"
-                    onClicked: {
-                        sliceCanvas.sliceColor = "blue"
-                    }
-                }
-                Button {
-                    width: 50
-                    height: 20
-                    text: "Red"
-                    onClicked: {
-                        sliceCanvas.sliceColor = "red"
-                    }
-                }
-                Button {
-                    width: 50
-                    height: 20
-                    text: "Green"
-                    onClicked: {
-                        sliceCanvas.sliceColor = "darkGreen"
-                    }
-                }
-                Button {
-                    width: 50
-                    height: 20
-                    text: "Purple"
-                    onClicked: {
-                        sliceCanvas.sliceColor = "purple"
-                    }
-                }
-
-            }
-
-            Button{
-                id: closeSettings
-                width: 50
-                height: 20
-                anchors.bottom: parent.bottom
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottomMargin: 20
-                text: "Close"
-                onClicked: {
-                    settingsDialog.close()
-                }
+        contentItem: SettingsDialog {
+            id: settingsDialog
+            modelColor: "gray"
+            canvasColor: "blue"
+            onClosePressed: {
+                settingsDialogContainer.close();
             }
         }
     }
+
     Dialog {
         id: tutorial
         visible: false
@@ -332,7 +190,7 @@ ApplicationWindow {
                 ChestModel {
                     id: chestModel
                     scanSource: myViewer.renderStatus ? myViewer.scanFileName : ""
-                    modelColor: Qt.rgba(0.6, 0.6, 0.6, 1.0)
+                    modelColor: settingsDialog.modelColor
                 }
             }
         }
@@ -591,6 +449,7 @@ ApplicationWindow {
                 id: sliceCanvas
                 objectName: "canvas"
                 anchors.fill: parent
+                sliceColor: settingsDialog.canvasColor
             }
         }
 

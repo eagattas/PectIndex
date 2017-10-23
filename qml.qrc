@@ -4,6 +4,7 @@
         <file>main.qml</file>
         <file>NotesTab.qml</file>
         <file>SliceCanvas.qml</file>
+        <file>SettingsDialog.qml</file>
     </qresource>
     <qresource prefix="/QtQuick/Controls/Shaders">
         <file>blur.frag</file>
