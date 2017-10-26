@@ -384,6 +384,13 @@ ApplicationWindow {
                         myProcessor.calculateHallerIndex();
                     }
                 }
+                Button {
+                    id: defectLine
+                    text: "Defect"
+                    onClicked: {
+                        myProcessor.findDefectPoint();
+                    }
+                }
 
             }
             Text {

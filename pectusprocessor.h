@@ -58,10 +58,18 @@ public:
     Q_INVOKABLE bool getHallerIndexVisible();
     Q_INVOKABLE void calculateHallerIndex();
 
+
+
     // Erases arms that are completely disconnected from the drawing
     Q_INVOKABLE void eraseArms(int canvasWidth, int canvasHeight);
 
+    // finds point of defect
+    Q_INVOKABLE void findDefectPoint();
+
 private:
+    // rootQmlObject - allows interaction with QML
+    QObject* rootQmlObject;
+
     QString m_fileName;
     QVector<Vertex> vertices, normals;
     QVector<Texture> textures;
@@ -74,13 +82,38 @@ private:
     Vertex hallerV1 = Vertex(0, 0, 0);
     Vertex hallerV2 = Vertex(0, 0, 0);
 
-    int getArmStart(int canvasWidth, bool isLeft);
+
+    // These two lines describe the furthest lines
+    // from the defect where the slope has not changed signs
+    QPair<Vertex, Vertex> leftDefectLimit;
+    QPair<Vertex, Vertex> rightDefectLimit;
+
+
 
     QPair<Vertex, Vertex> findSegment(const Face & f, double yPlane);
     Vertex findVertex(const Vertex & a, const Vertex & b, double yPlane);
 
-    // rootQmlObject - allows interaction with QML
-    QObject* rootQmlObject;
+
+    // for gettin the start of an arm to delete
+    int getArmStart(int canvasWidth, bool isLeft);
+
+    void getDefectLeftRightLimits(QSet<int> &visited, QVector<QPair<Vertex, Vertex> > &possible_points,
+                                  bool isLeft, QPair<Vertex, Vertex> & leftRightX, QPair<Vertex, Vertex> & maxZSegment);
+
+    // get the slope of a line
+    double getSlopeOfLine(QPair<Vertex, Vertex> & segment);
+
+    // get the min X of a line
+    double getMinXofLine(QPair<Vertex, Vertex> & segment);
+
+    // get the min Z of a line
+    double getMinZofLine(QPair<Vertex, Vertex> & segment);
+
+    // get the max X of a line
+    double getMaxXofLine(QPair<Vertex, Vertex> & segment);
+
+    // get the max Z of a line
+    double getMaxZofLine(QPair<Vertex, Vertex> & segment);
 
 signals:
     void fileNameChanged(const QString & arg);
