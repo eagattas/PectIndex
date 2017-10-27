@@ -2,6 +2,7 @@
 #include <QFile>
 #include <limits>
 #include <cmath>
+#include <QtMath>
 
 const int CANVAS_DRAWING_FACTOR = 750;
 
@@ -71,6 +72,21 @@ void PectusProcessor::setRootQmlObject(QObject *obj)
     rootQmlObject = obj;
 }
 
+//from http://www.geeksforgeeks.org/program-for-point-of-intersection-of-two-lines/
+Vertex lineIntersection(Vertex A, Vertex B, Vertex C, Vertex D){
+    double a1 = B.z - A.z;
+    double b1 = A.x - B.x;
+    double c1 = a1*(A.x) + b1*(A.z);
+
+    double a2 = D.z - C.z;
+    double b2 = C.x - D.x;
+    double c2 = a2*(C.x)+ b2*(C.z);
+
+    double determinant = a1*b2 - a2*b1;
+
+    return Vertex((b2*c1 - b1*c2)/determinant, 0 ,(a1*c2 - a2*c1)/determinant);
+}
+
 void PectusProcessor::drawLineSegments()
 {
     QObject *canvas = rootQmlObject->findChild<QObject*>("canvas");
@@ -78,45 +94,41 @@ void PectusProcessor::drawLineSegments()
     Vertex v1, v2;//v1 and v2 will be two vertices that have the same x value (+- .01)
                  //as the midpoint of the horizontal distance, one will be at top of chest, one at bottom
     for (int i = 0; i < sliceSegments.size(); i++) {
-        if((sliceSegments[i].first.x < midpoint && sliceSegments[i].first.x + .01 > midpoint) ||
-           (sliceSegments[i].first.x > midpoint && sliceSegments[i].first.x - .01 < midpoint)){
+        if((sliceSegments[i].first.x < midpoint && sliceSegments[i].first.x + .005 > midpoint) ||
+           (sliceSegments[i].first.x > midpoint && sliceSegments[i].first.x - .005 < midpoint)){
             if(v1.x != 0)
                 v2 = sliceSegments[i].first;
             else v1 = sliceSegments[i].first;
-            //qDebug() << i;
         }
-        QMetaObject::invokeMethod(canvas, "drawLine",
-            Q_ARG(QVariant, sliceSegments[i].first.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, sliceSegments[i].first.z*CANVAS_DRAWING_FACTOR),
-            Q_ARG(QVariant, sliceSegments[i].second.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, sliceSegments[i].second.z*CANVAS_DRAWING_FACTOR));
+
     }
 
-    //NEED TO REWRITE THIS ALGORITHM TO ONLY CHECK FOR CLOSEST VERTEX THAT HASN"T BEEN VISITED YET, THEN IT CAN FORM A CLOSED SHAPE
-    // fill in the gaps between the segments
-//    for (int i = 0; i < sliceSegments.size() - 1; i++) {
-//        double lowestDist = std::numeric_limits<double>::infinity();
-//        int lowestIndex = std::numeric_limits<int>::max();
+    double rotationAngle = qAtan((maxx.z - minx.z) / (maxx.x - minx.x)); // slope of "horizontal" diameter
+    Vertex centerOfSlice = lineIntersection(minx, maxx, v1, v2);
+    minx.x = std::numeric_limits<double>::max();
+    maxx.x = std::numeric_limits<double>::min();
+     for (int i = 0; i < sliceSegments.size(); i++) {
+         sliceSegments[i].first.x = qCos(rotationAngle) * (sliceSegments[i].first.x - centerOfSlice.x) + qSin(rotationAngle) * (sliceSegments[i].first.z - centerOfSlice.z) + centerOfSlice.x;
+         sliceSegments[i].first.z = -qSin(rotationAngle) * (sliceSegments[i].first.x - centerOfSlice.x) + qCos(rotationAngle) * (sliceSegments[i].first.z - centerOfSlice.z) + centerOfSlice.z;
+         sliceSegments[i].second.x = qCos(rotationAngle) * (sliceSegments[i].second.x - centerOfSlice.x) + qSin(rotationAngle) * (sliceSegments[i].second.z - centerOfSlice.z) + centerOfSlice.x;
+         sliceSegments[i].second.z = -qSin(rotationAngle) * (sliceSegments[i].second.x - centerOfSlice.x) + qCos(rotationAngle) * (sliceSegments[i].second.z - centerOfSlice.z) + centerOfSlice.z;
 
-//        for (int j = 0; j < sliceSegments.size(); j++) {
-//            if (j == i) continue;
+         if (sliceSegments[i].first.x < minx.x) {
+             minx = sliceSegments[i].first;
+         } if (sliceSegments[i].first.x > maxx.x) {
+             maxx = sliceSegments[i].first;
+         }
+         if (sliceSegments[i].second.x < minx.x) {
+             minx = sliceSegments[i].second;
+         } if (sliceSegments[i].first.x > maxx.x) {
+             maxx = sliceSegments[i].second;
+         }
 
-//            double xDiff = std::fabs(sliceSegments[i].second.x - sliceSegments[j].first.x);
-//            double zDiff = std::fabs(sliceSegments[i].second.z - sliceSegments[j].first.z);
+         QMetaObject::invokeMethod(canvas, "drawLine",
+             Q_ARG(QVariant, sliceSegments[i].first.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, sliceSegments[i].first.z*CANVAS_DRAWING_FACTOR),
+             Q_ARG(QVariant, sliceSegments[i].second.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, sliceSegments[i].second.z*CANVAS_DRAWING_FACTOR));
+     }
 
-//            double dist = (xDiff * xDiff) + (zDiff * zDiff);
-//            if (dist < lowestDist) {
-//                lowestDist = dist;
-//                lowestIndex = j;
-//            }
-//        }
-
-//        QMetaObject::invokeMethod(canvas, "drawLine",
-//            Q_ARG(QVariant, sliceSegments[i].second.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, sliceSegments[i].second.z*CANVAS_DRAWING_FACTOR),
-//            Q_ARG(QVariant, sliceSegments[lowestIndex].first.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, sliceSegments[lowestIndex].first.z*CANVAS_DRAWING_FACTOR));
-
-//    }
-
-    hallerV1 = v1;
-    hallerV2 = v2;
 
 }
 
@@ -284,12 +296,12 @@ void PectusProcessor::calculateHallerIndex(){
         Q_ARG(QVariant, minx.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, minx.z*CANVAS_DRAWING_FACTOR),
         Q_ARG(QVariant, maxx.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, maxx.z*CANVAS_DRAWING_FACTOR));
 
-    QMetaObject::invokeMethod(canvas, "drawLine",
-        Q_ARG(QVariant, hallerV1.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, hallerV1.z*CANVAS_DRAWING_FACTOR),
-        Q_ARG(QVariant, hallerV2.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, hallerV2.z*CANVAS_DRAWING_FACTOR));
+    findDefectPoint();
 
     double horizontalDistance = std::sqrt(std::pow(maxx.x - minx.x, 2) + std::pow(maxx.z - minx.z, 2));
     double verticalDistance = std::sqrt(std::pow(hallerV2.x - hallerV1.x, 2) + std::pow(hallerV2.z - hallerV1.z, 2));
+    qDebug() << horizontalDistance << "  " <<verticalDistance;
+    qDebug() << hallerV2.x << " " << hallerV1.x << " " <<hallerV2.z << " " << hallerV1.z;
     hallerIndex = horizontalDistance / verticalDistance;
     hallerIndex = std::round(hallerIndex * 1000) / 1000;
     emit hallerIndexChanged(hallerIndex);
@@ -455,7 +467,7 @@ void PectusProcessor::findDefectPoint() {
         Q_ARG(QVariant, midXOfDefect*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, endZ * CANVAS_DRAWING_FACTOR));
 
 
-    hallerV1 = {midXOfDefect, sliceSegments[lowest].first.y, sliceSegments[lowest].first.z};
+    hallerV1 = {midXOfDefect, sliceSegments[lowest].first.y, startZ};
     hallerV2 = {midXOfDefect, sliceSegments[lowest].first.y, endZ};
 
     leftDefectLimit = minXSegment;
