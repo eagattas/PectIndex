@@ -14,7 +14,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp \
     pectusviewer.cpp \
-    pectusprocessor.cpp
+    pectusprocessor.cpp \
+    area.cpp \
+    surface.cpp
 
 RESOURCES += qml.qrc
 
@@ -31,4 +33,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     pectusviewer.h \
-    pectusprocessor.h
+    pectusprocessor.h \
+    area.h \
+    surface.h
