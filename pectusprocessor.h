@@ -10,11 +10,20 @@
 #include <QtDataVisualization/QHeightMapSurfaceDataProxy>
 #include <QtDataVisualization/QSurface3DSeries>
 #include <QtWidgets/QSlider>
+#include <cmath>
 
-struct Vertex{
+struct Vertex {
     double x,y,z;
     Vertex(double xx, double yy, double zz) : x(xx), y(yy), z(zz) {}
     Vertex() : x(0), y(0), z(0) {}
+    bool operator == (const Vertex & other){
+        return (std::fabs(this->x - other.x) < 0.000001 &&
+                std::fabs(this->y - other.y) < 0.000001 &&
+                std::fabs(this->z - other.z) < 0.000001);
+//        return (this->x == other.x &&
+//                this->y == other.y &&
+//                this->z == other.z);
+    }
 };
 
 struct Texture{
@@ -57,8 +66,7 @@ public:
     Q_INVOKABLE double getHallerIndex();
     Q_INVOKABLE bool getHallerIndexVisible();
     Q_INVOKABLE void calculateHallerIndex();
-
-
+    Q_INVOKABLE void getFixedIntersection();
 
     // Erases arms that are completely disconnected from the drawing
     Q_INVOKABLE void eraseArms(int canvasWidth, int canvasHeight);
@@ -114,6 +122,8 @@ private:
 
     // get the max Z of a line
     double getMaxZofLine(QPair<Vertex, Vertex> & segment);
+
+    QVector<QPair<Vertex,Vertex>> findLargestSet();
 
 signals:
     void fileNameChanged(const QString & arg);
