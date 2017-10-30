@@ -1,16 +1,11 @@
 //#ifndef AREA_H
 //#define AREA_H
-
-<<<<<<< HEAD
 #include <cmath>
 #include <QObject>
 #include <QtMath>
 #include <QDebug>
 #include <QFile>
 #include "types.h"
-=======
-//#include <cmath>
->>>>>>> 98d8125d81400c214ef4cb2cce5b920e443ac866
 
 //double distance(double x1, double x2, double y1, double y2);
 //double areaTrapezoid(double l1, double l2, double l3, double l4);

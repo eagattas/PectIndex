@@ -391,6 +391,15 @@ ApplicationWindow {
                         myProcessor.findDefectPoint();
                     }
                 }
+                Button {
+                    id:fixedIntersection
+                    text: "Fixed"
+                    onClicked: {
+                        myProcessor.getFixedIntersection();
+                        console.log("Drawing fixed intersection");
+                        myProcessor.drawLineSegments();
+                    }
+                }
 
             }
             Text {

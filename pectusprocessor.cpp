@@ -178,7 +178,7 @@ void PectusProcessor::calculateIntersection(double yPlane){
         }
         if (segment.second.x < minx.x) {
             minx = segment.second;
-        } if (segment.first.x > maxx.x) {
+        } if (segment.second.x > maxx.x) {
             maxx = segment.second;
         }
         if (segment.first.z < minz.z) {
@@ -193,6 +193,45 @@ void PectusProcessor::calculateIntersection(double yPlane){
         }
     }
     // Now, need to graph segments in 2D space.
+}
+
+void PectusProcessor::getFixedIntersection(){
+    if (sliceSegments.isEmpty()){
+        return;
+    }
+    minx.x = std::numeric_limits<double>::max();
+    minz.z = std::numeric_limits<double>::max();
+    maxx.x = std::numeric_limits<double>::min();
+    maxz.z = std::numeric_limits<double>::min();
+
+    sliceSegments = findLargestSet();
+    for(int i = 0; i < sliceSegments.size(); i++){
+        if (sliceSegments[i].first.x < minx.x) {
+            minx = sliceSegments[i].first;
+        }
+        if (sliceSegments[i].first.x > maxx.x) {
+            maxx = sliceSegments[i].first;
+        }
+        if (sliceSegments[i].second.x < minx.x) {
+            minx = sliceSegments[i].second;
+        }
+        if (sliceSegments[i].second.x > maxx.x) {
+            maxx = sliceSegments[i].second;
+        }
+
+        if (sliceSegments[i].first.z < minz.z) {
+            minz = sliceSegments[i].first;
+        }
+        if (sliceSegments[i].first.z > maxz.z) {
+            maxz = sliceSegments[i].first;
+        }
+        if (sliceSegments[i].second.z < minz.z) {
+            minz = sliceSegments[i].second;
+        }
+        if (sliceSegments[i].second.z > maxz.z) {
+            maxz = sliceSegments[i].second;
+        }
+    }
 }
 
 // Returns the line segment (represented by a pair of vertices) where Face f intersects plane yPlane
@@ -608,6 +647,71 @@ double PectusProcessor::getMaxZofLine(QPair<Vertex, Vertex> &segment)
     return segment.first.z > segment.second.z ? segment.first.z : segment.second.z;
 }
 
+//Given a set of line segments, finds the largest set of connected line segments.
+QVector<QPair<Vertex,Vertex>> PectusProcessor::findLargestSet(){
+    QVector<bool> found = QVector<bool>(sliceSegments.size(), false);
+    QVector<QVector<int>> sets;
+
+    // Iterate through all segments to find a start point
+    for(int i = 0; i < sliceSegments.size(); i++){
+        // ignore segments already included in a set
+        if(found[i]){
+            continue;
+        }
+        found[i] = true;
+        QVector<int> currentSet;
+        currentSet.push_back(i);
+        bool nextFound = true;
+        int currentSegment = i;
+
+        // Find all segments in the set connected to the start point
+        while(nextFound){
+            nextFound = false;
+            for(int j = 0; j < sliceSegments.size(); j++){
+                if(found[j])
+                    continue;
+                // check if the segment is connected to the current segment.
+                if(sliceSegments[j].first == sliceSegments[currentSegment].first ||
+                   sliceSegments[j].first == sliceSegments[currentSegment].second ||
+                   sliceSegments[j].second == sliceSegments[currentSegment].first ||
+                   sliceSegments[j].second == sliceSegments[currentSegment].second){
+                    nextFound = true;
+                    currentSet.push_back(j);
+                    found[j] = true;
+                    currentSegment = j;
+                    break;
+                }
+            }
+
+            // If you cannot find another segment, check the "other side" by moving back
+            // to the start point. If you fail to find anything from the start point,
+            // the set is complete.
+            if(!nextFound){
+                if(currentSegment != currentSet[0]){
+                    currentSegment = currentSet[0];
+                    nextFound = true;
+                }
+            }
+        }
+        sets.push_back(currentSet);
+    }
+    int maxSetSize = 0;
+    int largestSet = -1;
+    qDebug() << "There are " << sets.size() << " sets in this slice";
+    for(int i = 0; i < sets.size(); i++){
+        if (sets[i].size() > maxSetSize){
+            maxSetSize = sets[i].size();
+            largestSet = i;
+        }
+    }
+    // Populate the vector of vertices
+    QVector<QPair<Vertex, Vertex>> connected;
+    for(int i = 0; i < sets[largestSet].size(); i++){
+        connected.push_back(sliceSegments[sets[largestSet][i]]);
+    }
+    return connected;
+}
+
 using namespace QtDataVisualization;
 void PectusProcessor::createSurfaceModel(const QVector<Vertex> & vertices, const QVector<Face> & faces) {
     int i = 0;
@@ -634,3 +738,4 @@ void PectusProcessor::createSurfaceModel(const QVector<Vertex> & vertices, const
     // need to bind this data to a surface like:
     //model_surface->resetArray(model_data);
 }
+
