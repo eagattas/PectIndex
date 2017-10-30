@@ -11,6 +11,7 @@
 #include <QtDataVisualization/QSurface3DSeries>
 #include <QtWidgets/QSlider>
 #include <cmath>
+#include "area.h"
 
 struct Vertex {
     double x,y,z;
@@ -67,6 +68,8 @@ public:
     Q_INVOKABLE bool getHallerIndexVisible();
     Q_INVOKABLE void calculateHallerIndex();
     Q_INVOKABLE void getFixedIntersection();
+    Q_INVOKABLE double chestArea();
+    Q_INVOKABLE double defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments);
 
     // Erases arms that are completely disconnected from the drawing
     Q_INVOKABLE void eraseArms(int canvasWidth, int canvasHeight);
@@ -129,6 +132,8 @@ signals:
     void fileNameChanged(const QString & arg);
     void hallerIndexChanged(const double & arg);
     void hallerIndexVisibleChanged(const bool arg);
+    void volumeDefectIndexChanged(const double & arg);
+    void volumeDefectIndexVisibleChanged(const bool arg);
 
 public slots:
 

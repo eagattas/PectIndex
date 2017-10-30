@@ -712,30 +712,47 @@ QVector<QPair<Vertex,Vertex>> PectusProcessor::findLargestSet(){
     return connected;
 }
 
-using namespace QtDataVisualization;
-void PectusProcessor::createSurfaceModel(const QVector<Vertex> & vertices, const QVector<Face> & faces) {
-    int i = 0;
-    QSurfaceDataArray *model_data = new QSurfaceDataArray;
-    while (i < faces.size()){
-        float v1x = vertices[faces[i].vertex1Index].x;
-        float v1y = vertices[faces[i].vertex1Index].y;
-        float v1z = vertices[faces[i].vertex1Index].z;
-        float v2x = vertices[faces[i].vertex2Index].x;
-        float v2y = vertices[faces[i].vertex2Index].y;
-        float v2z = vertices[faces[i].vertex2Index].z;
-        float v3x = vertices[faces[i].vertex3Index].x;
-        float v3y = vertices[faces[i].vertex3Index].y;
-        float v3z = vertices[faces[i].vertex3Index].z;
+double PectusProcessor::chestArea() {
+    double area = 0.0;
+    for (long i = 0; i < sliceSegments.size(); ++i) {
+        Vertex slice_v1 = sliceSegments[i].first;
+        Vertex slice_v2 = sliceSegments[i].second;
 
-        QSurfaceDataRow * face = new QSurfaceDataRow;
-        QVector3D * v1 = new QVector3D(v1x, v1y, v1z);
-        QVector3D * v2 = new QVector3D(v2x, v2y, v2z);
-        QVector3D * v3 = new QVector3D(v3x, v3y, v3z);
+        double slope = (minx.z - maxx.z) / (minx.x - maxx.x);
 
-        *face << *v1 << *v2 << *v3;
-        *model_data << face;
+        double z_v1 = slope * (slice_v1.x - maxx.x) + maxx.z;
+        double z_v2 = slope * (slice_v2.x - maxx.x) + maxx.z;
+
+        //qDebug() << slope << z_v1 << z_v2;
+        //Size of the segment on the chest
+        double line1 = distance(slice_v1.x, slice_v1.z, slice_v2.x, slice_v2.z);
+        //From vertex on the chest to the horizontal line
+        double line2 = distance(slice_v1.x, slice_v1.z, slice_v1.x, z_v1);
+        double line3 = distance(slice_v2.x, slice_v2.z, slice_v2.x, z_v2);
+        //length on the horizontal line
+        double line4 = distance(slice_v1.x, z_v1, slice_v2.x, z_v2);
+
+        qDebug() << line1 << line2 << line3 << line4;
+
+        double temp_area = areaTrapezoid(line1, line2, line3, line4);
+        //qDebug() << temp_area;
+        area += temp_area;
     }
-    // need to bind this data to a surface like:
-    //model_surface->resetArray(model_data);
+    qDebug() << "Chest Area: " << area;
+    return area;
 }
 
+double PectusProcessor::defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments) {
+    double area = 0.0;
+    double x = (v1.x + v2.x) / 2;
+    double y = (v1.y + v2.y) / 2;
+
+    for (int i = 0; i < defectSegments.size(); ++i) {
+        double l1 = distance(x, defectSegments[i].first.x, y, defectSegments[i].first.y);
+        double l2 = distance(x, defectSegments[i].second.x, y, defectSegments[i].second.y);
+        double l3 = distance(defectSegments[i].second.x, defectSegments[i].first.x,
+                             defectSegments[i].second.y, defectSegments[i].first.y);
+        area += areaTriangle(l1, l2, l3);
+    }
+    return area;
+}

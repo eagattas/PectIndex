@@ -16,9 +16,15 @@ double areaTrapezoid(double l1, double l2, double l3, double l4) {
         l2 = l3;
         l3 = temp;
     }
-    area = (l2+l3) / (4 * (l2-l3));
-    temp = (l2 + l1 - l3 + l4) * (l2 - l1 - l3 + l4) * (l2 + l1 - l3 - l4) * (-l2 + l1 + l3 + l4);
-    area = area * sqrt(temp);
+    double temp1 = (l2 + l1 - l3 + l4);
+    double temp2 = (l2 - l1 - l3 + l4);
+    double temp3 = (l2 + l1 - l3 - l4);
+    double temp4 = (-l2 + l1 + l3 + l4);
+    if (abs(temp1*temp2*temp3*temp4) < 0.00001) {
+        qDebug() << "Area is less than 0";
+    }
+    area = sqrt(temp1*temp2*temp3*temp4);
+    area = area*(l2+l3)/(4*(l2-l3));
     return area;
 }
 
@@ -29,42 +35,4 @@ double areaTriangle(double l1, double l2, double l3) {
     area = sqrt(area);
     return area;
 }
-double chestArea(Vertex minx, Vertex maxx, QVector<QPair<Vertex, Vertex>> sliceSegments) {
-    double area = 0.0;
 
-    for (long i = 0; i < sliceSegments.size(); ++i) {
-        Vertex slice_v1 = sliceSegments[i].first;
-        Vertex slice_v2 = sliceSegments[i].second;
-
-        double slope = (minx.x - maxx.x) / (minx.y - maxx.y);
-        double z_v1 = slope * (slice_v1.x - maxx.x) + maxx.y;
-        double z_v2 = slope * (slice_v2.x - maxx.x) + maxx.y;
-
-        //Size of the segment on the chest
-        double line1 = distance(slice_v1.x, slice_v1.z, slice_v2.x, slice_v2.z);
-        //From vertex on the chest to the horizontal line
-        double line2 = distance(slice_v1.x, slice_v1.z, slice_v1.x, z_v1);
-        double line3 = distance(slice_v2.x, slice_v2.z, slice_v2.x, z_v2);
-        //length on the horizontal line
-        double line4 = distance(slice_v1.x, z_v1, slice_v2.x, z_v2);
-
-        double temp_area = areaTrapezoid(line1, line2, line3, line4);
-        area += temp_area;
-    }
-    return area;
-}
-
-double defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments) {
-    double area = 0.0;
-    double x = (v1.x + v2.x) / 2;
-    double y = (v1.y + v2.y) / 2;
-
-    for (int i = 0; i < defectSegments.size(); ++i) {
-        double l1 = distance(x, defectSegments[i].first.x, y, defectSegments[i].first.y);
-        double l2 = distance(x, defectSegments[i].second.x, y, defectSegments[i].second.y);
-        double l3 = distance(defectSegments[i].second.x, defectSegments[i].first.x,
-                             defectSegments[i].second.y, defectSegments[i].first.y);
-        area += areaTriangle(l1, l2, l3);
-    }
-    return area;
-}

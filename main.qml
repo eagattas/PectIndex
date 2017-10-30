@@ -297,6 +297,19 @@ ApplicationWindow {
                 }
             }
 
+            Rectangle {
+                id: indiceBox
+                anchors.top: renderScanButton.bottom
+
+                Text {
+                    id: hallerText
+                    visible: myProcessor.hallerIndexVisible
+                    text: "Haller Index: " + myProcessor.hallerIndex
+                    anchors.top: indiceBox.top
+                    anchors.topMargin: 10
+                }
+            }
+
             FileDialog {
                 id: fileDialog
                 title: "Choose a 3D Model File"
@@ -333,6 +346,43 @@ ApplicationWindow {
             anchors.rightMargin: 20
 
             height: 300
+            Row {
+                id: indexButtonRow
+                anchors.bottom: sliceButtonRow.top
+                anchors.bottomMargin: 5
+                spacing: 3
+                Button {
+                    id: hallerIndex
+                    text: "Haller Index"
+                    onClicked: {
+                        myProcessor.calculateHallerIndex();
+                    }
+                }
+                Button {
+                    id: defectLine
+                    text: "Defect"
+                    onClicked: {
+                        myProcessor.findDefectPoint();
+                    }
+                }
+                Button {
+                    id:fixedIntersection
+                    text: "Fixed"
+                    onClicked: {
+                        myProcessor.getFixedIntersection();
+                        console.log("Drawing fixed intersection");
+                        myProcessor.drawLineSegments();
+                    }
+                }
+                Button {
+                    id: chestArea
+                    text: "Area"
+                    onClicked: {
+                        myProcessor.chestArea();
+
+                    }
+                }
+            }
 
             Row {
                 id: sliceButtonRow
@@ -377,45 +427,6 @@ ApplicationWindow {
                         myProcessor.eraseArms(sliceCanvas.width, sliceCanvas.height)
                    }
                 }
-                Button {
-                    id: hallerIndex
-                    text: "Haller Index"
-                    onClicked: {
-                        myProcessor.calculateHallerIndex();
-                    }
-                }
-                Button {
-                    id: defectLine
-                    text: "Defect"
-                    onClicked: {
-                        myProcessor.findDefectPoint();
-                    }
-                }
-                Button {
-                    id:fixedIntersection
-                    text: "Fixed"
-                    onClicked: {
-                        myProcessor.getFixedIntersection();
-                        console.log("Drawing fixed intersection");
-                        myProcessor.drawLineSegments();
-                    }
-                }
-                Button {
-                    id: chestArea
-                    text: "Area"
-                    onClicked: {
-
-                    }
-                }
-
-            }
-            Text {
-                id: hallerText
-                visible: myProcessor.hallerIndexVisible
-                text: "Haller Index: " + myProcessor.hallerIndex
-                anchors.right: sliceButtonRow.right
-                anchors.bottom: sliceButtonRow.top
-                anchors.topMargin: 10
             }
 
             SliceCanvas {
