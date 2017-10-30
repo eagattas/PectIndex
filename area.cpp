@@ -11,6 +11,10 @@ double distance(double x1, double x2, double y1, double y2) {
 double areaTrapezoid(double l1, double l2, double l3, double l4) {
     double area = 0.0;
     double temp;
+    l1 = l1 * 1000;
+    l2 = l2 * 1000;
+    l3 = l3 * 1000;
+    l4 = l4 * 1000;
     if (l2 < l3) {
         temp = l2;
         l2 = l3;
@@ -20,9 +24,8 @@ double areaTrapezoid(double l1, double l2, double l3, double l4) {
     double temp2 = (l2 - l1 - l3 + l4);
     double temp3 = (l2 + l1 - l3 - l4);
     double temp4 = (-l2 + l1 + l3 + l4);
-    if (abs(temp1*temp2*temp3*temp4) < 0.00001) {
-        qDebug() << "Area is less than 0";
-    }
+    double temp5 = temp1*temp2*temp3*temp4;
+    qDebug() << temp1 << temp2 << temp3 << temp4 << temp5;
     area = sqrt(temp1*temp2*temp3*temp4);
     area = area*(l2+l3)/(4*(l2-l3));
     return area;

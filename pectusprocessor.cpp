@@ -723,19 +723,12 @@ double PectusProcessor::chestArea() {
         double z_v1 = slope * (slice_v1.x - maxx.x) + maxx.z;
         double z_v2 = slope * (slice_v2.x - maxx.x) + maxx.z;
 
-        //qDebug() << slope << z_v1 << z_v2;
-        //Size of the segment on the chest
-        double line1 = distance(slice_v1.x, slice_v1.z, slice_v2.x, slice_v2.z);
-        //From vertex on the chest to the horizontal line
-        double line2 = distance(slice_v1.x, slice_v1.z, slice_v1.x, z_v1);
-        double line3 = distance(slice_v2.x, slice_v2.z, slice_v2.x, z_v2);
-        //length on the horizontal line
-        double line4 = distance(slice_v1.x, z_v1, slice_v2.x, z_v2);
-
-        qDebug() << line1 << line2 << line3 << line4;
+        double line1 = distance(slice_v1.x, slice_v2.x, slice_v1.z, slice_v2.z);
+        double line2 = distance(slice_v1.x, slice_v1.x, slice_v1.z, z_v1);
+        double line3 = distance(slice_v2.x, slice_v2.x, slice_v2.z, z_v2);
+        double line4 = distance(slice_v1.x, slice_v2.x, z_v1, z_v2);
 
         double temp_area = areaTrapezoid(line1, line2, line3, line4);
-        //qDebug() << temp_area;
         area += temp_area;
     }
     qDebug() << "Chest Area: " << area;
