@@ -1,5 +1,4 @@
 #include "area.h"
-#include "pectusprocessor.h"
 
 double distance(double x1, double x2, double y1, double y2) {
     double length = 0.0;
@@ -32,9 +31,6 @@ double areaTriangle(double l1, double l2, double l3) {
 }
 double chestArea(Vertex minx, Vertex maxx, QVector<QPair<Vertex, Vertex>> sliceSegments) {
     double area = 0.0;
-    //minx
-    //maxx
-    //sliceSegments
 
     for (long i = 0; i < sliceSegments.size(); ++i) {
         Vertex slice_v1 = sliceSegments[i].first;
