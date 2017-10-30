@@ -400,6 +400,13 @@ ApplicationWindow {
                         myProcessor.drawLineSegments();
                     }
                 }
+                Button {
+                    id: chestArea
+                    text: "Area"
+                    onClicked: {
+
+                    }
+                }
 
             }
             Text {

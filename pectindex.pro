@@ -15,8 +15,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp \
     pectusviewer.cpp \
     pectusprocessor.cpp \
-    area.cpp \
-    surface.cpp
+    area.cpp
 
 RESOURCES += qml.qrc
 
