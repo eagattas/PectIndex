@@ -8,6 +8,7 @@ double distance(double x1, double x2, double y1, double y2) {
     return length;
 }
 
+//l2 and l3 must be the parellel lines of the trapezoid
 double areaTrapezoid(double l1, double l2, double l3, double l4) {
     double area = 0.0;
     double temp;
