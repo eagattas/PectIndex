@@ -110,7 +110,6 @@ ApplicationWindow {
                 }
             }
         }
-
         Rectangle {
             id: viewerContainer
             width: (parent.width / 2) - 40
@@ -119,29 +118,93 @@ ApplicationWindow {
             anchors.leftMargin: 20
             anchors.top: parent.top
             anchors.topMargin: 30
+            z: 100
 
-            color: parent.color
-            border.color: "black"
-            border.width: 1
+            color: "transparent"
 
-            Text {
-                id: placeholder
-                width: parent.width / 3
-                height: 30
-                text: myViewer.scanFileName
-                anchors.centerIn: parent
-                layer.enabled: true
+            property double previousX: 0.0
+            property double previousY: 0.0
+
+            property double xRot: 0.0
+            property double yRot: 0.0
+
+            property double xCamera: 0.0
+            property double yCamera: 0.0
+            property double distance: 2
+
+            MouseArea {
+                id: viewerContainerMouseArea
+                anchors.fill: parent
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+                onMouseXChanged: {
+                    if (pressedButtons == Qt.LeftButton) {
+                        if (viewerContainer.previousX !== 0) {
+                           viewerContainer.xRot += mouseX - viewerContainer.previousX
+                        }
+                    }
+                    else if (pressedButtons == Qt.RightButton) {
+                        if (viewerContainer.previousX !== 0) {
+                            viewerContainer.xCamera += mouseX - viewerContainer.previousX
+                            //mainCamera.translate(Qt.vector3d(-1 * (mouseX - viewerContainer.previousX) / 750, 0, 0))
+                        }
+                    }
+                    viewerContainer.previousX = mouseX
+                }
+
+                onMouseYChanged: {
+                    if (pressedButtons == Qt.LeftButton) {
+                        if (viewerContainer.previousY !== 0) {
+                           viewerContainer.yRot += mouseY - viewerContainer.previousY
+                        }
+                    }
+                    else if (pressedButtons == Qt.RightButton) {
+                        if (viewerContainer.previousY !== 0) {
+                            viewerContainer.yCamera += mouseY - viewerContainer.previousY
+                            //mainCamera.translate(Qt.vector3d(0, (mouseY - viewerContainer.previousY) / 750, 0), Camera.TranslateViewCenter)
+                        }
+                    }
+                    viewerContainer.previousY = mouseY
+                }
+
+                onWheel: {
+                    var newDist = wheel.angleDelta.y / 10
+                    mainCamera.translate(Qt.vector3d(0, 0, wheel.angleDelta.y / 1000), Camera.DontTranslateViewCenter)
+                }
+
+                onReleased: {
+                    viewerContainer.previousX = 0
+                    viewerContainer.previousY = 0
+                }
             }
 
-            Scene3D {
-                id: scene3d
-                anchors.fill: parent
-                aspects: ["input", "logic"]
-                ChestModel {
-                    id: chestModel
-                    scanSource: myViewer.renderStatus ? myViewer.scanFileName : ""
-                    modelColor: settingsDialog.modelColor
+
+
+        }
+
+        Scene3D {
+            id: scene3d
+            width: (parent.width / 2) - 40
+            height: parent.height - 50
+            anchors.left: parent.left
+            anchors.leftMargin: 20
+            anchors.top: parent.top
+            anchors.topMargin: 30
+            z: 0
+
+            aspects: ["input", "logic"]
+
+            ChestModel {
+                mainCamera: Camera {
+                    id: mainCamera
+                    projectionType: CameraLens.PerspectiveProjection
+                    fieldOfView: 22.5
+                    position: Qt.vector3d( 0.19195, 0.180172, 4)
+                    viewCenter: Qt.vector3d(0, 0, 0)
                 }
+                id: chestModel
+                scanSource: myViewer.renderStatus ? myViewer.scanFileName : ""
+                modelColor: settingsDialog.modelColor
             }
         }
 
@@ -150,6 +213,29 @@ ApplicationWindow {
             anchors.bottom: viewerContainer.top
             anchors.bottomMargin: 5
             anchors.left: viewerContainer.left
+        }
+
+        Row {
+            id: scene3dControls
+            spacing: 3
+            anchors.right: viewerContainer.right
+            anchors.bottom: viewerContainer.top
+            Button {
+                id: test
+                text: "Camera Mode"
+                onClicked: {
+                    viewerContainer.z = 100
+                    scene3d.z = 0
+                }
+            }
+            Button {
+                id: test2
+                text: "Slice Mode"
+                onClicked: {
+                    viewerContainer.z = 0
+                    scene3d.z = 100
+                }
+            }
         }
 
         Rectangle {

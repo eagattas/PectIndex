@@ -9,32 +9,23 @@ Entity {
     id: root
     property string scanSource
     property color modelColor
+    property Camera mainCamera
 
-    // Render from the mainCamera
-    components: [
-        RenderSettings {
-            activeFrameGraph: ForwardRenderer {
-                id: renderer
-                camera: mainCamera
-            }
-        },
-        // Event Source will be set by the Qt3DQuickWindow
-        InputSettings { }
-    ]
-
-    Camera {
-        id: mainCamera
-        projectionType: CameraLens.PerspectiveProjection
-        fieldOfView: 22.5
-        position: Qt.vector3d( 0.19195, 0.180172, 10 - sliderZoom.value)
-        viewCenter: Qt.vector3d(7.04184, 8.03178, -99.4669)
+    RenderSettings {
+        id: renderSettings
+        activeFrameGraph: ForwardRenderer {
+            id: renderer
+            camera: root.mainCamera
+        }
+        pickingSettings.pickMethod: PickingSettings.TrianglePicking
+        pickingSettings.faceOrientationPickingMode: PickingSettings.FrontAndBackFace
     }
 
-    OrbitCameraController {
-        camera: mainCamera
-
+    InputSettings {
+        id: inputSettings
     }
 
+    components: [renderSettings, inputSettings]
 
     Entity {
         id: chestObject
@@ -44,15 +35,27 @@ Entity {
             diffuse: Qt.rgba( 0.6, 0.6, 0.6, 1.0 )
         }
 
-        Transform {
-            id: logoTransform
-            scale: 1
-            rotation: fromEulerAngles( rotateSliderX.value * 360,
-                                       rotateSliderY.value * 360,
-                                       rotateSliderZ.value * 360 )
+        ObjectPicker {
+            id: chestPicker
+            onPressed: {
+                myProcessor.calculateIntersection(pick.localIntersection.y)
+                myProcessor.drawLineSegments()
+            }
         }
 
-        components: [ mesh, chestObject.material, logoTransform ]
+        Transform {
+            id: chestTransform
+            rotation: fromEulerAngles( viewerContainer.yRot,
+                                       viewerContainer.xRot,
+                                       0 )
+
+            translation: Qt.vector3d( -1 *(viewerContainer.xCamera / 100),
+                                     viewerContainer.yCamera / 100,
+                                     0)
+
+        }
+
+        components: [ mesh, chestObject.material, chestTransform, chestPicker]
 
         Mesh {
             id: mesh
@@ -60,5 +63,3 @@ Entity {
         }
     }
 }
-
-
