@@ -12,10 +12,6 @@ double distance(double x1, double x2, double y1, double y2) {
 double areaTrapezoid(double l1, double l2, double l3, double l4) {
     double area = 0.0;
     double temp;
-    l1 = l1 * 1000;
-    l2 = l2 * 1000;
-    l3 = l3 * 1000;
-    l4 = l4 * 1000;
     if (l2 < l3) {
         temp = l2;
         l2 = l3;

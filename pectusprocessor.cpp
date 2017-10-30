@@ -5,6 +5,7 @@
 #include <QtMath>
 
 const int CANVAS_DRAWING_FACTOR = 750;
+const int AREA_FACTOR = 1000;
 
 PectusProcessor::PectusProcessor(QObject *parent) : QObject(parent), m_fileName(""), vertices(), faces(){
 
@@ -723,10 +724,10 @@ double PectusProcessor::chestArea() {
         double z_v1 = slope * (slice_v1.x - maxx.x) + maxx.z;
         double z_v2 = slope * (slice_v2.x - maxx.x) + maxx.z;
 
-        double line1 = distance(slice_v1.x, slice_v2.x, slice_v1.z, slice_v2.z);
-        double line2 = distance(slice_v1.x, slice_v1.x, slice_v1.z, z_v1);
-        double line3 = distance(slice_v2.x, slice_v2.x, slice_v2.z, z_v2);
-        double line4 = distance(slice_v1.x, slice_v2.x, z_v1, z_v2);
+        double line1 = AREA_FACTOR * distance(slice_v1.x, slice_v2.x, slice_v1.z, slice_v2.z);
+        double line2 = AREA_FACTOR * distance(slice_v1.x, slice_v1.x, slice_v1.z, z_v1);
+        double line3 = AREA_FACTOR * distance(slice_v2.x, slice_v2.x, slice_v2.z, z_v2);
+        double line4 = AREA_FACTOR * distance(slice_v1.x, slice_v2.x, z_v1, z_v2);
 
         double temp_area = areaTrapezoid(line1, line2, line3, line4);
         area += temp_area;
