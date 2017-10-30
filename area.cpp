@@ -1,3 +1,5 @@
+#include "area.h"
+
 double distance(double x1, double x2, double y1, double y2) {
     double length = 0.0;
     double x = x2 - x1;
@@ -25,11 +27,11 @@ double areaTriangle(double l1, double l2, double l3) {
     double S = (l1 + l2 + l3) / 2;
     area = S * (S - l1) * (S - l2) * (S - l3);
     area = sqrt(area);
-    return area
+    return area;
 }
 
 
-double chestArea() {
+double chestArea(Vertex maxx, Vertex minx, QVector<QPair<Vertex, Vertex>> sliceSegments) {
     double area = 0.0;
     //minx
     //maxx
@@ -38,7 +40,7 @@ double chestArea() {
     for (long i = 0; i < sliceSegments.size(); ++i) {
         Vertex slice_v1 = sliceSegments[i].first;
         Vertex slice_v2 = sliceSegments[i].second;
-        double v1_xint, v2_xint;
+        double slope, z_v1, z_v2;
 
         slope = (minx.x - maxx.x) / (minx.y - maxx.y);
         z_v1 = slope * (slice_v1.x - maxx.x) + maxx.y;
