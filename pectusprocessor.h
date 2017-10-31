@@ -25,6 +25,10 @@ struct Vertex {
 //                this->y == other.y &&
 //                this->z == other.z);
     }
+
+    bool operator != (const Vertex & other){
+        return !(*this == other);
+    }
 };
 
 struct Texture{
@@ -67,9 +71,9 @@ public:
     Q_INVOKABLE double getHallerIndex();
     Q_INVOKABLE bool getHallerIndexVisible();
     Q_INVOKABLE void calculateHallerIndex();
-    Q_INVOKABLE void getFixedIntersection();
     Q_INVOKABLE double chestArea();
     Q_INVOKABLE double defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments);
+    Q_INVOKABLE void printSegments();
 
     // finds point of defect
     Q_INVOKABLE void findDefectPoint();
@@ -121,6 +125,7 @@ private:
     double getMaxZofLine(QPair<Vertex, Vertex> & segment);
 
     QVector<QPair<Vertex,Vertex>> findLargestSet();
+    void orderSegments();
 
 signals:
     void fileNameChanged(const QString & arg);

@@ -352,20 +352,18 @@ ApplicationWindow {
                     }
                 }
                 Button {
-                    id:fixedIntersection
-                    text: "Fixed"
-                    onClicked: {
-                        myProcessor.getFixedIntersection();
-                        console.log("Drawing fixed intersection");
-                        myProcessor.drawLineSegments();
-                    }
-                }
-                Button {
                     id: chestArea
                     text: "Area"
                     onClicked: {
                         myProcessor.chestArea();
 
+                    }
+                }
+                Button {
+                    id: printSegments
+                    text: "Print Segments"
+                    onClicked: {
+                        myProcessor.printSegments();
                     }
                 }
             }

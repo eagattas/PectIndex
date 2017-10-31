@@ -172,38 +172,7 @@ void PectusProcessor::calculateIntersection(double yPlane){
     for (int i = 0; i < intersectedFaces.size(); i++){
         QPair<Vertex, Vertex> segment = findSegment(intersectedFaces[i], yPlane);
         sliceSegments.push_back(segment);
-        if (segment.first.x < minx.x) {
-            minx = segment.first;
-        } if (segment.first.x > maxx.x) {
-            maxx = segment.first;
-        }
-        if (segment.second.x < minx.x) {
-            minx = segment.second;
-        } if (segment.second.x > maxx.x) {
-            maxx = segment.second;
-        }
-        if (segment.first.z < minz.z) {
-            minz = segment.first;
-        } if (segment.first.z > maxz.z) {
-            maxz = segment.first;
-        }
-        if (segment.second.z < minz.z) {
-            minz = segment.second;
-        } if (segment.second.z > maxz.z) {
-            maxz = segment.second;
-        }
     }
-    // Now, need to graph segments in 2D space.
-}
-
-void PectusProcessor::getFixedIntersection(){
-    if (sliceSegments.isEmpty()){
-        return;
-    }
-    minx.x = std::numeric_limits<double>::max();
-    minz.z = std::numeric_limits<double>::max();
-    maxx.x = std::numeric_limits<double>::min();
-    maxz.z = std::numeric_limits<double>::min();
 
     sliceSegments = findLargestSet();
     for(int i = 0; i < sliceSegments.size(); i++){
@@ -233,6 +202,7 @@ void PectusProcessor::getFixedIntersection(){
             maxz = sliceSegments[i].second;
         }
     }
+    orderSegments();
 }
 
 // Returns the line segment (represented by a pair of vertices) where Face f intersects plane yPlane
@@ -595,6 +565,71 @@ QVector<QPair<Vertex,Vertex>> PectusProcessor::findLargestSet(){
     return connected;
 }
 
+// Orders the segments in sliceSegments
+void PectusProcessor::orderSegments(){
+
+    //First, put all of the segments into a circular order.
+    if (sliceSegments.size() < 2){
+        return;
+    }
+    int jump = -1;
+    for(int i = 1; i < sliceSegments.size(); i++){
+        if (sliceSegments[i].first != sliceSegments[i-1].first &&
+            sliceSegments[i].first != sliceSegments[i-1].second &&
+            sliceSegments[i].second != sliceSegments[i-1].first &&
+            sliceSegments[i].second != sliceSegments[i-1].second){
+            jump = i;
+            break;
+        }
+    }
+    if(jump != -1){
+        QVector<QPair<Vertex,Vertex>> corrected;
+        for (int i = jump; i < sliceSegments.size(); i++){
+            corrected.push_back(sliceSegments[i]);
+        }
+        for (int i = 0; i < jump; i++){
+            corrected.push_back(sliceSegments[i]);
+        }
+        sliceSegments = corrected;
+    }
+
+    // First is well formed, second is not
+    if (sliceSegments[0].second == sliceSegments[1].second){
+        QPair<Vertex,Vertex> temp = sliceSegments[1];
+        temp.first = sliceSegments[1].second;
+        temp.second = sliceSegments[1].first;
+        sliceSegments[1] = temp;
+    }
+    // First is not well formed, second is
+    else if (sliceSegments[0].first == sliceSegments[1].first){
+        QPair<Vertex,Vertex> temp = sliceSegments[0];
+        temp.first = sliceSegments[0].second;
+        temp.second = sliceSegments[0].first;
+        sliceSegments[0] = temp;
+    }
+    // Neither is
+    else if (sliceSegments[0].first == sliceSegments[1].second){
+        QPair<Vertex,Vertex> temp = sliceSegments[0];
+        temp.first = sliceSegments[0].second;
+        temp.second = sliceSegments[0].first;
+        sliceSegments[0] = temp;
+
+        temp = sliceSegments[1];
+        temp.first = sliceSegments[1].second;
+        temp.second = sliceSegments[1].first;
+        sliceSegments[1] = temp;
+    }
+
+    for(int i = 2; i < sliceSegments.size(); i++){
+        if (sliceSegments[i-1].second == sliceSegments[i].second){
+            QPair<Vertex,Vertex> temp = sliceSegments[i];
+            temp.first = sliceSegments[i].second;
+            temp.second = sliceSegments[i].first;
+            sliceSegments[i] = temp;
+        }
+    }
+}
+
 double PectusProcessor::chestArea() {
     double area = 0.0;
     for (long i = 0; i < sliceSegments.size(); ++i) {
@@ -631,4 +666,13 @@ double PectusProcessor::defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, V
         area += areaTriangle(l1, l2, l3);
     }
     return area;
+}
+
+// Prints all values of line segments to the console
+void PectusProcessor::printSegments(){
+    qDebug() << "There are " << sliceSegments.size() << " segments in this slice.";
+    for (int i = 0; i < sliceSegments.size(); i++){
+        qDebug() << "First---- x: " << sliceSegments[i].first.x << "; z: " << sliceSegments[i].first.z << ";";
+        qDebug() << "Second--- x: " << sliceSegments[i].second.x << "; z: " << sliceSegments[i].second.z << ";";
+    }
 }
