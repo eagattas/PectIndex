@@ -71,9 +71,6 @@ public:
     Q_INVOKABLE double chestArea();
     Q_INVOKABLE double defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments);
 
-    // Erases arms that are completely disconnected from the drawing
-    Q_INVOKABLE void eraseArms(int canvasWidth, int canvasHeight);
-
     // finds point of defect
     Q_INVOKABLE void findDefectPoint();
 
@@ -104,9 +101,6 @@ private:
     QPair<Vertex, Vertex> findSegment(const Face & f, double yPlane);
     Vertex findVertex(const Vertex & a, const Vertex & b, double yPlane);
 
-
-    // for gettin the start of an arm to delete
-    int getArmStart(int canvasWidth, bool isLeft);
 
     void getDefectLeftRightLimits(QSet<int> &visited, QVector<QPair<Vertex, Vertex> > &possible_points,
                                   bool isLeft, QPair<Vertex, Vertex> & leftRightX, QPair<Vertex, Vertex> & maxZSegment);

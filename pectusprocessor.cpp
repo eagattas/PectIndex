@@ -349,64 +349,6 @@ void PectusProcessor::calculateHallerIndex(){
     emit hallerIndexVisibleChanged(true);
 }
 
-void PectusProcessor::eraseArms(int canvasWidth, int canvasHeight)
-{
-    // get the start of the left and right arms
-    int leftArmStart = getArmStart(canvasWidth, true);
-    int rightArmStart = getArmStart(canvasWidth, false);
-
-    // scenario where theres only one arm thats disconnected
-    // check if the start is on the right or left side of the drawing
-    if (leftArmStart != -1 && leftArmStart == rightArmStart) {
-        if (leftArmStart > (maxx.x + minx.x) / 2) {
-            leftArmStart = -1;
-        }
-        else {
-            rightArmStart = -1;
-        }
-    }
-
-    QObject *canvas = rootQmlObject->findChild<QObject*>("canvas");
-
-    if (leftArmStart != -1) {
-
-        // clear the left arm by clearing a rectangle from its start to the left edge
-        QMetaObject::invokeMethod(canvas, "eraseRect",
-            Q_ARG(QVariant, 0), Q_ARG(QVariant, 0),
-            Q_ARG(QVariant, leftArmStart), Q_ARG(QVariant, canvasHeight));
-
-        // erase sliceSegments that corresponded to the left arm
-        for (int i = 0; i < sliceSegments.size(); i++) {
-            if (sliceSegments[i].first.x * CANVAS_DRAWING_FACTOR < leftArmStart ||
-                    sliceSegments[i].second.x * CANVAS_DRAWING_FACTOR < leftArmStart) {
-                sliceSegments.remove(i--);
-            }
-        }
-
-        // TODO, erase faces and/or calculate intersection again instead?
-
-    }
-
-    if (rightArmStart != -1) {
-
-        // clear the right arm by clearing a rectangle from its start to the right edge
-        QMetaObject::invokeMethod(canvas, "eraseRect",
-            Q_ARG(QVariant, rightArmStart), Q_ARG(QVariant, 0),
-            Q_ARG(QVariant, canvasWidth - rightArmStart), Q_ARG(QVariant, canvasHeight));
-
-        // erase sliceSegments that corresponded to the right arm
-        for (int i = 0; i < sliceSegments.size(); i++) {
-            if (sliceSegments[i].first.x * CANVAS_DRAWING_FACTOR > rightArmStart ||
-                    sliceSegments[i].second.x * CANVAS_DRAWING_FACTOR > rightArmStart) {
-                sliceSegments.remove(i--);
-            }
-        }
-
-        // TODO, erase faces and/or calculate intersection again instead?
-    }
-
-}
-
 // Finds the point of deepest defect
 // TODO: adjust in case drawing is flipped
 // TODO: handle random line segments inside the torso
@@ -560,66 +502,6 @@ void PectusProcessor::getDefectLeftRightLimits(QSet<int> &visited, QVector<QPair
         leftRightX = sliceSegments[bestIndex];
         visited.insert(bestIndex);
     }
-}
-
-int PectusProcessor::getArmStart(int canvasWidth, bool isLeft) {
-
-    // number of times we transition from empty white space to the drawing
-    int numIntersectionCrossings = 0;
-
-    // number of times we transition from the drawing to empty whitespace
-    int numEmptyCrossings = 0;
-
-    // keeps track of whether we are passing through the slice or empty whitespace
-    bool inDrawingCrossing = false;
-
-    // start of the arm that will be deleted
-    int armStart = -1;
-
-    // keeps track of the previous x value of the drawing before moving to empty whitespace
-    int lastIntersectionCross = -1;
-
-    for (int i = 0; i <= canvasWidth; i++) {
-
-        // actual vertical line that we want depending on if we are looking for a right or left arm
-        int offset = !isLeft ? canvasWidth - i : i;
-
-        bool foundIntersection = false;
-        for (int j = 0; j < sliceSegments.size(); j++) {
-            // check for intersection between y = offset and the slice segment
-            if ((sliceSegments[j].first.x * CANVAS_DRAWING_FACTOR >= offset &&
-                 sliceSegments[j].second.x * CANVAS_DRAWING_FACTOR <= offset) ||
-                    (sliceSegments[j].second.x * CANVAS_DRAWING_FACTOR >= offset &&
-                     sliceSegments[j].first.x * CANVAS_DRAWING_FACTOR <= offset)) {
-                foundIntersection = true;
-                break;
-            }
-        }
-
-        if (foundIntersection) {
-            if (!inDrawingCrossing) {
-                // We've moved from empty white space to drawing now
-                numIntersectionCrossings++;
-                inDrawingCrossing = true;
-                // this case means that we hit the beginning of the body on the left side, no need to continue
-                if (numEmptyCrossings == 1 && numIntersectionCrossings == 2) {
-                    armStart = (lastIntersectionCross + offset) / 2 ;
-                    break;
-                }
-            }
-        }
-        else {
-            if (inDrawingCrossing) {
-                // We've moved from drawing to empty whitespace now
-                numEmptyCrossings++;
-                inDrawingCrossing = false;
-                lastIntersectionCross = isLeft ? offset - 1 : offset + 1;
-            }
-        }
-    }
-
-    return armStart;
-
 }
 
 

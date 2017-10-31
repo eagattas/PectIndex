@@ -130,7 +130,6 @@ ApplicationWindow {
 
             property double xCamera: 0.0
             property double yCamera: 0.0
-            property double distance: 2
 
             MouseArea {
                 id: viewerContainerMouseArea
@@ -168,7 +167,6 @@ ApplicationWindow {
                 }
 
                 onWheel: {
-                    var newDist = wheel.angleDelta.y / 10
                     mainCamera.translate(Qt.vector3d(0, 0, wheel.angleDelta.y / 1000), Camera.DontTranslateViewCenter)
                 }
 
@@ -239,112 +237,13 @@ ApplicationWindow {
         }
 
         Rectangle {
-            id: controlsContainer
-            height: viewerContainer.height / 2.3
-            width: viewerContainer.width / 2
-            anchors.left: viewerContainer.right
-            anchors.top: viewerContainer.top
-            anchors.leftMargin: 10
-            color: parent.color
-
-            Text {
-                id:xLabel
-                text: qsTr("Rotate X:")
-                anchors.top: controlsContainer.top
-            }
-
-            Slider {
-                id: rotateSliderX
-                visible: true
-                width: parent.width
-                anchors.top: xLabel.bottom
-            }
-
-            Text {
-                id: yLabel
-                text: qsTr("Rotate Y:")
-                anchors.top: rotateSliderX.bottom
-            }
-
-            Slider {
-                id: rotateSliderY
-                visible: true
-                width: parent.width
-                anchors.top: yLabel.bottom
-            }
-
-            Text {
-                id: zLabel
-                text: qsTr("Rotate Z:")
-                anchors.top: rotateSliderY.bottom
-            }
-
-            Slider {
-                id: rotateSliderZ
-                visible: true
-                width: parent.width
-                anchors.top: zLabel.bottom
-            }
-
-            Text {
-                id: zoomLabel
-                text: qsTr("Zoom:")
-                anchors.top: rotateSliderZ.bottom
-            }
-
-            Slider {
-                id: sliderZoom
-                visible: true
-                width: parent.width
-                anchors.top: zoomLabel.bottom
-                minimumValue: 0
-                maximumValue: 10
-                value: 8
-            }
-
-            Text {
-                id: sliceLabel
-                text: qsTr("Slice:")
-                anchors.top: sliderZoom.bottom
-                anchors.left: parent.left
-            }
-
-            Slider {
-                id: sliceSlider
-                width: parent.width
-                anchors.top: sliceLabel.bottom
-                minimumValue: 0
-                maximumValue: 1
-                onValueChanged: {
-
-                }
-            }
-
-//            Text {
-//                id: sliceRangeAmount
-//                text: qsTr("Range Amount:")
-//                anchors.top: sliceSlider.bottom
-//                anchors.left: parent.left
-//            }
-
-//            Slider {
-//                id: sliceRangeAmountSlider
-//                width: parent.width
-//                anchors.top: sliceRangeAmount.bottom
-//                minimumValue: 0
-//                maximumValue: 1
-//            }
-
-        }
-
-        Rectangle {
             id: dialogHolder
             width: parent.width / 5
             height: 20
-            anchors.left: controlsContainer.right
-            anchors.top: controlsContainer.top
-            anchors.topMargin: 30
-            anchors.leftMargin: 30
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.rightMargin: 50
+            anchors.topMargin: 75
             color: "white"
             border.color: "black"
             border.width: 1
@@ -425,11 +324,12 @@ ApplicationWindow {
 
         Rectangle {
             id: sliceRect
-            anchors.top: controlsContainer.bottom
+            anchors.bottom: parent.bottom
             anchors.left: viewerContainer.right
             anchors.leftMargin: 20
             anchors.right: parent.right
             anchors.rightMargin: 20
+            anchors.bottomMargin: 20
 
             height: 300
             Row {
@@ -496,21 +396,6 @@ ApplicationWindow {
                    text: "Clear"
                    onClicked: {
                         sliceCanvas.clear()
-                   }
-                }
-                Button {
-                   id: plotLine
-                   text: "Plot Slice"
-                   onClicked: {
-                        myProcessor.calculateIntersection(myProcessor.getMinY() + sliceSlider.value*(myProcessor.getMaxY() - myProcessor.getMinY()))
-                        myProcessor.drawLineSegments()
-                   }
-                }
-                Button {
-                   id: eraseArms
-                   text: "Erase Arms"
-                   onClicked: {
-                        myProcessor.eraseArms(sliceCanvas.width, sliceCanvas.height)
                    }
                 }
             }
