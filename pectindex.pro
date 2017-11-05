@@ -33,5 +33,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     pectusviewer.h \
     pectusprocessor.h \
-    area.h \
-    surface.h
+    area.h

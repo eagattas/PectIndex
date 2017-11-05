@@ -110,7 +110,6 @@ ApplicationWindow {
                 }
             }
         }
-
         Rectangle {
             id: viewerContainer
             width: (parent.width / 2) - 40
@@ -119,29 +118,91 @@ ApplicationWindow {
             anchors.leftMargin: 20
             anchors.top: parent.top
             anchors.topMargin: 30
+            z: 100
 
-            color: parent.color
-            border.color: "black"
-            border.width: 1
+            color: "transparent"
 
-            Text {
-                id: placeholder
-                width: parent.width / 3
-                height: 30
-                text: myViewer.scanFileName
-                anchors.centerIn: parent
-                layer.enabled: true
+            property double previousX: 0.0
+            property double previousY: 0.0
+
+            property double xRot: 0.0
+            property double yRot: 0.0
+
+            property double xCamera: 0.0
+            property double yCamera: 0.0
+
+            MouseArea {
+                id: viewerContainerMouseArea
+                anchors.fill: parent
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+                onMouseXChanged: {
+                    if (pressedButtons == Qt.LeftButton) {
+                        if (viewerContainer.previousX !== 0) {
+                           viewerContainer.xRot += mouseX - viewerContainer.previousX
+                        }
+                    }
+                    else if (pressedButtons == Qt.RightButton) {
+                        if (viewerContainer.previousX !== 0) {
+                            viewerContainer.xCamera += mouseX - viewerContainer.previousX
+                            //mainCamera.translate(Qt.vector3d(-1 * (mouseX - viewerContainer.previousX) / 750, 0, 0))
+                        }
+                    }
+                    viewerContainer.previousX = mouseX
+                }
+
+                onMouseYChanged: {
+                    if (pressedButtons == Qt.LeftButton) {
+                        if (viewerContainer.previousY !== 0) {
+                           viewerContainer.yRot += mouseY - viewerContainer.previousY
+                        }
+                    }
+                    else if (pressedButtons == Qt.RightButton) {
+                        if (viewerContainer.previousY !== 0) {
+                            viewerContainer.yCamera += mouseY - viewerContainer.previousY
+                            //mainCamera.translate(Qt.vector3d(0, (mouseY - viewerContainer.previousY) / 750, 0), Camera.TranslateViewCenter)
+                        }
+                    }
+                    viewerContainer.previousY = mouseY
+                }
+
+                onWheel: {
+                    mainCamera.translate(Qt.vector3d(0, 0, wheel.angleDelta.y / 1000), Camera.DontTranslateViewCenter)
+                }
+
+                onReleased: {
+                    viewerContainer.previousX = 0
+                    viewerContainer.previousY = 0
+                }
             }
 
-            Scene3D {
-                id: scene3d
-                anchors.fill: parent
-                aspects: ["input", "logic"]
-                ChestModel {
-                    id: chestModel
-                    scanSource: myViewer.renderStatus ? myViewer.scanFileName : ""
-                    modelColor: settingsDialog.modelColor
+
+
+        }
+
+        Scene3D {
+            id: scene3d
+            width: (parent.width / 2) - 40
+            height: parent.height - 50
+            anchors.left: parent.left
+            anchors.leftMargin: 20
+            anchors.top: parent.top
+            anchors.topMargin: 30
+            z: 0
+
+            aspects: ["input", "logic"]
+
+            ChestModel {
+                mainCamera: Camera {
+                    id: mainCamera
+                    projectionType: CameraLens.PerspectiveProjection
+                    fieldOfView: 22.5
+                    position: Qt.vector3d( 0.19195, 0.180172, 4)
+                    viewCenter: Qt.vector3d(0, 0, 0)
                 }
+                id: chestModel
+                scanSource: myViewer.renderStatus ? myViewer.scanFileName : ""
+                modelColor: settingsDialog.modelColor
             }
         }
 
@@ -152,113 +213,37 @@ ApplicationWindow {
             anchors.left: viewerContainer.left
         }
 
-        Rectangle {
-            id: controlsContainer
-            height: viewerContainer.height / 2.3
-            width: viewerContainer.width / 2
-            anchors.left: viewerContainer.right
-            anchors.top: viewerContainer.top
-            anchors.leftMargin: 10
-            color: parent.color
-
-            Text {
-                id:xLabel
-                text: qsTr("Rotate X:")
-                anchors.top: controlsContainer.top
-            }
-
-            Slider {
-                id: rotateSliderX
-                visible: true
-                width: parent.width
-                anchors.top: xLabel.bottom
-            }
-
-            Text {
-                id: yLabel
-                text: qsTr("Rotate Y:")
-                anchors.top: rotateSliderX.bottom
-            }
-
-            Slider {
-                id: rotateSliderY
-                visible: true
-                width: parent.width
-                anchors.top: yLabel.bottom
-            }
-
-            Text {
-                id: zLabel
-                text: qsTr("Rotate Z:")
-                anchors.top: rotateSliderY.bottom
-            }
-
-            Slider {
-                id: rotateSliderZ
-                visible: true
-                width: parent.width
-                anchors.top: zLabel.bottom
-            }
-
-            Text {
-                id: zoomLabel
-                text: qsTr("Zoom:")
-                anchors.top: rotateSliderZ.bottom
-            }
-
-            Slider {
-                id: sliderZoom
-                visible: true
-                width: parent.width
-                anchors.top: zoomLabel.bottom
-                minimumValue: 0
-                maximumValue: 10
-                value: 8
-            }
-
-            Text {
-                id: sliceLabel
-                text: qsTr("Slice:")
-                anchors.top: sliderZoom.bottom
-                anchors.left: parent.left
-            }
-
-            Slider {
-                id: sliceSlider
-                width: parent.width
-                anchors.top: sliceLabel.bottom
-                minimumValue: 0
-                maximumValue: 1
-                onValueChanged: {
-
+        Row {
+            id: scene3dControls
+            spacing: 3
+            anchors.right: viewerContainer.right
+            anchors.bottom: viewerContainer.top
+            Button {
+                id: test
+                text: "Camera Mode"
+                onClicked: {
+                    viewerContainer.z = 100
+                    scene3d.z = 0
                 }
             }
-
-//            Text {
-//                id: sliceRangeAmount
-//                text: qsTr("Range Amount:")
-//                anchors.top: sliceSlider.bottom
-//                anchors.left: parent.left
-//            }
-
-//            Slider {
-//                id: sliceRangeAmountSlider
-//                width: parent.width
-//                anchors.top: sliceRangeAmount.bottom
-//                minimumValue: 0
-//                maximumValue: 1
-//            }
-
+            Button {
+                id: test2
+                text: "Slice Mode"
+                onClicked: {
+                    viewerContainer.z = 0
+                    scene3d.z = 100
+                }
+            }
         }
 
         Rectangle {
             id: dialogHolder
             width: parent.width / 5
             height: 20
-            anchors.left: controlsContainer.right
-            anchors.top: controlsContainer.top
-            anchors.topMargin: 30
-            anchors.leftMargin: 30
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.rightMargin: 50
+            anchors.topMargin: 75
             color: "white"
             border.color: "black"
             border.width: 1
@@ -339,11 +324,12 @@ ApplicationWindow {
 
         Rectangle {
             id: sliceRect
-            anchors.top: controlsContainer.bottom
+            anchors.bottom: parent.bottom
             anchors.left: viewerContainer.right
             anchors.leftMargin: 20
             anchors.right: parent.right
             anchors.rightMargin: 20
+            anchors.bottomMargin: 20
 
             height: 300
             Row {
@@ -366,20 +352,18 @@ ApplicationWindow {
                     }
                 }
                 Button {
-                    id:fixedIntersection
-                    text: "Fixed"
-                    onClicked: {
-                        myProcessor.getFixedIntersection();
-                        console.log("Drawing fixed intersection");
-                        myProcessor.drawLineSegments();
-                    }
-                }
-                Button {
                     id: chestArea
                     text: "Area"
                     onClicked: {
                         myProcessor.chestArea();
 
+                    }
+                }
+                Button {
+                    id: printSegments
+                    text: "Print Segments"
+                    onClicked: {
+                        myProcessor.printSegments();
                     }
                 }
             }
@@ -410,21 +394,6 @@ ApplicationWindow {
                    text: "Clear"
                    onClicked: {
                         sliceCanvas.clear()
-                   }
-                }
-                Button {
-                   id: plotLine
-                   text: "Plot Slice"
-                   onClicked: {
-                        myProcessor.calculateIntersection(myProcessor.getMinY() + sliceSlider.value*(myProcessor.getMaxY() - myProcessor.getMinY()))
-                        myProcessor.drawLineSegments()
-                   }
-                }
-                Button {
-                   id: eraseArms
-                   text: "Erase Arms"
-                   onClicked: {
-                        myProcessor.eraseArms(sliceCanvas.width, sliceCanvas.height)
                    }
                 }
             }
