@@ -109,10 +109,10 @@ void PectusProcessor::drawLineSegments()
     minx.x = std::numeric_limits<double>::max();
     maxx.x = std::numeric_limits<double>::min();
      for (int i = 0; i < sliceSegments.size(); i++) {
-         sliceSegments[i].first.x = qCos(rotationAngle) * (sliceSegments[i].first.x - centerOfSlice.x) + qSin(rotationAngle) * (sliceSegments[i].first.z - centerOfSlice.z) + centerOfSlice.x;
-         sliceSegments[i].first.z = -qSin(rotationAngle) * (sliceSegments[i].first.x - centerOfSlice.x) + qCos(rotationAngle) * (sliceSegments[i].first.z - centerOfSlice.z) + centerOfSlice.z;
-         sliceSegments[i].second.x = qCos(rotationAngle) * (sliceSegments[i].second.x - centerOfSlice.x) + qSin(rotationAngle) * (sliceSegments[i].second.z - centerOfSlice.z) + centerOfSlice.x;
-         sliceSegments[i].second.z = -qSin(rotationAngle) * (sliceSegments[i].second.x - centerOfSlice.x) + qCos(rotationAngle) * (sliceSegments[i].second.z - centerOfSlice.z) + centerOfSlice.z;
+//         sliceSegments[i].first.x = qCos(rotationAngle) * (sliceSegments[i].first.x - centerOfSlice.x) + qSin(rotationAngle) * (sliceSegments[i].first.z - centerOfSlice.z) + centerOfSlice.x;
+//         sliceSegments[i].first.z = -qSin(rotationAngle) * (sliceSegments[i].first.x - centerOfSlice.x) + qCos(rotationAngle) * (sliceSegments[i].first.z - centerOfSlice.z) + centerOfSlice.z;
+//         sliceSegments[i].second.x = qCos(rotationAngle) * (sliceSegments[i].second.x - centerOfSlice.x) + qSin(rotationAngle) * (sliceSegments[i].second.z - centerOfSlice.z) + centerOfSlice.x;
+//         sliceSegments[i].second.z = -qSin(rotationAngle) * (sliceSegments[i].second.x - centerOfSlice.x) + qCos(rotationAngle) * (sliceSegments[i].second.z - centerOfSlice.z) + centerOfSlice.z;
 
          if (sliceSegments[i].first.x < minx.x) {
              minx = sliceSegments[i].first;
@@ -124,7 +124,9 @@ void PectusProcessor::drawLineSegments()
          } if (sliceSegments[i].first.x > maxx.x) {
              maxx = sliceSegments[i].second;
          }
-
+         if (sliceSegments[i].first.x > 1.0 || sliceSegments[i].first.y > 1.0 || sliceSegments[i].second.x > 1.0 || sliceSegments[i].second.y > 1.0) {
+             qDebug() << "Vertex value greater than 1: " << sliceSegments[i].first.x << sliceSegments[i].first.y << sliceSegments[i].second.x << sliceSegments[i].second.y;
+         }
          QMetaObject::invokeMethod(canvas, "drawLine",
              Q_ARG(QVariant, sliceSegments[i].first.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, sliceSegments[i].first.z*CANVAS_DRAWING_FACTOR),
              Q_ARG(QVariant, sliceSegments[i].second.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, sliceSegments[i].second.z*CANVAS_DRAWING_FACTOR));
@@ -716,23 +718,18 @@ QVector<QPair<Vertex,Vertex>> PectusProcessor::findLargestSet(){
 double PectusProcessor::chestArea() {
     double area = 0.0;
     for (long i = 0; i < sliceSegments.size(); ++i) {
-        Vertex slice_v1 = sliceSegments[i].first;
-        Vertex slice_v2 = sliceSegments[i].second;
-
         double slope = (minx.z - maxx.z) / (minx.x - maxx.x);
+        double z_v1 = slope * (sliceSegments[i].first.x - maxx.x) + maxx.z;
+        double z_v2 = slope * (sliceSegments[i].second.x - maxx.x) + maxx.z;
 
-        double z_v1 = slope * (slice_v1.x - maxx.x) + maxx.z;
-        double z_v2 = slope * (slice_v2.x - maxx.x) + maxx.z;
+        double line1 = AREA_FACTOR * distance(sliceSegments[i].first.x, sliceSegments[i].second.x, sliceSegments[i].first.z, sliceSegments[i].second.z);
+        double line2 = AREA_FACTOR * distance(sliceSegments[i].first.x, sliceSegments[i].first.x, sliceSegments[i].first.z, z_v1);
+        double line3 = AREA_FACTOR * distance(sliceSegments[i].second.x, sliceSegments[i].second.x, sliceSegments[i].second.z, z_v2);
+        double line4 = AREA_FACTOR * distance(sliceSegments[i].first.x, sliceSegments[i].second.x, z_v1, z_v2);
 
-        double line1 = AREA_FACTOR * distance(slice_v1.x, slice_v2.x, slice_v1.z, slice_v2.z);
-        double line2 = AREA_FACTOR * distance(slice_v1.x, slice_v1.x, slice_v1.z, z_v1);
-        double line3 = AREA_FACTOR * distance(slice_v2.x, slice_v2.x, slice_v2.z, z_v2);
-        double line4 = AREA_FACTOR * distance(slice_v1.x, slice_v2.x, z_v1, z_v2);
-
-        double temp_area = areaTrapezoid(line1, line2, line3, line4);
-        area += temp_area;
+        area += areaTrapezoid(line1, line2, line3, line4);
     }
-    qDebug() << "Chest Area: " << area;
+
     return area;
 }
 
@@ -748,5 +745,20 @@ double PectusProcessor::defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, V
                              defectSegments[i].second.y, defectSegments[i].first.y);
         area += areaTriangle(l1, l2, l3);
     }
+    qDebug() << area;
     return area;
+}
+
+double PectusProcessor::volumeDefectIndex(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments) {
+    double chest_area = chestArea();
+    double defect_area = defectArea(v1, v2, defectSegments);
+    // need to talk with Dr. Campbell about the ratio
+    return defect_area / (chest_area + defect_area);
+}
+
+double PectusProcessor::asymmetricIndex() {
+    double left_chest = 0.0;
+    double right_chest = chestArea();
+    right_chest -= left_chest;
+    return fabs(right_chest/left_chest);
 }

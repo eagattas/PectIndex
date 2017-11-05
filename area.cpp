@@ -22,9 +22,13 @@ double areaTrapezoid(double l1, double l2, double l3, double l4) {
     double temp3 = (l2 + l1 - l3 - l4);
     double temp4 = (-l2 + l1 + l3 + l4);
     double temp5 = temp1*temp2*temp3*temp4;
-    qDebug() << temp1 << temp2 << temp3 << temp4 << temp5;
-    area = sqrt(temp1*temp2*temp3*temp4);
-    area = area*(l2+l3)/(4*(l2-l3));
+    if (temp5 < 0.0) {
+        qDebug() << l1 << l2 << l3 << l4;
+    }
+    else {
+        area = sqrt(temp1*temp2*temp3*temp4);
+        area = area*(l2+l3)/(4*(l2-l3));
+    }
     return area;
 }
 

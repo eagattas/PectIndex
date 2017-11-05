@@ -57,6 +57,8 @@ public:
     void processFile();
     void setRootQmlObject(QObject* obj);
     void createSurfaceModel(const QVector<Vertex> & vertices, const QVector<Face> & faces);
+    double defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments);
+    Q_INVOKABLE double chestArea();
 
     Q_INVOKABLE void drawLineSegments();
 
@@ -68,8 +70,8 @@ public:
     Q_INVOKABLE bool getHallerIndexVisible();
     Q_INVOKABLE void calculateHallerIndex();
     Q_INVOKABLE void getFixedIntersection();
-    Q_INVOKABLE double chestArea();
-    Q_INVOKABLE double defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments);
+    Q_INVOKABLE double volumeDefectIndex(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments);
+    Q_INVOKABLE double asymmetricIndex();
 
     // Erases arms that are completely disconnected from the drawing
     Q_INVOKABLE void eraseArms(int canvasWidth, int canvasHeight);
