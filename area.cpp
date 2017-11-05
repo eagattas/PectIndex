@@ -9,6 +9,7 @@ double distance(double x1, double x2, double y1, double y2) {
 }
 
 //l2 and l3 must be the parellel lines of the trapezoid
+// for this to work the arms need to be removed, otherwise there could be error
 double areaTrapezoid(double l1, double l2, double l3, double l4) {
     double area = 0.0;
     double temp;
@@ -23,7 +24,7 @@ double areaTrapezoid(double l1, double l2, double l3, double l4) {
     double temp4 = (-l2 + l1 + l3 + l4);
     double temp5 = temp1*temp2*temp3*temp4;
     if (temp5 < 0.0) {
-        qDebug() << l1 << l2 << l3 << l4;
+        qDebug() << "Trapezoid area less than 0: " << l1 << l2 << l3 << l4;
     }
     else {
         area = sqrt(temp1*temp2*temp3*temp4);
@@ -36,6 +37,9 @@ double areaTriangle(double l1, double l2, double l3) {
     double area = 0.0;
     double S = (l1 + l2 + l3) / 2;
     area = S * (S - l1) * (S - l2) * (S - l3);
+    if (area < 0) {
+        qDebug() << "Area less than 0: " << l1 << l2 << l3;
+    }
     area = sqrt(area);
     return area;
 }

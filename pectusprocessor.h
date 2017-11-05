@@ -71,12 +71,12 @@ public:
     Q_INVOKABLE double getHallerIndex();
     Q_INVOKABLE bool getHallerIndexVisible();
     Q_INVOKABLE void calculateHallerIndex();
-    Q_INVOKABLE void getFixedIntersection();
+    //Q_INVOKABLE void getFixedIntersection();
     Q_INVOKABLE double volumeDefectIndex(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments);
     Q_INVOKABLE double asymmetricIndex();
 
     // Erases arms that are completely disconnected from the drawing
-    Q_INVOKABLE void eraseArms(int canvasWidth, int canvasHeight);
+    //Q_INVOKABLE void eraseArms(int canvasWidth, int canvasHeight);
     Q_INVOKABLE double chestArea();
     Q_INVOKABLE double defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments);
     Q_INVOKABLE void printSegments();

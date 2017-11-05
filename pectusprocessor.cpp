@@ -644,9 +644,26 @@ double PectusProcessor::chestArea() {
         double line3 = AREA_FACTOR * distance(sliceSegments[i].second.x, sliceSegments[i].second.x, sliceSegments[i].second.z, z_v2);
         double line4 = AREA_FACTOR * distance(sliceSegments[i].first.x, sliceSegments[i].second.x, z_v1, z_v2);
 
-        area += areaTrapezoid(line1, line2, line3, line4);
-    }
+        if (line1 > line2 && line1 > line3) {
+            qDebug() << "Lines: " << line1 << line2 << line3 << line4;
+        }
+        else if (line4 > line2 && line4 > line3) {
+            qDebug() << "Lines: " << line1 << line2 << line3 << line4;
+        }
 
+        if (line2 < .00001) {
+            area += areaTriangle(line1, line3, line4);
+        }
+
+        else if (line3 < .00001) {
+            area += areaTriangle(line1, line2, line4);
+        }
+
+        else {
+            area += areaTrapezoid(line1, line2, line3, line4);
+        }
+    }
+    qDebug() << area;
     return area;
 }
 
@@ -662,7 +679,6 @@ double PectusProcessor::defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, V
                              defectSegments[i].second.y, defectSegments[i].first.y);
         area += areaTriangle(l1, l2, l3);
     }
-    qDebug() << area;
     return area;
 }
 
