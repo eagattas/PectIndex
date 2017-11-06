@@ -73,7 +73,7 @@ public:
     Q_INVOKABLE void calculateHallerIndex();
     //Q_INVOKABLE void getFixedIntersection();
     Q_INVOKABLE double volumeDefectIndex(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments);
-    Q_INVOKABLE double asymmetricIndex();
+    Q_INVOKABLE void asymmetricIndex();
 
     // Erases arms that are completely disconnected from the drawing
     //Q_INVOKABLE void eraseArms(int canvasWidth, int canvasHeight);
@@ -83,6 +83,9 @@ public:
 
     // finds point of defect
     Q_INVOKABLE void findDefectPoint();
+
+    Q_INVOKABLE double getAsymmetricIndexValue();
+    Q_INVOKABLE bool getAsymmetricIndexVisable();
 
 private:
     // rootQmlObject - allows interaction with QML
@@ -99,6 +102,9 @@ private:
     bool hallerIndexVisible = false;
     Vertex hallerV1 = Vertex(0, 0, 0);
     Vertex hallerV2 = Vertex(0, 0, 0);
+
+    bool asymmetricIndexVisible = false;
+    double asymmetricIndexValue = 0.0;
 
 
     // These two lines describe the furthest lines
@@ -139,6 +145,8 @@ signals:
     void hallerIndexVisibleChanged(const bool arg);
     void volumeDefectIndexChanged(const double & arg);
     void volumeDefectIndexVisibleChanged(const bool arg);
+    void asymmetricIndexValueChanged(const double & arg);
+    void asymmetricIndexVisibleChanged(const bool arg);
 
 public slots:
 

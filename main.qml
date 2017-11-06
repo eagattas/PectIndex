@@ -293,6 +293,12 @@ ApplicationWindow {
                     anchors.top: indiceBox.top
                     anchors.topMargin: 10
                 }
+                Text {
+                    id: asymmetricText
+                    visible: myProcessor.getAsymmetricIndexVisable()
+                    text: "Asymmetric Index: " + myProcessor.getAsymmetricIndexValue()
+                    anchors.top: hallerText.bottom
+                }
             }
 
             FileDialog {
@@ -353,9 +359,9 @@ ApplicationWindow {
                 }
                 Button {
                     id: chestArea
-                    text: "Area"
+                    text: "Asymm Index"
                     onClicked: {
-                        myProcessor.chestArea();
+                        myProcessor.asymmetricIndex();
 
                     }
                 }

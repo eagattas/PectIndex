@@ -703,11 +703,15 @@ double PectusProcessor::volumeDefectIndex(Vertex v1, Vertex v2, QVector<QPair<Ve
     return defect_area / (chest_area + defect_area);
 }
 
-double PectusProcessor::asymmetricIndex() {
-    double left_chest = chestArea(false);
-    double right_chest = chestArea(true);
-    left_chest -= right_chest;
-    return fabs(right_chest/left_chest);
+void PectusProcessor::asymmetricIndex() {
+    asymmetricIndexVisible = true;
+    asymmetricIndexVisibleChanged(asymmetricIndexVisible);
+    double total_chest = chestArea(false);
+    double half_chest = chestArea(true);
+    total_chest -= half_chest;
+    qDebug() << half_chest/total_chest;
+    asymmetricIndexValue = half_chest/total_chest;
+    emit asymmetricIndexValueChanged(asymmetricIndexValue);
 }
 
 // Prints all values of line segments to the console
@@ -717,4 +721,12 @@ void PectusProcessor::printSegments(){
         qDebug() << "First---- x: " << sliceSegments[i].first.x << "; z: " << sliceSegments[i].first.z << ";";
         qDebug() << "Second--- x: " << sliceSegments[i].second.x << "; z: " << sliceSegments[i].second.z << ";";
     }
+}
+
+double PectusProcessor::getAsymmetricIndexValue(){
+    return asymmetricIndexValue;
+}
+
+bool PectusProcessor::getAsymmetricIndexVisable() {
+    return asymmetricIndexVisible;
 }
