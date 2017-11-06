@@ -109,10 +109,10 @@ void PectusProcessor::drawLineSegments()
     minx.x = std::numeric_limits<double>::max();
     maxx.x = std::numeric_limits<double>::min();
      for (int i = 0; i < sliceSegments.size(); i++) {
-//         sliceSegments[i].first.x = qCos(rotationAngle) * (sliceSegments[i].first.x - centerOfSlice.x) + qSin(rotationAngle) * (sliceSegments[i].first.z - centerOfSlice.z) + centerOfSlice.x;
-//         sliceSegments[i].first.z = -qSin(rotationAngle) * (sliceSegments[i].first.x - centerOfSlice.x) + qCos(rotationAngle) * (sliceSegments[i].first.z - centerOfSlice.z) + centerOfSlice.z;
-//         sliceSegments[i].second.x = qCos(rotationAngle) * (sliceSegments[i].second.x - centerOfSlice.x) + qSin(rotationAngle) * (sliceSegments[i].second.z - centerOfSlice.z) + centerOfSlice.x;
-//         sliceSegments[i].second.z = -qSin(rotationAngle) * (sliceSegments[i].second.x - centerOfSlice.x) + qCos(rotationAngle) * (sliceSegments[i].second.z - centerOfSlice.z) + centerOfSlice.z;
+         sliceSegments[i].first.x = qCos(rotationAngle) * (sliceSegments[i].first.x - centerOfSlice.x) + qSin(rotationAngle) * (sliceSegments[i].first.z - centerOfSlice.z) + centerOfSlice.x;
+         sliceSegments[i].first.z = -qSin(rotationAngle) * (sliceSegments[i].first.x - centerOfSlice.x) + qCos(rotationAngle) * (sliceSegments[i].first.z - centerOfSlice.z) + centerOfSlice.z;
+         sliceSegments[i].second.x = qCos(rotationAngle) * (sliceSegments[i].second.x - centerOfSlice.x) + qSin(rotationAngle) * (sliceSegments[i].second.z - centerOfSlice.z) + centerOfSlice.x;
+         sliceSegments[i].second.z = -qSin(rotationAngle) * (sliceSegments[i].second.x - centerOfSlice.x) + qCos(rotationAngle) * (sliceSegments[i].second.z - centerOfSlice.z) + centerOfSlice.z;
 
          if (sliceSegments[i].first.x < minx.x) {
              minx = sliceSegments[i].first;
@@ -632,17 +632,31 @@ void PectusProcessor::orderSegments(){
     }
 }
 
-double PectusProcessor::chestArea() {
+double PectusProcessor::chestArea(bool asymmetric) {
     double area = 0.0;
+    Vertex v1, v2;
     for (long i = 0; i < sliceSegments.size(); ++i) {
+        v1 = sliceSegments[i].first;
+        v2 = sliceSegments[i].second;
+        if (asymmetric) {
+            if (v1.x >= hallerV1.x && v2.x >= hallerV1.x)
+                continue;
+            else if (v1.x >= hallerV1.x) {
+                v1.x = hallerV1.x;
+            }
+            else if (v2.x >= hallerV1.x) {
+                v2.x = hallerV1.x;
+            }
+        }
         double slope = (minx.z - maxx.z) / (minx.x - maxx.x);
-        double z_v1 = slope * (sliceSegments[i].first.x - maxx.x) + maxx.z;
-        double z_v2 = slope * (sliceSegments[i].second.x - maxx.x) + maxx.z;
+        double v3_z = slope * (v1.x - maxx.x) + maxx.z;
+        double v4_z = slope * (v2.x - maxx.x) + maxx.z;
 
-        double line1 = AREA_FACTOR * distance(sliceSegments[i].first.x, sliceSegments[i].second.x, sliceSegments[i].first.z, sliceSegments[i].second.z);
-        double line2 = AREA_FACTOR * distance(sliceSegments[i].first.x, sliceSegments[i].first.x, sliceSegments[i].first.z, z_v1);
-        double line3 = AREA_FACTOR * distance(sliceSegments[i].second.x, sliceSegments[i].second.x, sliceSegments[i].second.z, z_v2);
-        double line4 = AREA_FACTOR * distance(sliceSegments[i].first.x, sliceSegments[i].second.x, z_v1, z_v2);
+        double line1 = AREA_FACTOR * distance(v1.x, v2.x, v1.z, v2.z);
+        double line2 = AREA_FACTOR * distance(v1.x, v1.x, v1.z, v3_z);
+        double line3 = AREA_FACTOR * distance(v2.x, v2.x, v2.z, v4_z);
+        double line4 = AREA_FACTOR * distance(v1.x, v2.x, v3_z, v4_z);
+
 
         if (line1 > line2 && line1 > line3) {
             qDebug() << "Lines: " << line1 << line2 << line3 << line4;
@@ -683,16 +697,16 @@ double PectusProcessor::defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, V
 }
 
 double PectusProcessor::volumeDefectIndex(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments) {
-    double chest_area = chestArea();
+    double chest_area = chestArea(false);
     double defect_area = defectArea(v1, v2, defectSegments);
     // need to talk with Dr. Campbell about the ratio
     return defect_area / (chest_area + defect_area);
 }
 
 double PectusProcessor::asymmetricIndex() {
-    double left_chest = 0.0;
-    double right_chest = chestArea();
-    right_chest -= left_chest;
+    double left_chest = chestArea(false);
+    double right_chest = chestArea(true);
+    left_chest -= right_chest;
     return fabs(right_chest/left_chest);
 }
 
