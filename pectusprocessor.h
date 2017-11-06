@@ -77,7 +77,7 @@ public:
 
     // Erases arms that are completely disconnected from the drawing
     //Q_INVOKABLE void eraseArms(int canvasWidth, int canvasHeight);
-    Q_INVOKABLE double chestArea();
+    Q_INVOKABLE double chestArea(bool asymmetric);
     Q_INVOKABLE double defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments);
     Q_INVOKABLE void printSegments();
 
