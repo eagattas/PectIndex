@@ -208,10 +208,20 @@ ApplicationWindow {
         }
 
         Text {
+            id: scanViewerText
             text: qsTr("3D Scan Viewer:")
             anchors.bottom: viewerContainer.top
             anchors.bottomMargin: 5
             anchors.left: viewerContainer.left
+        }
+
+        Text {
+            id: fileNameText
+            text: ""
+            anchors.left: scanViewerText.right
+            anchors.bottom: viewerContainer.top
+            anchors.leftMargin: 5
+            anchors.bottomMargin: 5
         }
 
         Row {
@@ -219,6 +229,8 @@ ApplicationWindow {
             spacing: 3
             anchors.right: viewerContainer.right
             anchors.bottom: viewerContainer.top
+
+
             Button {
                 id: cameraModeButton
                 text: "Camera Mode"
@@ -255,6 +267,7 @@ ApplicationWindow {
                             }
                    }
             }
+
         }
 
         Rectangle {
@@ -297,9 +310,12 @@ ApplicationWindow {
                 height: 20
                 text: "Render 3D Model"
                 onClicked: {
+                    var filename = fileDialog.fileUrl.toString().split('/');
+                    fileNameText.text = filename[filename.length - 1];
                     myViewer.setScanFileName(myViewer.visibleFileName);
                     myViewer.renderScan();
                     myProcessor.setFileName(fileDialog.fileUrl);
+
                 }
             }
 
