@@ -1,6 +1,7 @@
 import QtQuick 2.6
 import QtQuick.Controls 2.2
 import QtQuick.Controls 1.4
+import QtQuick.Controls.Styles 1.4
 import PectusViewer 1.1
 import PectusProcessor 1.1
 import QtQuick.Dialogs 1.2
@@ -224,7 +225,16 @@ ApplicationWindow {
                 onClicked: {
                     viewerContainer.z = 100
                     scene3d.z = 0
+                    test2.checked = false
+                    test.checked = true
                 }
+                style: ButtonStyle {
+                       background:
+                            Rectangle {
+                               color: test.checked ? "#FFFFFF" : "#A9A9A9";
+                                radius: 1;
+                            }
+                   }
             }
             Button {
                 id: test2
@@ -232,7 +242,16 @@ ApplicationWindow {
                 onClicked: {
                     viewerContainer.z = 0
                     scene3d.z = 100
+                    test2.checked = true
+                    test.checked = false
                 }
+                style: ButtonStyle {
+                       background:
+                            Rectangle {
+                               color: test2.checked ? "#FFFFFF" : "#A9A9A9";
+                                radius: 1;
+                            }
+                   }
             }
         }
 
