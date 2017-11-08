@@ -220,35 +220,37 @@ ApplicationWindow {
             anchors.right: viewerContainer.right
             anchors.bottom: viewerContainer.top
             Button {
-                id: test
+                id: cameraModeButton
                 text: "Camera Mode"
+                checked: true
                 onClicked: {
                     viewerContainer.z = 100
                     scene3d.z = 0
-                    test2.checked = false
-                    test.checked = true
+                    cameraModeButton.checked = true
+                    sliceModeButton.checked = false;
                 }
                 style: ButtonStyle {
                        background:
                             Rectangle {
-                               color: test.checked ? "#FFFFFF" : "#A9A9A9";
+                               color: cameraModeButton.checked ? "#FFFFFF" : "#A9A9A9";
                                 radius: 1;
                             }
                    }
             }
             Button {
-                id: test2
+                id: sliceModeButton
                 text: "Slice Mode"
+                checked: false
                 onClicked: {
                     viewerContainer.z = 0
                     scene3d.z = 100
-                    test2.checked = true
-                    test.checked = false
+                    sliceModeButton.checked = true
+                    cameraModeButton.checked = false
                 }
                 style: ButtonStyle {
                        background:
                             Rectangle {
-                               color: test2.checked ? "#FFFFFF" : "#A9A9A9";
+                               color: sliceModeButton.checked ? "#FFFFFF" : "#A9A9A9";
                                 radius: 1;
                             }
                    }
