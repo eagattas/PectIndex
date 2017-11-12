@@ -402,12 +402,21 @@ ApplicationWindow {
 
                     }
                 }
-                Button {
-                    id: printSegments
-                    text: "Print Segments"
+//                Button {
+//                    id: printSegments
+//                    text: "Print Segments"
+//                    onClicked: {
+//                        myProcessor.printSegments();
+//                    }
+//                }
+                CheckBox {
+                    id: armRemovalEnabled
+                    text: "Enable Arm Removal"
+                    checked: myProcessor.armRemovalEnabled
                     onClicked: {
-                        myProcessor.printSegments();
+                        myProcessor.enableArmRemoval(!myProcessor.armRemovalEnabled);
                     }
+                    anchors.verticalCenter: parent.verticalCenter
                 }
             }
 

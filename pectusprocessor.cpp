@@ -142,6 +142,8 @@ QString PectusProcessor::getFileName(){
 void PectusProcessor::calculateIntersection(double yPlane){
     QVector<Face> intersectedFaces;
     sliceSegments.clear();
+    rightArmRemoved = false;
+    leftArmRemoved = false;
 
     for(int i = 0; i < faces.size(); i++){
         bool above = false, below = false;
@@ -176,6 +178,33 @@ void PectusProcessor::calculateIntersection(double yPlane){
         sliceSegments.push_back(segment);
     }
 
+    for(int i = 0; i < sliceSegments.size(); i++){
+        if (sliceSegments[i].first.x < minx.x) {
+            minx = sliceSegments[i].first;
+        }
+        if (sliceSegments[i].first.x > maxx.x) {
+            maxx = sliceSegments[i].first;
+        }
+        if (sliceSegments[i].second.x < minx.x) {
+            minx = sliceSegments[i].second;
+        }
+        if (sliceSegments[i].second.x > maxx.x) {
+            maxx = sliceSegments[i].second;
+        }
+
+        if (sliceSegments[i].first.z < minz.z) {
+            minz = sliceSegments[i].first;
+        }
+        if (sliceSegments[i].first.z > maxz.z) {
+            maxz = sliceSegments[i].first;
+        }
+        if (sliceSegments[i].second.z < minz.z) {
+            minz = sliceSegments[i].second;
+        }
+        if (sliceSegments[i].second.z > maxz.z) {
+            maxz = sliceSegments[i].second;
+        }
+    }
     sliceSegments = findLargestSet();
     for(int i = 0; i < sliceSegments.size(); i++){
         if (sliceSegments[i].first.x < minx.x) {
@@ -205,6 +234,9 @@ void PectusProcessor::calculateIntersection(double yPlane){
         }
     }
     orderSegments();
+    if (armRemovalEnabled){
+        findRemovalPoints();
+    }
 }
 
 // Returns the line segment (represented by a pair of vertices) where Face f intersects plane yPlane
@@ -550,6 +582,8 @@ QVector<QPair<Vertex,Vertex>> PectusProcessor::findLargestSet(){
         }
         sets.push_back(currentSet);
     }
+
+    // Determine the largest connected set
     int maxSetSize = 0;
     int largestSet = -1;
     qDebug() << "There are " << sets.size() << " sets in this slice";
@@ -559,6 +593,27 @@ QVector<QPair<Vertex,Vertex>> PectusProcessor::findLargestSet(){
             largestSet = i;
         }
     }
+
+    // Find the number of disconnected arms removed by this function
+    double avgX = (minx.x + maxx.x) / 2; // ~middle of slice (exact not needed)
+    numArmsRemoved = 0;
+    for(int i = 0; i < sets.size(); i++){
+        if(i == largestSet)
+            continue;
+        if (sets[i].size() > 50){
+            numArmsRemoved++;
+            if (sliceSegments[sets[i][0]].first.x < avgX){
+                leftArmRemoved = true;
+                qDebug() << "Left";
+            }
+            else if (sliceSegments[sets[i][0]].first.x >= avgX) {
+                rightArmRemoved = true;
+                qDebug() << "Right";
+            }
+        }
+    }
+    qDebug() << numArmsRemoved << " separated arm(s) removed from this slice";
+
     // Populate the vector of vertices
     QVector<QPair<Vertex, Vertex>> connected;
     for(int i = 0; i < sets[largestSet].size(); i++){
@@ -569,67 +624,94 @@ QVector<QPair<Vertex,Vertex>> PectusProcessor::findLargestSet(){
 
 // Orders the segments in sliceSegments
 void PectusProcessor::orderSegments(){
-
-    //First, put all of the segments into a circular order.
     if (sliceSegments.size() < 2){
         return;
     }
-    int jump = -1;
-    for(int i = 1; i < sliceSegments.size(); i++){
-        if (sliceSegments[i].first != sliceSegments[i-1].first &&
-            sliceSegments[i].first != sliceSegments[i-1].second &&
-            sliceSegments[i].second != sliceSegments[i-1].first &&
-            sliceSegments[i].second != sliceSegments[i-1].second){
-            jump = i;
-            break;
+
+    // Find segments with open ends.
+    QVector<QPair<Vertex, Vertex>> openSegments;
+    QVector<int> connectedSides;
+
+    for(int i = 0; i < sliceSegments.size(); i++){
+        int numConnected = 0;
+        int connectedSide = 1;
+        for(int j = 0; j < sliceSegments.size(); j++){
+            if (i == j){
+                continue;
+            }
+            if (sliceSegments[i].first == sliceSegments[j].first ||
+                    sliceSegments[i].first == sliceSegments[j].second){
+                numConnected++;
+                connectedSide = 1;
+            }
+            else if (sliceSegments[i].second == sliceSegments[j].first ||
+                     sliceSegments[i].second == sliceSegments[j].second){
+                numConnected++;
+                connectedSide = 2;
+            }
         }
-    }
-    if(jump != -1){
-        QVector<QPair<Vertex,Vertex>> corrected;
-        for (int i = jump; i < sliceSegments.size(); i++){
-            corrected.push_back(sliceSegments[i]);
+        if (numConnected == 0){
+            qDebug() << "Something went wrong";
+            exit(1);
         }
-        for (int i = 0; i < jump; i++){
-            corrected.push_back(sliceSegments[i]);
+        else if (numConnected == 1){
+            qDebug() << "Open segment at " << i;
+            openSegments.push_back(sliceSegments[i]);
+            connectedSides.push_back(connectedSide);
         }
-        sliceSegments = corrected;
     }
 
-    // First is well formed, second is not
-    if (sliceSegments[0].second == sliceSegments[1].second){
-        QPair<Vertex,Vertex> temp = sliceSegments[1];
-        temp.first = sliceSegments[1].second;
-        temp.second = sliceSegments[1].first;
-        sliceSegments[1] = temp;
-    }
-    // First is not well formed, second is
-    else if (sliceSegments[0].first == sliceSegments[1].first){
-        QPair<Vertex,Vertex> temp = sliceSegments[0];
-        temp.first = sliceSegments[0].second;
-        temp.second = sliceSegments[0].first;
-        sliceSegments[0] = temp;
-    }
-    // Neither is
-    else if (sliceSegments[0].first == sliceSegments[1].second){
-        QPair<Vertex,Vertex> temp = sliceSegments[0];
-        temp.first = sliceSegments[0].second;
-        temp.second = sliceSegments[0].first;
-        sliceSegments[0] = temp;
-
-        temp = sliceSegments[1];
-        temp.first = sliceSegments[1].second;
-        temp.second = sliceSegments[1].first;
-        sliceSegments[1] = temp;
+    // Connect the two open-ended segments
+    if (openSegments.size() == 2 && connectedSides.size() == 2){
+        qDebug() << connectedSides[0] << " " << connectedSides[1];
+        QPair<Vertex, Vertex> segmentToAdd;
+        if (connectedSides[0] == 1){
+            segmentToAdd.first = openSegments[0].second;
+        }
+        else {
+            segmentToAdd.first = openSegments[0].first;
+        }
+        if (connectedSides[1] == 1){
+            segmentToAdd.second = openSegments[1].second;
+        }
+        else {
+            segmentToAdd.second = openSegments[1].first;
+        }
+        sliceSegments.push_back(segmentToAdd);
     }
 
-    for(int i = 2; i < sliceSegments.size(); i++){
-        if (sliceSegments[i-1].second == sliceSegments[i].second){
-            QPair<Vertex,Vertex> temp = sliceSegments[i];
-            temp.first = sliceSegments[i].second;
-            temp.second = sliceSegments[i].first;
-            sliceSegments[i] = temp;
+    // Order the segments in a circular fashion.
+    QVector<QPair<Vertex, Vertex>> newSegments;
+    newSegments.push_back(sliceSegments[0]);
+    while (newSegments.size() < sliceSegments.size()){
+
+        // Search for a segment that connects to the last segment in the new vector.
+        for (int i = 0; i < sliceSegments.size(); i++){
+            // Don't repeat the same segment.
+            if ((newSegments[newSegments.size() - 1].first == sliceSegments[i].first ||
+                    newSegments[newSegments.size() - 1].first == sliceSegments[i].second)
+                    &&
+                    (newSegments[newSegments.size() - 1].second == sliceSegments[i].first ||
+                     newSegments[newSegments.size() - 1].second == sliceSegments[i].second)){
+                continue;
+            }
+
+
+            if (newSegments[newSegments.size() - 1].second == sliceSegments[i].first){
+                newSegments.push_back(sliceSegments[i]);
+                break;
+            }
+            else if (newSegments[newSegments.size() - 1].second == sliceSegments[i].second){
+                QPair<Vertex, Vertex> flipped;
+                flipped.first = sliceSegments[i].second;
+                flipped.second = sliceSegments[i].first;
+                newSegments.push_back(flipped);
+                break;
+            }
         }
     }
+    sliceSegments = newSegments;
+
 }
 
 double PectusProcessor::chestArea(bool asymmetric) {
@@ -729,4 +811,252 @@ double PectusProcessor::getAsymmetricIndexValue(){
 
 bool PectusProcessor::getAsymmetricIndexVisable() {
     return asymmetricIndexVisible;
+}
+
+void PectusProcessor::enableArmRemoval(bool arg){
+    armRemovalEnabled = arg;
+}
+
+bool PectusProcessor::getArmRemovalEnabled(){
+    return armRemovalEnabled;
+}
+
+// Removing connected arms from 2D slice.
+void PectusProcessor::findRemovalPoints(){
+    if (sliceSegments.size() < 2){
+        return;
+    }
+    qDebug() << "Running removeArms()";
+    QVector<Vertex> localMaxes;
+    QVector<int> localMaxIndices;
+    QVector<Vertex> localMins;
+    QVector<int> localMinIndices;
+    bool zIncreasing = sliceSegments[0].second.z - sliceSegments[0].first.z > 0;
+    double zDifference = zIncreasing ? 1 : -1;
+
+    // Find local minimums and maximums
+    for(int i = 1; i < sliceSegments.size(); i++){
+        double zDifference = sliceSegments[i].second.z - sliceSegments[i].first.z;
+        if (zDifference > 0){
+            if (!zIncreasing){
+                localMins.push_back(sliceSegments[i].first);
+                localMinIndices.push_back(i);
+                zIncreasing = true;
+            }
+        }
+        else {// zDifference <= 0
+            if (zIncreasing){
+                localMaxes.push_back(sliceSegments[i].first);
+                localMaxIndices.push_back(i);
+                zIncreasing = false;
+            }
+        }
+    }
+    zDifference = sliceSegments[0].second.z - sliceSegments[0].first.z;
+    if(zDifference > 0){
+        if (!zIncreasing){
+            localMins.push_back(sliceSegments[0].first);
+            localMinIndices.push_back(0);
+        }
+    }
+    else {
+        if(zIncreasing){
+            localMaxes.push_back(sliceSegments[0].first);
+            localMaxIndices.push_back(0);
+        }
+    }
+
+    // Number of arms that still need to be removed from the slice
+    int numArmsToRemove = 2 - numArmsRemoved;
+
+    // localMin, localMax pairs that have been used
+    QVector<QPair<int, int>> usedPairs;
+    double avgX = (minx.x + maxx.x) / 2; // Approximation for middle of the slice
+
+    // Remove as many arms as needed
+    int numLoops = 0;
+    while(numArmsToRemove > 0 && numLoops < 2){
+        numLoops++;
+        double shortestDistance = 99999;
+        int armMin = -1;
+        int armMax = -1;
+
+        // Loop through local minimums
+        for(int i = 0; i < localMins.size(); i++){
+
+            // Don't use local mins on a side of the slice
+            // where an arm has already been removed.
+            if (localMins[i].x < avgX && leftArmRemoved){
+                continue;
+            }
+            if (localMins[i].x >= avgX && rightArmRemoved){
+                continue;
+            }
+
+            // Loop through local maximums
+            for(int j = 0; j < localMaxes.size(); j++){
+                bool used = false;
+
+                // Find if this pair has already been used in arm removal.
+                for(int k = 0; k < usedPairs.size(); k++){
+                    if(localMinIndices[i] == usedPairs[k].first && localMaxIndices[j] == usedPairs[k].second){
+                        used = true;
+                        break;
+                    }
+                }
+                if(used){
+                    continue;
+                }
+                double dist = distance(localMins[i].x, localMaxes[j].x, localMins[i].z, localMaxes[j].z);
+                if (dist < shortestDistance){
+                    if (std::abs(localMinIndices[i] - localMaxIndices[j]) < 25){
+                        continue;
+                    }
+                    shortestDistance = dist;
+                    armMin = localMinIndices[i];
+                    armMax = localMaxIndices[j];
+                }
+            }// Local maxes
+        }// Local mins
+
+        if (armMin == -1 || armMax == -1)
+            continue;
+
+        qDebug() << "Removing arm outside " << armMin << " and " << armMax << " with distance " << shortestDistance;
+        usedPairs.push_back(QPair<int, int>(armMin, armMax));
+        numArmsToRemove--;
+
+        // If this arm is on the left side of the torso, lock the left side from further arm removal
+        if (sliceSegments[armMin].first.x < avgX){
+            leftArmRemoved = true;
+        }
+        // Same goes for the right side.
+        else if (sliceSegments[armMin].first.x >= avgX){
+            rightArmRemoved = true;
+        }
+    }
+
+    QVector<QPair<Vertex, Vertex>> usedPairVertices;
+    for(int i = 0; i < usedPairs.size(); i++){
+        usedPairVertices.push_back(QPair<Vertex, Vertex>(sliceSegments[usedPairs[i].first].first, sliceSegments[usedPairs[i].second].first));
+    }
+
+    for(int i = 0; i < usedPairVertices.size(); i++){
+        removeArms(usedPairVertices[i]);
+    }
+}
+
+// Removes arms to the outside of a given pair of points.
+void PectusProcessor::removeArms(QPair<Vertex, Vertex> & points){
+    Vertex pointA = points.first;
+    Vertex pointB = points.second;
+
+    // Possibly change to defect x value.
+    double avgX = (minx.x + maxx.x) / 2;
+    if((pointA.x < avgX && pointB.x > avgX) ||
+            (pointA.x > avgX && pointB.x < avgX)){
+        qDebug() << "Points are on opposite sides of the midpoint";
+        return;
+    }
+
+    double outsideX;
+    double insideX;
+    double outsideZ;
+    QVector<QPair<Vertex, Vertex>> newSegments;
+    int angleType = 0;
+    /*  Angle Types
+     *      0:  |
+     *      1:  /
+     *      2:  \
+     */
+    if ((pointA.x - pointB.x > 0 && pointA.z - pointB.z > 0) ||
+            (pointA.x - pointB.x < 0 && pointA.z - pointB.z < 0)){
+        angleType = 1;
+    }
+    else if ((pointA.x - pointB.x < 0 && pointA.z - pointB.z > 0) ||
+             (pointA.x - pointB.x > 0 && pointA.z - pointB.z < 0)){
+        angleType = 2;
+    }
+    if (pointA.x < avgX){ // Remove to the left
+        outsideX = std::min(pointA.x, pointB.x);
+        insideX = std::max(pointA.x, pointB.x);
+        if (angleType < 2){
+            outsideZ = std::min(pointA.z, pointB.z);
+        }
+        else {
+            outsideZ = std::max(pointA.z, pointB.z);
+        }
+
+        for (int i = 0; i < sliceSegments.size(); i++){
+
+            // If the segment is outside the cut point
+            if (sliceSegments[i].first.x < outsideX ||
+                    sliceSegments[i].second.x < outsideX){
+                continue;
+            }
+
+            // If the segment is outside the inside x and outside
+            // the outside z
+            if (sliceSegments[i].first.x < insideX ||
+                    sliceSegments[i].second.x < insideX){
+                if (angleType == 1){
+                    if (sliceSegments[i].first.z > outsideZ ||
+                            sliceSegments[i].second.z > outsideZ){
+                        continue;
+                    }
+                }
+                else if (angleType == 2){
+                    if (sliceSegments[i].first.z < outsideZ ||
+                            sliceSegments[i].second.z < outsideZ){
+                        continue;
+                    }
+                }
+            }
+
+            // Otherwise, keep the segment.
+            newSegments.push_back(sliceSegments[i]);
+        }
+    }
+    else { // Remove to the right
+        outsideX = std::max(pointA.x, pointB.x);
+        insideX = std::min(pointA.x, pointB.x);
+        if (angleType < 2){
+            outsideZ = std::max(pointA.z, pointB.z);
+        }
+        else {
+            outsideZ = std::min(pointA.z, pointB.z);
+        }
+
+        for (int i = 0; i < sliceSegments.size(); i++){
+
+            // If the segment is outside the cut point
+            if (sliceSegments[i].first.x > outsideX ||
+                    sliceSegments[i].second.x > outsideX){
+                continue;
+            }
+
+            // If the segment is outside the inside x and outside
+            // the outside z
+            if (sliceSegments[i].first.x > insideX ||
+                    sliceSegments[i].second.x > insideX){
+                if (angleType == 1){
+                    if (sliceSegments[i].first.z < outsideZ ||
+                            sliceSegments[i].second.z < outsideZ){
+                        continue;
+                    }
+                }
+                else if (angleType == 2){
+                    if (sliceSegments[i].first.z > outsideZ ||
+                            sliceSegments[i].second.z > outsideZ){
+                        continue;
+                    }
+                }
+            }
+
+            // Otherwise, keep the segment
+            newSegments.push_back(sliceSegments[i]);
+        }
+    }
+    newSegments.push_back(QPair<Vertex, Vertex>(pointA, pointB));
+    sliceSegments = newSegments;
 }

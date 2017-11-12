@@ -51,6 +51,7 @@ class PectusProcessor : public QObject
     Q_PROPERTY(QString fileName READ getFileName NOTIFY fileNameChanged)
     Q_PROPERTY(double hallerIndex READ getHallerIndex NOTIFY hallerIndexChanged)
     Q_PROPERTY(bool hallerIndexVisible READ getHallerIndexVisible NOTIFY hallerIndexVisibleChanged)
+    Q_PROPERTY(bool armRemovalEnabled READ getArmRemovalEnabled NOTIFY armRemovalEnabledChanged)
 
 public:
 
@@ -87,6 +88,9 @@ public:
     Q_INVOKABLE double getAsymmetricIndexValue();
     Q_INVOKABLE bool getAsymmetricIndexVisable();
 
+    Q_INVOKABLE void enableArmRemoval(bool arg);
+    bool getArmRemovalEnabled();
+
 private:
     // rootQmlObject - allows interaction with QML
     QObject* rootQmlObject;
@@ -105,6 +109,11 @@ private:
 
     bool asymmetricIndexVisible = false;
     double asymmetricIndexValue = 0.0;
+
+    bool armRemovalEnabled = false;
+    int numArmsRemoved;
+    bool rightArmRemoved = false;
+    bool leftArmRemoved = false;
 
 
     // These two lines describe the furthest lines
@@ -138,6 +147,8 @@ private:
 
     QVector<QPair<Vertex,Vertex>> findLargestSet();
     void orderSegments();
+    void findRemovalPoints();
+    void removeArms(QPair<Vertex, Vertex> & points);
 
 signals:
     void fileNameChanged(const QString & arg);
@@ -147,6 +158,7 @@ signals:
     void volumeDefectIndexVisibleChanged(const bool arg);
     void asymmetricIndexValueChanged(const double & arg);
     void asymmetricIndexVisibleChanged(const bool arg);
+    void armRemovalEnabledChanged(const bool arg);
 
 public slots:
 
