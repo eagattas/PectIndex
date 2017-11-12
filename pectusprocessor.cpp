@@ -340,7 +340,7 @@ void PectusProcessor::calculateHallerIndex(){
         Q_ARG(QVariant, minx.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, minx.z*CANVAS_DRAWING_FACTOR),
         Q_ARG(QVariant, maxx.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, maxx.z*CANVAS_DRAWING_FACTOR));
 
-    findDefectPoint();
+    findDefectLine();
 
     double horizontalDistance = std::sqrt(std::pow(maxx.x - minx.x, 2) + std::pow(maxx.z - minx.z, 2));
     double verticalDistance = std::sqrt(std::pow(hallerV2.x - hallerV1.x, 2) + std::pow(hallerV2.z - hallerV1.z, 2));
@@ -353,16 +353,36 @@ void PectusProcessor::calculateHallerIndex(){
     emit hallerIndexVisibleChanged(true);
 }
 
-// Finds the point of deepest defect
-// TODO: adjust in case drawing is flipped
-// TODO: handle random line segments inside the torso
-void PectusProcessor::findDefectPoint() {
+
+void PectusProcessor::findDefectLine() {
+
+    double defectLimitAndPointDiff = 0;
+    Vertex bottomDefectPoint = findDefectPoint(false, defectLimitAndPointDiff);
+    Vertex topDefectPoint = findDefectPoint(true, defectLimitAndPointDiff);
+
+    QObject *canvas = rootQmlObject->findChild<QObject*>("canvas");
+
+    QMetaObject::invokeMethod(canvas, "drawLine",
+        Q_ARG(QVariant, topDefectPoint.x * CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, topDefectPoint.z * CANVAS_DRAWING_FACTOR),
+        Q_ARG(QVariant, bottomDefectPoint.x * CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, bottomDefectPoint.z * CANVAS_DRAWING_FACTOR));
+
+}
+
+// Finds the point of deepest defect respective to the bottom or top of the torso
+Vertex PectusProcessor::findDefectPoint(bool isTop, double & defectLimitAndPointDiff) {
 
     QVector<QPair<Vertex, Vertex>> possible_points;
     double max = std::numeric_limits<double>::max();
     QPair<Vertex, Vertex> minXSegment = { {max, max, max}, {max, max, max} };
     QPair<Vertex, Vertex> maxXSegment = { {-1, -1, -1}, {-1, -1, -1} };
-    QPair<Vertex, Vertex> maxZSegment = { {0, 0, 0}, {0, 0, 0} };
+
+    QPair<Vertex, Vertex> minMaxZSegment;
+    if (isTop) {
+        minMaxZSegment = { { 0, 0, 0}, {0, 0, 0} };
+    }
+    else {
+        minMaxZSegment = { { max, max, max}, {max, max, max} };
+    }
 
     QSet<int> visited;
 
@@ -378,9 +398,16 @@ void PectusProcessor::findDefectPoint() {
         // check if points are too far to the right
         if (sliceSegments[i].first.x > midPointX + xOffset || sliceSegments[i].second.x > midPointX + xOffset)
             continue;
-        // check if points are too far down
-        if (sliceSegments[i].first.z > midPointZ || sliceSegments[i].second.z > midPointZ)
-            continue;
+
+        // check if points are too far down or too far up
+        if (isTop) {
+            if (sliceSegments[i].first.z > midPointZ || sliceSegments[i].second.z > midPointZ)
+                continue;
+        }
+        else {
+            if (sliceSegments[i].first.z < midPointZ || sliceSegments[i].second.z < midPointZ)
+                continue;
+        }
 
         // get the respective limits (min x, max x, max z)
         double minPx = getMinXofLine(sliceSegments[i]);
@@ -389,8 +416,15 @@ void PectusProcessor::findDefectPoint() {
         double maxPx = getMaxXofLine(sliceSegments[i]);
         double maxXx = getMaxXofLine(maxXSegment);
 
-        double maxPz = getMaxZofLine(sliceSegments[i]);
-        double maxZz = getMaxZofLine(maxZSegment);
+        double minMaxPz, minMaxZz;
+        if (isTop) {
+            minMaxPz = getMaxZofLine(sliceSegments[i]);
+            minMaxZz = getMaxZofLine(minMaxZSegment);
+        }
+        else {
+            minMaxPz = getMinZofLine(sliceSegments[i]);
+            minMaxZz = getMinZofLine(minMaxZSegment);
+        }
 
         if (minPx < minXx) {
             minXSegment = sliceSegments[i];
@@ -400,8 +434,15 @@ void PectusProcessor::findDefectPoint() {
             maxXSegment = sliceSegments[i];
         }
 
-        if (maxPz > maxZz) {
-            maxZSegment = sliceSegments[i];
+        if (isTop) {
+            if (minMaxPz > minMaxZz) {
+                minMaxZSegment = sliceSegments[i];
+            }
+        }
+        else {
+            if (minMaxPz < minMaxZz) {
+                minMaxZSegment = sliceSegments[i];
+            }
         }
 
         possible_points.push_back(sliceSegments[i]);
@@ -409,61 +450,49 @@ void PectusProcessor::findDefectPoint() {
     }
 
     // find right and left most segments
-    getDefectLeftRightLimits(visited, possible_points, true, minXSegment, maxZSegment);
-    getDefectLeftRightLimits(visited, possible_points, false, maxXSegment, maxZSegment);
+    getDefectLeftRightLimits(visited, possible_points, true, isTop, minXSegment, minMaxZSegment);
+    getDefectLeftRightLimits(visited, possible_points, false, isTop, maxXSegment, minMaxZSegment);
 
-    double midXOfDefect = (maxZSegment.first.x + maxZSegment.second.x) / 2;
+    // calculate the the start point of the line
+    double midXOfDefect = (minMaxZSegment.first.x + minMaxZSegment.second.x) / 2;
+    double midZOfDefect = getSlopeOfLine(minMaxZSegment) * (midXOfDefect - minMaxZSegment.first.x) + minMaxZSegment.first.z;
 
-    // find the slice Segment to attach the vertical line to
-    int lowest = -1;
-    for (int i = 0; i < sliceSegments.size(); i++) {
-
-        if (visited.find(i) != visited.end())
-            continue;
-
-        if ((sliceSegments[i].first.x >= midXOfDefect &&
-             sliceSegments[i].second.x <= midXOfDefect) ||
-                (sliceSegments[i].second.x >= midXOfDefect &&
-                 sliceSegments[i].first.x <= midXOfDefect)) {
-
-            if (lowest == -1) {
-                lowest = i;
-                continue;
-            }
-
-            double lowestBest = getMaxZofLine(sliceSegments[lowest]);
-            double iBest = getMaxZofLine(sliceSegments[i]);
-
-            if (iBest < lowestBest) {
-                lowest = i;
-            }
-        }
+    if (isTop) {
+        hallerV1 = { midXOfDefect, minMaxZSegment.first.y, midZOfDefect };
+    }
+    else {
+        hallerV2 = { midXOfDefect, minMaxZSegment.first.y, midZOfDefect };
     }
 
-    double slopeOfLowest = getSlopeOfLine(sliceSegments[lowest]);
-    double endZ = slopeOfLowest * (midXOfDefect - sliceSegments[lowest].first.x) + sliceSegments[lowest].first.z;
+    // the left and right defect limits, or "peaks" will be determined by the biggest difference
+    // between the defect point and the defect limit.
+    double minMaxZOfDefectLimits;
+    if (isTop) {
+        minMaxZOfDefectLimits = getMinZofLine(minXSegment) < getMinZofLine(maxXSegment) ?
+            getMinZofLine(minXSegment) : getMinZofLine(maxXSegment);
+    }
+    else {
+        minMaxZOfDefectLimits = getMaxZofLine(minXSegment) < getMaxZofLine(maxXSegment) ?
+            getMinZofLine(maxXSegment) : getMaxZofLine(maxXSegment);
+    }
 
-    double slopeOfDefectSegment = getSlopeOfLine(maxZSegment);
-    double startZ = slopeOfDefectSegment * (midXOfDefect - maxZSegment.first.x) + maxZSegment.first.z;
+    double defectDiff = std::fabs(midZOfDefect - minMaxZOfDefectLimits);
+    if (defectDiff > defectLimitAndPointDiff) {
+        defectLimitAndPointDiff = defectDiff;
 
-    QObject *canvas = rootQmlObject->findChild<QObject*>("canvas");
+        // these lines represent the "peaks" of the chest
+        leftDefectLimit = minXSegment;
+        rightDefectLimit = maxXSegment;
+    }
 
-    QMetaObject::invokeMethod(canvas, "drawLine",
-        Q_ARG(QVariant, midXOfDefect*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, startZ*CANVAS_DRAWING_FACTOR),
-        Q_ARG(QVariant, midXOfDefect*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, endZ * CANVAS_DRAWING_FACTOR));
-
-
-    hallerV1 = {midXOfDefect, sliceSegments[lowest].first.y, startZ};
-    hallerV2 = {midXOfDefect, sliceSegments[lowest].first.y, endZ};
-
-    leftDefectLimit = minXSegment;
-    rightDefectLimit = maxXSegment;
+    return { midXOfDefect, minMaxZSegment.first.y, midZOfDefect };
 
 }
 
 // Extends the points that could be the defect, also retrieves left and right most point from defect
-// TODO: remove maxZSegment comparison to reduce chance of outlier line segment messing up vertical line?
-void PectusProcessor::getDefectLeftRightLimits(QSet<int> &visited, QVector<QPair<Vertex, Vertex> > &possible_points, bool isLeft, QPair<Vertex, Vertex> & leftRightX, QPair<Vertex, Vertex> & maxZSegment)
+void PectusProcessor::getDefectLeftRightLimits(QSet<int> &visited, QVector<QPair<Vertex, Vertex>> &possible_points,
+                                               bool isLeft, bool isTop, QPair<Vertex, Vertex> & leftRightX,
+                                               QPair<Vertex, Vertex> & minMaxZSegment)
 {
     // extend a side to find the first opposite slope
     while (true) {
@@ -487,19 +516,46 @@ void PectusProcessor::getDefectLeftRightLimits(QSet<int> &visited, QVector<QPair
         // what the slope should be may not be intuitive
         // because y increases as you go down the canvas
         if (isLeft) {
-            if (slope < 0)
-                break;
+            if (isTop) {
+                if (slope < 0)
+                    break;
+            }
+            else {
+                if (slope > 0)
+                    break;
+            }
         }
         else {
-            if (slope > 0)
-                break;
+            if (isTop) {
+                if (slope > 0)
+                    break;
+            }
+            else {
+                if (slope < 0)
+                    break;
+            }
         }
 
-        double maxPz = getMaxZofLine(sliceSegments[bestIndex]);
-        double maxZz = getMaxZofLine(maxZSegment);
+        double minMaxPz;
+        double minMaxZz;
+        if (isTop) {
+            minMaxPz = getMaxZofLine(sliceSegments[bestIndex]);
+            minMaxZz = getMaxZofLine(minMaxZSegment);
+        }
+        else {
+            minMaxPz = getMinZofLine(sliceSegments[bestIndex]);
+            minMaxZz = getMinZofLine(minMaxZSegment);
+        }
 
-        if (maxPz > maxZz) {
-            maxZSegment = sliceSegments[bestIndex];
+        if (isTop) {
+            if (minMaxPz > minMaxZz) {
+                minMaxZSegment = sliceSegments[bestIndex];
+            }
+        }
+        else {
+            if (minMaxPz < minMaxZz) {
+                minMaxZSegment = sliceSegments[bestIndex];
+            }
         }
 
         possible_points.push_back(sliceSegments[bestIndex]);
@@ -804,6 +860,7 @@ void PectusProcessor::printSegments(){
         qDebug() << "Second--- x: " << sliceSegments[i].second.x << "; z: " << sliceSegments[i].second.z << ";";
     }
 }
+
 
 double PectusProcessor::getAsymmetricIndexValue(){
     return asymmetricIndexValue;

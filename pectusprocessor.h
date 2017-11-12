@@ -82,8 +82,8 @@ public:
     Q_INVOKABLE double defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments);
     Q_INVOKABLE void printSegments();
 
-    // finds point of defect
-    Q_INVOKABLE void findDefectPoint();
+    // finds points of defect
+    Q_INVOKABLE void findDefectLine();
 
     Q_INVOKABLE double getAsymmetricIndexValue();
     Q_INVOKABLE bool getAsymmetricIndexVisable();
@@ -121,14 +121,15 @@ private:
     QPair<Vertex, Vertex> leftDefectLimit;
     QPair<Vertex, Vertex> rightDefectLimit;
 
-
-
     QPair<Vertex, Vertex> findSegment(const Face & f, double yPlane);
     Vertex findVertex(const Vertex & a, const Vertex & b, double yPlane);
 
 
+    // helper functions for finding the defect line
     void getDefectLeftRightLimits(QSet<int> &visited, QVector<QPair<Vertex, Vertex> > &possible_points,
-                                  bool isLeft, QPair<Vertex, Vertex> & leftRightX, QPair<Vertex, Vertex> & maxZSegment);
+                                  bool isLeft, bool isTop, QPair<Vertex, Vertex> & leftRightX,
+                                  QPair<Vertex, Vertex> & maxZSegment);
+    Vertex findDefectPoint(bool isTop, double & defectLimitAndPointDiff);
 
     // get the slope of a line
     double getSlopeOfLine(QPair<Vertex, Vertex> & segment);

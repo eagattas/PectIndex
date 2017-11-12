@@ -391,7 +391,7 @@ ApplicationWindow {
                     id: defectLine
                     text: "Defect"
                     onClicked: {
-                        myProcessor.findDefectPoint();
+                        myProcessor.findDefectLine();
                     }
                 }
                 Button {
