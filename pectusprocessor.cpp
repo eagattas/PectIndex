@@ -483,7 +483,7 @@ Vertex PectusProcessor::findDefectPoint(bool isTop, double & defectLimitAndPoint
             getMinZofLine(maxXSegment) : getMaxZofLine(maxXSegment);
     }
 
-    double defectDiff = std::fabs(midZOfDefect - minMaxZOfDefectLimits);
+    double defectDiff = std::fabs(zOfDefect - minMaxZOfDefectLimits);
     if (defectDiff > defectLimitAndPointDiff) {
         defectLimitAndPointDiff = defectDiff;
 
