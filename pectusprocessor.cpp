@@ -453,15 +453,22 @@ Vertex PectusProcessor::findDefectPoint(bool isTop, double & defectLimitAndPoint
     getDefectLeftRightLimits(visited, possible_points, true, isTop, minXSegment, minMaxZSegment);
     getDefectLeftRightLimits(visited, possible_points, false, isTop, maxXSegment, minMaxZSegment);
 
-    // calculate the the start point of the line
-    double midXOfDefect = (minMaxZSegment.first.x + minMaxZSegment.second.x) / 2;
-    double midZOfDefect = getSlopeOfLine(minMaxZSegment) * (midXOfDefect - minMaxZSegment.first.x) + minMaxZSegment.first.z;
-
+    double xOfDefect;
     if (isTop) {
-        hallerV1 = { midXOfDefect, minMaxZSegment.first.y, midZOfDefect };
+        xOfDefect = minMaxZSegment.first.z > minMaxZSegment.second.z ? minMaxZSegment.first.x : minMaxZSegment.second.x;
     }
     else {
-        hallerV2 = { midXOfDefect, minMaxZSegment.first.y, midZOfDefect };
+        xOfDefect = minMaxZSegment.first.z < minMaxZSegment.second.z ? minMaxZSegment.first.x : minMaxZSegment.second.x;
+    }
+
+    double zOfDefect;
+    if (isTop) {
+        zOfDefect = getMaxZofLine(minMaxZSegment);
+        hallerV1 = { xOfDefect, minMaxZSegment.first.y, zOfDefect };
+    }
+    else {
+        zOfDefect = getMinZofLine(minMaxZSegment);
+        hallerV2 = { xOfDefect, minMaxZSegment.first.y, zOfDefect };
     }
 
     // the left and right defect limits, or "peaks" will be determined by the biggest difference
@@ -485,7 +492,7 @@ Vertex PectusProcessor::findDefectPoint(bool isTop, double & defectLimitAndPoint
         rightDefectLimit = maxXSegment;
     }
 
-    return { midXOfDefect, minMaxZSegment.first.y, midZOfDefect };
+    return { xOfDefect, minMaxZSegment.first.y, zOfDefect };
 
 }
 
