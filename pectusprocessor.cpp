@@ -885,6 +885,22 @@ bool PectusProcessor::getArmRemovalEnabled(){
     return armRemovalEnabled;
 }
 
+bool PectusProcessor::getFirstClickPressed(){
+    return firstClickPressed;
+}
+
+double PectusProcessor::getFirstClickLocation(){
+    return firstClickLocation;
+}
+
+void PectusProcessor::setFirstClickPressed(bool pressed){
+    firstClickPressed = pressed;
+}
+
+void PectusProcessor::setFirstClickLocation(double yPlane){
+    firstClickLocation = yPlane;
+}
+
 // Removing connected arms from 2D slice.
 void PectusProcessor::findRemovalPoints(){
     if (sliceSegments.size() < 2){

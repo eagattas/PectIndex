@@ -52,6 +52,8 @@ class PectusProcessor : public QObject
     Q_PROPERTY(double hallerIndex READ getHallerIndex NOTIFY hallerIndexChanged)
     Q_PROPERTY(bool hallerIndexVisible READ getHallerIndexVisible NOTIFY hallerIndexVisibleChanged)
     Q_PROPERTY(bool armRemovalEnabled READ getArmRemovalEnabled NOTIFY armRemovalEnabledChanged)
+    Q_PROPERTY(bool firstClickPressed READ getFirstClickPressed NOTIFY firstClickPressedChanged)
+    Q_PROPERTY(double firstClickLocation READ getFirstClickLocation NOTIFY firstClickLocationChanged)
 
 public:
 
@@ -88,6 +90,12 @@ public:
     Q_INVOKABLE double getAsymmetricIndexValue();
     Q_INVOKABLE bool getAsymmetricIndexVisable();
 
+    Q_INVOKABLE bool getFirstClickPressed();
+    Q_INVOKABLE double getFirstClickLocation();
+    Q_INVOKABLE void setFirstClickLocation(double yPlane);
+    Q_INVOKABLE void setFirstClickPressed(bool pressed);
+
+
     Q_INVOKABLE void enableArmRemoval(bool arg);
     bool getArmRemovalEnabled();
 
@@ -114,6 +122,8 @@ private:
     int numArmsRemoved;
     bool rightArmRemoved = false;
     bool leftArmRemoved = false;
+    bool firstClickPressed  = false;
+    double firstClickLocation = 0;
 
 
     // These two lines describe the furthest lines
@@ -160,6 +170,8 @@ signals:
     void asymmetricIndexValueChanged(const double & arg);
     void asymmetricIndexVisibleChanged(const bool arg);
     void armRemovalEnabledChanged(const bool arg);
+    void firstClickLocationChanged(const double & arg);
+    void firstClickPressedChanged(const bool arg);
 
 public slots:
 

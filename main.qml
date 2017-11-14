@@ -239,7 +239,9 @@ ApplicationWindow {
                     viewerContainer.z = 100
                     scene3d.z = 0
                     cameraModeButton.checked = true
-                    sliceModeButton.checked = false;
+                    sliceModeButton.checked = false
+                    boundsModeButton.checked = false
+                    myProcessor.setFirstClickPressed(false)
                 }
                 style: ButtonStyle {
                        background:
@@ -258,11 +260,32 @@ ApplicationWindow {
                     scene3d.z = 100
                     sliceModeButton.checked = true
                     cameraModeButton.checked = false
+                    boundsModeButton.checked = false
+                    myProcessor.setFirstClickPressed(false)
                 }
                 style: ButtonStyle {
                        background:
                             Rectangle {
                                color: sliceModeButton.checked ? "#FFFFFF" : "#A9A9A9";
+                                radius: 1;
+                            }
+                   }
+            }
+            Button {
+                id: boundsModeButton
+                text: "Bounds Mode"
+                checked: false
+                onClicked: {
+                    viewerContainer.z = 0
+                    scene3d.z = 100
+                    cameraModeButton.checked = false
+                    sliceModeButton.checked = false
+                    boundsModeButton.checked = true
+                }
+                style: ButtonStyle {
+                       background:
+                            Rectangle {
+                               color: boundsModeButton.checked ? "#FFFFFF" : "#A9A9A9";
                                 radius: 1;
                             }
                    }

@@ -37,10 +37,25 @@ Entity {
 
         ObjectPicker {
             id: chestPicker
+
             onPressed: {
-                myProcessor.calculateIntersection(pick.localIntersection.y)
-                myProcessor.drawLineSegments()
+                if(boundsModeButton.checked){
+                    if(myProcessor.getFirstClickPressed()){
+                        myProcessor.setFirstClickPressed(false)
+                        myProcessor.calculateIntersection(myProcessor.getFirstClickLocation())
+                        myProcessor.drawLineSegments()
+                    }
+                    else{
+                        myProcessor.setFirstClickLocation(pick.localIntersection.y)
+                        myProcessor.setFirstClickPressed(true)
+                    }
+                }
+                else{
+                    myProcessor.calculateIntersection(pick.localIntersection.y)
+                    myProcessor.drawLineSegments()
+                }
             }
+
         }
 
         Transform {
