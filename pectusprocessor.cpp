@@ -898,8 +898,8 @@ double PectusProcessor::chestArea(bool asymmetric) {
 
 double PectusProcessor::defectArea() {
     double area = 0.0;
-    double x = (defectV1.x + defectV2.x) / 2;
-    double y = (defectV1.y + defectV2.y) / 2;
+    double x = (leftDefectLimit.first.x + rightDefectLimit.first.x) / 2;
+    double y = (leftDefectLimit.first.y + rightDefectLimit.first.y) / 2;
 
     for (int i = 0; i < defectSegments.size(); ++i) {
         double l1 = distance(x, defectSegments[i].first.x, y, defectSegments[i].first.y);
