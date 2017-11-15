@@ -140,6 +140,7 @@ QString PectusProcessor::getFileName(){
 }
 
 void PectusProcessor::calculateIntersection(double yPlane){
+    lastYPlane = yPlane;
     QVector<Face> intersectedFaces;
     sliceSegments.clear();
     rightArmRemoved = false;
@@ -233,6 +234,7 @@ void PectusProcessor::calculateIntersection(double yPlane){
             maxz = sliceSegments[i].second;
         }
     }
+    connectOpenSegments();
     orderSegments();
     if (armRemovalEnabled){
         findRemovalPoints();
@@ -355,6 +357,9 @@ void PectusProcessor::calculateHallerIndex(){
 
 
 void PectusProcessor::findDefectLine() {
+    // Cannot run if sliceSegments is empty
+    if (sliceSegments.isEmpty())
+        return;
 
     double defectLimitAndPointDiff = 0;
     Vertex bottomDefectPoint = findDefectPoint(false, defectLimitAndPointDiff);
@@ -517,6 +522,8 @@ void PectusProcessor::getDefectLeftRightLimits(QSet<int> &visited, QVector<QPair
                 bestIndex= j;
             }
         }
+        if (bestIndex == -1)
+            return;
 
         double slope = getSlopeOfLine(sliceSegments[bestIndex]);
 
@@ -691,58 +698,6 @@ void PectusProcessor::orderSegments(){
         return;
     }
 
-    // Find segments with open ends.
-    QVector<QPair<Vertex, Vertex>> openSegments;
-    QVector<int> connectedSides;
-
-    for(int i = 0; i < sliceSegments.size(); i++){
-        int numConnected = 0;
-        int connectedSide = 1;
-        for(int j = 0; j < sliceSegments.size(); j++){
-            if (i == j){
-                continue;
-            }
-            if (sliceSegments[i].first == sliceSegments[j].first ||
-                    sliceSegments[i].first == sliceSegments[j].second){
-                numConnected++;
-                connectedSide = 1;
-            }
-            else if (sliceSegments[i].second == sliceSegments[j].first ||
-                     sliceSegments[i].second == sliceSegments[j].second){
-                numConnected++;
-                connectedSide = 2;
-            }
-        }
-        if (numConnected == 0){
-            qDebug() << "Something went wrong";
-            exit(1);
-        }
-        else if (numConnected == 1){
-            qDebug() << "Open segment at " << i;
-            openSegments.push_back(sliceSegments[i]);
-            connectedSides.push_back(connectedSide);
-        }
-    }
-
-    // Connect the two open-ended segments
-    if (openSegments.size() == 2 && connectedSides.size() == 2){
-        qDebug() << connectedSides[0] << " " << connectedSides[1];
-        QPair<Vertex, Vertex> segmentToAdd;
-        if (connectedSides[0] == 1){
-            segmentToAdd.first = openSegments[0].second;
-        }
-        else {
-            segmentToAdd.first = openSegments[0].first;
-        }
-        if (connectedSides[1] == 1){
-            segmentToAdd.second = openSegments[1].second;
-        }
-        else {
-            segmentToAdd.second = openSegments[1].first;
-        }
-        sliceSegments.push_back(segmentToAdd);
-    }
-
     // Order the segments in a circular fashion.
     QVector<QPair<Vertex, Vertex>> newSegments;
     newSegments.push_back(sliceSegments[0]);
@@ -774,7 +729,60 @@ void PectusProcessor::orderSegments(){
         }
     }
     sliceSegments = newSegments;
+}
 
+void PectusProcessor::connectOpenSegments(){
+    // Find segments with open ends.
+    QVector<QPair<Vertex, Vertex>> openSegments;
+    QVector<int> connectedSides;
+
+    for(int i = 0; i < sliceSegments.size(); i++){
+        int numConnected = 0;
+        int connectedSide = 1;
+        for(int j = 0; j < sliceSegments.size(); j++){
+            if (i == j){
+                continue;
+            }
+            if (sliceSegments[i].first == sliceSegments[j].first ||
+                    sliceSegments[i].first == sliceSegments[j].second){
+                numConnected++;
+                connectedSide = 1;
+            }
+            else if (sliceSegments[i].second == sliceSegments[j].first ||
+                     sliceSegments[i].second == sliceSegments[j].second){
+                numConnected++;
+                connectedSide = 2;
+            }
+        }
+//        if (numConnected == 0){
+//            qDebug() << "Something went wrong";
+//            exit(1);
+//        }
+        if (numConnected == 1){
+            qDebug() << "Open segment at " << i;
+            openSegments.push_back(sliceSegments[i]);
+            connectedSides.push_back(connectedSide);
+        }
+    }
+
+    // Connect the two open-ended segments
+    if (openSegments.size() == 2 && connectedSides.size() == 2){
+        qDebug() << connectedSides[0] << " " << connectedSides[1];
+        QPair<Vertex, Vertex> segmentToAdd;
+        if (connectedSides[0] == 1){
+            segmentToAdd.first = openSegments[0].second;
+        }
+        else {
+            segmentToAdd.first = openSegments[0].first;
+        }
+        if (connectedSides[1] == 1){
+            segmentToAdd.second = openSegments[1].second;
+        }
+        else {
+            segmentToAdd.second = openSegments[1].first;
+        }
+        sliceSegments.push_back(segmentToAdd);
+    }
 }
 
 double PectusProcessor::chestArea(bool asymmetric) {
@@ -911,11 +919,10 @@ void PectusProcessor::findRemovalPoints(){
     QVector<int> localMaxIndices;
     QVector<Vertex> localMins;
     QVector<int> localMinIndices;
-    bool zIncreasing = sliceSegments[0].second.z - sliceSegments[0].first.z > 0;
-    double zDifference = zIncreasing ? 1 : -1;
+    bool zIncreasing = sliceSegments[sliceSegments.size() - 1].second.z - sliceSegments[sliceSegments.size() - 1].first.z > 0;
 
     // Find local minimums and maximums
-    for(int i = 1; i < sliceSegments.size(); i++){
+    for(int i = 0; i < sliceSegments.size(); i++){
         double zDifference = sliceSegments[i].second.z - sliceSegments[i].first.z;
         if (zDifference > 0){
             if (!zIncreasing){
@@ -930,19 +937,6 @@ void PectusProcessor::findRemovalPoints(){
                 localMaxIndices.push_back(i);
                 zIncreasing = false;
             }
-        }
-    }
-    zDifference = sliceSegments[0].second.z - sliceSegments[0].first.z;
-    if(zDifference > 0){
-        if (!zIncreasing){
-            localMins.push_back(sliceSegments[0].first);
-            localMinIndices.push_back(0);
-        }
-    }
-    else {
-        if(zIncreasing){
-            localMaxes.push_back(sliceSegments[0].first);
-            localMaxIndices.push_back(0);
         }
     }
 
@@ -1139,4 +1133,10 @@ void PectusProcessor::removeArms(QPair<Vertex, Vertex> & points){
     }
     newSegments.push_back(QPair<Vertex, Vertex>(pointA, pointB));
     sliceSegments = newSegments;
+    connectOpenSegments();
+    orderSegments();
+}
+
+double PectusProcessor::getLastYPlane(){
+    return lastYPlane;
 }

@@ -471,6 +471,19 @@ ApplicationWindow {
                         sliceCanvas.clear()
                    }
                 }
+
+                Button {
+                    id: reset
+                    text: "Reset"
+                    onClicked: {
+                        var armRemovalEnabled = myProcessor.armRemovalEnabled;
+                        var lastYPlane = myProcessor.getLastYPlane();
+                        myProcessor.enableArmRemoval(false);
+                        myProcessor.calculateIntersection(lastYPlane);
+                        myProcessor.drawLineSegments();
+                        myProcessor.enableArmRemoval(armRemovalEnabled);
+                    }
+                }
             }
 
             SliceCanvas {

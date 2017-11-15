@@ -98,6 +98,7 @@ public:
 
     Q_INVOKABLE void enableArmRemoval(bool arg);
     bool getArmRemovalEnabled();
+    Q_INVOKABLE double getLastYPlane();
 
 private:
     // rootQmlObject - allows interaction with QML
@@ -122,6 +123,8 @@ private:
     int numArmsRemoved;
     bool rightArmRemoved = false;
     bool leftArmRemoved = false;
+    double lastYPlane = 0;
+
     bool firstClickPressed  = false;
     double firstClickLocation = 0;
 
@@ -157,6 +160,7 @@ private:
     double getMaxZofLine(QPair<Vertex, Vertex> & segment);
 
     QVector<QPair<Vertex,Vertex>> findLargestSet();
+    void connectOpenSegments();
     void orderSegments();
     void findRemovalPoints();
     void removeArms(QPair<Vertex, Vertex> & points);
