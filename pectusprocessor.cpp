@@ -179,65 +179,45 @@ void PectusProcessor::calculateIntersection(double yPlane){
         sliceSegments.push_back(segment);
     }
 
-    for(int i = 0; i < sliceSegments.size(); i++){
-        if (sliceSegments[i].first.x < minx.x) {
-            minx = sliceSegments[i].first;
-        }
-        if (sliceSegments[i].first.x > maxx.x) {
-            maxx = sliceSegments[i].first;
-        }
-        if (sliceSegments[i].second.x < minx.x) {
-            minx = sliceSegments[i].second;
-        }
-        if (sliceSegments[i].second.x > maxx.x) {
-            maxx = sliceSegments[i].second;
-        }
-
-        if (sliceSegments[i].first.z < minz.z) {
-            minz = sliceSegments[i].first;
-        }
-        if (sliceSegments[i].first.z > maxz.z) {
-            maxz = sliceSegments[i].first;
-        }
-        if (sliceSegments[i].second.z < minz.z) {
-            minz = sliceSegments[i].second;
-        }
-        if (sliceSegments[i].second.z > maxz.z) {
-            maxz = sliceSegments[i].second;
-        }
-    }
+    setLimits();
     sliceSegments = findLargestSet();
-    for(int i = 0; i < sliceSegments.size(); i++){
-        if (sliceSegments[i].first.x < minx.x) {
-            minx = sliceSegments[i].first;
-        }
-        if (sliceSegments[i].first.x > maxx.x) {
-            maxx = sliceSegments[i].first;
-        }
-        if (sliceSegments[i].second.x < minx.x) {
-            minx = sliceSegments[i].second;
-        }
-        if (sliceSegments[i].second.x > maxx.x) {
-            maxx = sliceSegments[i].second;
-        }
-
-        if (sliceSegments[i].first.z < minz.z) {
-            minz = sliceSegments[i].first;
-        }
-        if (sliceSegments[i].first.z > maxz.z) {
-            maxz = sliceSegments[i].first;
-        }
-        if (sliceSegments[i].second.z < minz.z) {
-            minz = sliceSegments[i].second;
-        }
-        if (sliceSegments[i].second.z > maxz.z) {
-            maxz = sliceSegments[i].second;
-        }
-    }
+    setLimits();
     connectOpenSegments();
     orderSegments();
+
     if (armRemovalEnabled){
         findRemovalPoints();
+    }
+    setLimits();
+}
+
+// Sets limits on the given slice (min and max x and z)
+void PectusProcessor::setLimits(){
+    for(int i = 0; i < sliceSegments.size(); i++){
+        if (sliceSegments[i].first.x < minx.x) {
+            minx = sliceSegments[i].first;
+        }
+        if (sliceSegments[i].first.x > maxx.x) {
+            maxx = sliceSegments[i].first;
+        }
+        if (sliceSegments[i].second.x < minx.x) {
+            minx = sliceSegments[i].second;
+        }
+        if (sliceSegments[i].second.x > maxx.x) {
+            maxx = sliceSegments[i].second;
+        }
+        if (sliceSegments[i].first.z < minz.z) {
+            minz = sliceSegments[i].first;
+        }
+        if (sliceSegments[i].first.z > maxz.z) {
+            maxz = sliceSegments[i].first;
+        }
+        if (sliceSegments[i].second.z < minz.z) {
+            minz = sliceSegments[i].second;
+        }
+        if (sliceSegments[i].second.z > maxz.z) {
+            maxz = sliceSegments[i].second;
+        }
     }
 }
 
@@ -717,11 +697,16 @@ void PectusProcessor::orderSegments(){
 
     // Order the segments in a circular fashion.
     QVector<QPair<Vertex, Vertex>> newSegments;
+    QVector<bool> included = QVector<bool>(sliceSegments.size(), false);
     newSegments.push_back(sliceSegments[0]);
     while (newSegments.size() < sliceSegments.size()){
+        bool pushed = false;
 
         // Search for a segment that connects to the last segment in the new vector.
         for (int i = 0; i < sliceSegments.size(); i++){
+            if (included[i]){
+                continue;
+            }
             // Don't repeat the same segment.
             if ((newSegments[newSegments.size() - 1].first == sliceSegments[i].first ||
                     newSegments[newSegments.size() - 1].first == sliceSegments[i].second)
@@ -734,6 +719,8 @@ void PectusProcessor::orderSegments(){
 
             if (newSegments[newSegments.size() - 1].second == sliceSegments[i].first){
                 newSegments.push_back(sliceSegments[i]);
+                included[i] = true;
+                pushed = true;
                 break;
             }
             else if (newSegments[newSegments.size() - 1].second == sliceSegments[i].second){
@@ -741,7 +728,18 @@ void PectusProcessor::orderSegments(){
                 flipped.first = sliceSegments[i].second;
                 flipped.second = sliceSegments[i].first;
                 newSegments.push_back(flipped);
+                included[i] = true;
+                pushed = true;
                 break;
+            }
+        }
+        if (!pushed){
+            // Otherwise, this is a disconnected slice?
+            for(int i = 0; i < sliceSegments.size(); i++){
+                if (!included[i]){
+                    newSegments.push_back(sliceSegments[i]);
+                    included[i] = true;
+                }
             }
         }
     }
@@ -783,8 +781,33 @@ void PectusProcessor::connectOpenSegments(){
     }
 
     // Connect the two open-ended segments
-    if (openSegments.size() == 2 && connectedSides.size() == 2){
-        qDebug() << connectedSides[0] << " " << connectedSides[1];
+    while (openSegments.size() >= 2) {
+        double shortestDistance = 99999;
+        int idx = -1;
+        // Connect closest pairs of open points
+        for (int i = 1; i < openSegments.size(); i++){
+            double dist;
+            if (connectedSides[0] == 1 && connectedSides[i] == 1){
+                dist = distance(openSegments[0].second.x, openSegments[i].second.x, openSegments[0].second.z, openSegments[i].second.z);
+            }
+            else if (connectedSides[0] == 1 && connectedSides[i] == 2){
+                dist = distance(openSegments[0].second.x, openSegments[i].first.x, openSegments[0].second.z, openSegments[i].first.z);
+            }
+            else if (connectedSides[0] == 2 && connectedSides[i] == 1){
+                dist = distance(openSegments[0].first.x, openSegments[i].second.x, openSegments[0].first.z, openSegments[i].second.z);
+            }
+            else {
+                dist = distance(openSegments[0].first.x, openSegments[i].first.x, openSegments[0].first.z, openSegments[i].first.z);
+            }
+            if (dist < shortestDistance){
+                shortestDistance = dist;
+                idx = i;
+            }
+        }
+
+        if (idx == -1){
+            break;
+        }
         QPair<Vertex, Vertex> segmentToAdd;
         if (connectedSides[0] == 1){
             segmentToAdd.first = openSegments[0].second;
@@ -792,14 +815,36 @@ void PectusProcessor::connectOpenSegments(){
         else {
             segmentToAdd.first = openSegments[0].first;
         }
-        if (connectedSides[1] == 1){
-            segmentToAdd.second = openSegments[1].second;
+        if (connectedSides[idx] == 1){
+            segmentToAdd.second = openSegments[idx].second;
         }
         else {
-            segmentToAdd.second = openSegments[1].first;
+            segmentToAdd.second = openSegments[idx].first;
         }
         sliceSegments.push_back(segmentToAdd);
+        openSegments.remove(idx);
+        connectedSides.remove(idx);
+        openSegments.remove(0);
+        connectedSides.remove(0);
     }
+
+//    if (openSegments.size() == 2 && connectedSides.size() == 2){
+//        qDebug() << connectedSides[0] << " " << connectedSides[1];
+//        QPair<Vertex, Vertex> segmentToAdd;
+//        if (connectedSides[0] == 1){
+//            segmentToAdd.first = openSegments[0].second;
+//        }
+//        else {
+//            segmentToAdd.first = openSegments[0].first;
+//        }
+//        if (connectedSides[1] == 1){
+//            segmentToAdd.second = openSegments[1].second;
+//        }
+//        else {
+//            segmentToAdd.second = openSegments[1].first;
+//        }
+//        sliceSegments.push_back(segmentToAdd);
+//    }
 }
 
 double PectusProcessor::chestArea(bool asymmetric) {
@@ -851,10 +896,10 @@ double PectusProcessor::chestArea(bool asymmetric) {
     return area;
 }
 
-double PectusProcessor::defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments) {
+double PectusProcessor::defectArea() {
     double area = 0.0;
-    double x = (v1.x + v2.x) / 2;
-    double y = (v1.y + v2.y) / 2;
+    double x = (defectV1.x + defectV2.x) / 2;
+    double y = (defectV1.y + defectV2.y) / 2;
 
     for (int i = 0; i < defectSegments.size(); ++i) {
         double l1 = distance(x, defectSegments[i].first.x, y, defectSegments[i].first.y);
@@ -866,9 +911,9 @@ double PectusProcessor::defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, V
     return area;
 }
 
-double PectusProcessor::volumeDefectIndex(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments) {
+double PectusProcessor::volumeDefectIndex() {
     double chest_area = chestArea(false);
-    double defect_area = defectArea(v1, v2, defectSegments);
+    double defect_area = defectArea();
     // need to talk with Dr. Campbell about the ratio
     return defect_area / (chest_area + defect_area);
 }
@@ -882,6 +927,13 @@ void PectusProcessor::asymmetricIndex() {
     qDebug() << half_chest/total_chest;
     asymmetricIndexValue = half_chest/total_chest;
     emit asymmetricIndexValueChanged(asymmetricIndexValue);
+}
+
+double PectusProcessor::getVolumeDefectIndexValue() {
+    return volumeDefectIndexValue;
+}
+bool PectusProcessor::getVolumeDefectIndexVisible() {
+    return volumeDefectIndexVisible;
 }
 
 // Prints all values of line segments to the console
@@ -904,6 +956,7 @@ bool PectusProcessor::getAsymmetricIndexVisable() {
 
 void PectusProcessor::enableArmRemoval(bool arg){
     armRemovalEnabled = arg;
+    emit armRemovalEnabledChanged(arg);
 }
 
 bool PectusProcessor::getArmRemovalEnabled(){
@@ -1156,4 +1209,13 @@ void PectusProcessor::removeArms(QPair<Vertex, Vertex> & points){
 
 double PectusProcessor::getLastYPlane(){
     return lastYPlane;
+}
+
+bool PectusProcessor::getRunAllIndexes(){
+    return runAllIndexes;
+}
+
+void PectusProcessor::setRunAllIndexes(bool arg){
+    runAllIndexes = arg;
+    emit runAllIndexesChanged(arg);
 }

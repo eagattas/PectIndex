@@ -54,6 +54,9 @@ class PectusProcessor : public QObject
     Q_PROPERTY(bool armRemovalEnabled READ getArmRemovalEnabled NOTIFY armRemovalEnabledChanged)
     Q_PROPERTY(bool firstClickPressed READ getFirstClickPressed NOTIFY firstClickPressedChanged)
     Q_PROPERTY(double firstClickLocation READ getFirstClickLocation NOTIFY firstClickLocationChanged)
+    Q_PROPERTY(double asymmetricIndexValue READ getAsymmetricIndexValue NOTIFY asymmetricIndexValueChanged)
+    Q_PROPERTY(double volumeDefectIndexValue READ getVolumeDefectIndexValue NOTIFY volumeDefectIndexChanged)
+    Q_PROPERTY(bool runAllIndexes READ getRunAllIndexes NOTIFY runAllIndexesChanged)
 
 public:
 
@@ -75,13 +78,13 @@ public:
     Q_INVOKABLE bool getHallerIndexVisible();
     Q_INVOKABLE void calculateHallerIndex();
     //Q_INVOKABLE void getFixedIntersection();
-    Q_INVOKABLE double volumeDefectIndex(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments);
+    Q_INVOKABLE double volumeDefectIndex();
     Q_INVOKABLE void asymmetricIndex();
 
     // Erases arms that are completely disconnected from the drawing
     //Q_INVOKABLE void eraseArms(int canvasWidth, int canvasHeight);
     Q_INVOKABLE double chestArea(bool asymmetric);
-    Q_INVOKABLE double defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments);
+    Q_INVOKABLE double defectArea();
     Q_INVOKABLE void printSegments();
     Q_INVOKABLE void printDefectSegments();
 
@@ -90,16 +93,20 @@ public:
 
     Q_INVOKABLE double getAsymmetricIndexValue();
     Q_INVOKABLE bool getAsymmetricIndexVisable();
+    Q_INVOKABLE double getVolumeDefectIndexValue();
+    Q_INVOKABLE bool getVolumeDefectIndexVisible();
 
     Q_INVOKABLE bool getFirstClickPressed();
     Q_INVOKABLE double getFirstClickLocation();
     Q_INVOKABLE void setFirstClickLocation(double yPlane);
     Q_INVOKABLE void setFirstClickPressed(bool pressed);
 
-
     Q_INVOKABLE void enableArmRemoval(bool arg);
     bool getArmRemovalEnabled();
     Q_INVOKABLE double getLastYPlane();
+
+    bool getRunAllIndexes();
+    Q_INVOKABLE void setRunAllIndexes(bool arg);
 
 private:
     // rootQmlObject - allows interaction with QML
@@ -119,7 +126,9 @@ private:
     Vertex hallerV2 = Vertex(0, 0, 0);
 
     bool asymmetricIndexVisible = false;
+    bool volumeDefectIndexVisible = false;
     double asymmetricIndexValue = 0.0;
+    double volumeDefectIndexValue = 0.0;
 
     bool armRemovalEnabled = false;
     int numArmsRemoved;
@@ -129,6 +138,8 @@ private:
 
     bool firstClickPressed  = false;
     double firstClickLocation = 0;
+
+    bool runAllIndexes = false;
 
 
     // These two lines describe the furthest lines
@@ -161,6 +172,7 @@ private:
     // get the max Z of a line
     double getMaxZofLine(QPair<Vertex, Vertex> & segment);
 
+    void setLimits();
     QVector<QPair<Vertex,Vertex>> findLargestSet();
     void connectOpenSegments();
     void orderSegments();
@@ -178,6 +190,7 @@ signals:
     void armRemovalEnabledChanged(const bool arg);
     void firstClickLocationChanged(const double & arg);
     void firstClickPressedChanged(const bool arg);
+    void runAllIndexesChanged(const bool arg);
 
 public slots:
 
