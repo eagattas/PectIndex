@@ -834,10 +834,10 @@ double PectusProcessor::chestArea(bool asymmetric) {
     return area;
 }
 
-double PectusProcessor::defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments) {
+double PectusProcessor::defectArea() {
     double area = 0.0;
-    double x = (v1.x + v2.x) / 2;
-    double y = (v1.y + v2.y) / 2;
+    double x = (defectV1.x + defectV2.x) / 2;
+    double y = (defectV1.y + defectV2.y) / 2;
 
     for (int i = 0; i < defectSegments.size(); ++i) {
         double l1 = distance(x, defectSegments[i].first.x, y, defectSegments[i].first.y);
@@ -849,9 +849,9 @@ double PectusProcessor::defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, V
     return area;
 }
 
-double PectusProcessor::volumeDefectIndex(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments) {
+double PectusProcessor::volumeDefectIndex() {
     double chest_area = chestArea(false);
-    double defect_area = defectArea(v1, v2, defectSegments);
+    double defect_area = defectArea();
     // need to talk with Dr. Campbell about the ratio
     return defect_area / (chest_area + defect_area);
 }
@@ -865,6 +865,13 @@ void PectusProcessor::asymmetricIndex() {
     qDebug() << half_chest/total_chest;
     asymmetricIndexValue = half_chest/total_chest;
     emit asymmetricIndexValueChanged(asymmetricIndexValue);
+}
+
+double PectusProcessor::getVolumeDefectIndexValue() {
+    return volumeDefectIndexValue;
+}
+bool PectusProcessor::getVolumeDefectIndexVisible() {
+    return volumeDefectIndexVisible;
 }
 
 // Prints all values of line segments to the console
