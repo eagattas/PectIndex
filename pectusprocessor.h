@@ -83,6 +83,7 @@ public:
     Q_INVOKABLE double chestArea(bool asymmetric);
     Q_INVOKABLE double defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments);
     Q_INVOKABLE void printSegments();
+    Q_INVOKABLE void printDefectSegments();
 
     // finds points of defect
     Q_INVOKABLE void findDefectLine();
@@ -109,6 +110,7 @@ private:
     QVector<Texture> textures;
     QVector<Face> faces;
     QVector<QPair<Vertex, Vertex>> sliceSegments;
+    QVector<QPair<Vertex, Vertex>> defectSegments;
     Vertex minx, maxx, minz, maxz;
     double miny = std::numeric_limits<double>::max();
     double maxy = std::numeric_limits<double>::min();

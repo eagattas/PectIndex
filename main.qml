@@ -484,6 +484,13 @@ ApplicationWindow {
                         myProcessor.enableArmRemoval(armRemovalEnabled);
                     }
                 }
+                Button {
+                    id: defectLimits
+                    text: "Defect Segments"
+                    onClicked: {
+                        myProcessor.printDefectSegments()
+                    }
+                }
             }
 
             SliceCanvas {

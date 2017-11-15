@@ -373,10 +373,21 @@ void PectusProcessor::findDefectLine() {
 
 }
 
+void PectusProcessor::printDefectSegments() {
+
+    QObject *canvas = rootQmlObject->findChild<QObject*>("canvas");
+    for (int i = 0; i < defectSegments.size(); i++) {
+        QMetaObject::invokeMethod(canvas, "drawLine",
+            Q_ARG(QVariant, defectSegments[i].first.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, defectSegments[i].first.z*CANVAS_DRAWING_FACTOR),
+            Q_ARG(QVariant, defectSegments[i].second.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, defectSegments[i].second.z*CANVAS_DRAWING_FACTOR));
+    }
+
+}
+
 // Finds the point of deepest defect respective to the bottom or top of the torso
 Vertex PectusProcessor::findDefectPoint(bool isTop, double & defectLimitAndPointDiff) {
 
-    QVector<QPair<Vertex, Vertex>> possible_points;
+    QVector<QPair<Vertex, Vertex>> possiblePoints;
     double max = std::numeric_limits<double>::max();
     QPair<Vertex, Vertex> minXSegment = { {max, max, max}, {max, max, max} };
     QPair<Vertex, Vertex> maxXSegment = { {-1, -1, -1}, {-1, -1, -1} };
@@ -450,13 +461,13 @@ Vertex PectusProcessor::findDefectPoint(bool isTop, double & defectLimitAndPoint
             }
         }
 
-        possible_points.push_back(sliceSegments[i]);
+        possiblePoints.push_back(sliceSegments[i]);
         visited.insert(i);
     }
 
     // find right and left most segments
-    getDefectLeftRightLimits(visited, possible_points, true, isTop, minXSegment, minMaxZSegment);
-    getDefectLeftRightLimits(visited, possible_points, false, isTop, maxXSegment, minMaxZSegment);
+    getDefectLeftRightLimits(visited, possiblePoints, true, isTop, minXSegment, minMaxZSegment);
+    getDefectLeftRightLimits(visited, possiblePoints, false, isTop, maxXSegment, minMaxZSegment);
 
     double xOfDefect;
     if (isTop) {
@@ -495,6 +506,7 @@ Vertex PectusProcessor::findDefectPoint(bool isTop, double & defectLimitAndPoint
         // these lines represent the "peaks" of the chest
         leftDefectLimit = minXSegment;
         rightDefectLimit = maxXSegment;
+        defectSegments = possiblePoints;
     }
 
     return { xOfDefect, minMaxZSegment.first.y, zOfDefect };
@@ -502,7 +514,7 @@ Vertex PectusProcessor::findDefectPoint(bool isTop, double & defectLimitAndPoint
 }
 
 // Extends the points that could be the defect, also retrieves left and right most point from defect
-void PectusProcessor::getDefectLeftRightLimits(QSet<int> &visited, QVector<QPair<Vertex, Vertex>> &possible_points,
+void PectusProcessor::getDefectLeftRightLimits(QSet<int> &visited, QVector<QPair<Vertex, Vertex>> &possiblePoints,
                                                bool isLeft, bool isTop, QPair<Vertex, Vertex> & leftRightX,
                                                QPair<Vertex, Vertex> & minMaxZSegment)
 {
@@ -572,9 +584,14 @@ void PectusProcessor::getDefectLeftRightLimits(QSet<int> &visited, QVector<QPair
             }
         }
 
-        possible_points.push_back(sliceSegments[bestIndex]);
+        possiblePoints.push_back(sliceSegments[bestIndex]);
         leftRightX = sliceSegments[bestIndex];
         visited.insert(bestIndex);
+    }
+
+    // erase the last segment (which will be equal to left or right defect limit
+    if (!possiblePoints.isEmpty()) {
+        possiblePoints.removeLast();
     }
 }
 
