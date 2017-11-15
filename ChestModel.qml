@@ -44,6 +44,10 @@ Entity {
                         myProcessor.setFirstClickPressed(false)
                         myProcessor.calculateIntersection(myProcessor.getFirstClickLocation())
                         myProcessor.drawLineSegments()
+                        if (myProcessor.runAllIndexes){
+                            myProcessor.calculateHallerIndex();
+                            myProcessor.asymmetricIndex();
+                        }
                     }
                     else{
                         myProcessor.setFirstClickLocation(pick.localIntersection.y)
@@ -53,6 +57,10 @@ Entity {
                 else{
                     myProcessor.calculateIntersection(pick.localIntersection.y)
                     myProcessor.drawLineSegments()
+                    if (myProcessor.runAllIndexes){
+                        myProcessor.calculateHallerIndex();
+                        myProcessor.asymmetricIndex();
+                    }
                 }
             }
 
