@@ -299,7 +299,7 @@ ApplicationWindow {
             height: 20
             anchors.right: parent.right
             anchors.top: parent.top
-            anchors.rightMargin: 50
+            anchors.rightMargin: 160
             anchors.topMargin: 75
             color: "white"
             border.color: "black"
@@ -399,6 +399,33 @@ ApplicationWindow {
 
             height: 300
             Row {
+                id: checkBoxRow
+                anchors.bottom: indexButtonRow.top
+                anchors.bottomMargin: 5
+                spacing: 10
+
+                CheckBox {
+                    id: armRemovalEnabled
+                    text: "Enable Arm Removal"
+                    checked: myProcessor.armRemovalEnabled
+                    onClicked: {
+                        myProcessor.enableArmRemoval(!myProcessor.armRemovalEnabled);
+                    }
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                CheckBox {
+                    id: runAllIndexes
+                    text: "Run All Indexes"
+                    checked: myProcessor.runAllIndexes
+                    onClicked: {
+                        myProcessor.setRunAllIndexes(!myProcessor.runAllIndexes);
+                    }
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+            }
+
+            Row {
                 id: indexButtonRow
                 anchors.bottom: sliceButtonRow.top
                 anchors.bottomMargin: 5
@@ -432,15 +459,6 @@ ApplicationWindow {
 //                        myProcessor.printSegments();
 //                    }
 //                }
-                CheckBox {
-                    id: armRemovalEnabled
-                    text: "Enable Arm Removal"
-                    checked: myProcessor.armRemovalEnabled
-                    onClicked: {
-                        myProcessor.enableArmRemoval(!myProcessor.armRemovalEnabled);
-                    }
-                    anchors.verticalCenter: parent.verticalCenter
-                }
             }
 
             Row {
