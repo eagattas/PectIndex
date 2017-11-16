@@ -87,6 +87,7 @@ public:
     Q_INVOKABLE double defectArea();
     Q_INVOKABLE void printSegments();
     Q_INVOKABLE void printDefectSegments();
+    Q_INVOKABLE void manualRemoveConnectedArms(double xStart, double zStart, double xEnd, double zEnd, double canvasWidth, double canvasHeight);
 
     // finds points of defect
     Q_INVOKABLE void findDefectLine();
