@@ -423,6 +423,12 @@ ApplicationWindow {
                     }
                     anchors.verticalCenter: parent.verticalCenter
                 }
+                CheckBox {
+                    id: manualArmRemoval
+                    text: "Manual Arm Removal"
+                    checked: false
+                    anchors.verticalCenter: parent.verticalCenter
+                }
             }
 
             Row {

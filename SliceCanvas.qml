@@ -2,10 +2,15 @@ import QtQuick 2.0
 
 Canvas {
     id: root
-    property int lastX: 0
-    property int lastY: 0
+    property real lastX: 0
+    property real lastY: 0
     property int mode: 0
     property color sliceColor: "blue"
+
+    property real manualFirstX: 0
+    property real manualFirstY: 0
+    property real manualLastX: 0
+    property real manualLastY: 0
 
     function clear() {
         var ctx = getContext("2d");
@@ -58,11 +63,23 @@ Canvas {
         id: area
         anchors.fill: parent
         onPressed: {
+            if (manualArmRemoval.checked) {
+                manualFirstX = mouseX
+                manualFirstY = mouseY
+            }
+
             root.lastX = mouseX
             root.lastY = mouseY
         }
         onPositionChanged: {
             root.requestPaint()
+        }
+        onReleased: {
+            if (manualArmRemoval.checked) {
+                manualLastX = mouseX
+                manualLastY = mouseY
+                myProcessor.manualRemoveConnectedArms(manualFirstX, manualFirstY, manualLastX, manualLastY, sliceCanvas.width, sliceCanvas.height)
+            }
         }
     }
 }
