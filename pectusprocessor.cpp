@@ -1057,15 +1057,23 @@ double PectusProcessor::defectArea() {
     return area;
 }
 
-double PectusProcessor::volumeDefectIndex() {
+void PectusProcessor::volumeDefectIndex() {
+    if (sliceSegments.isEmpty())
+        return;
+
     double chest_area = chestArea(false);
     double defect_area = defectArea();
     // need to talk with Dr. Campbell about the ratio
     volumeDefectIndexValue = defect_area / (chest_area + defect_area);
-    return volumeDefectIndexValue;
+    emit volumeDefectIndexChanged(volumeDefectIndexValue);
+    volumeDefectIndexVisible = true;
+    emit volumeDefectIndexVisibleChanged(true);
 }
 
 void PectusProcessor::asymmetricIndex() {
+    if (sliceSegments.isEmpty())
+        return;
+
     asymmetricIndexVisible = true;
     asymmetricIndexVisibleChanged(asymmetricIndexVisible);
     double total_chest = chestArea(false);
@@ -1144,7 +1152,8 @@ void PectusProcessor::selectBounds(double yPlane){
     while(upperBound + totalDistance < lowerBound){//loop through slices and get the defect for each
         calculateIntersection(upperBound + totalDistance);
         findDefectLine(false);
-        totalDefectIndex += volumeDefectIndex();
+        volumeDefectIndex();
+        totalDefectIndex += volumeDefectIndexValue;
         totalDistance += distanceBetweenSlices;
     }
     double avgDefectIndex = totalDefectIndex/(totalDistance/distanceBetweenSlices + 1);
