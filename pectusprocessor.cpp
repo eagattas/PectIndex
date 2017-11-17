@@ -1025,14 +1025,6 @@ double PectusProcessor::chestArea(bool asymmetric) {
         double line3 = AREA_FACTOR * distance(v2.x, v2.x, v2.z, v4_z);
         double line4 = AREA_FACTOR * distance(v1.x, v2.x, v3_z, v4_z);
 
-
-        if (line1 > line2 && line1 > line3) {
-            qDebug() << "Lines: " << line1 << line2 << line3 << line4;
-        }
-        else if (line4 > line2 && line4 > line3) {
-            qDebug() << "Lines: " << line1 << line2 << line3 << line4;
-        }
-
         if (line2 < .00001) {
             area += areaTriangle(line1, line3, line4);
         }
@@ -1052,12 +1044,14 @@ double PectusProcessor::chestArea(bool asymmetric) {
 double PectusProcessor::defectArea() {
     double area = 0.0;
     double x = (leftDefectLimit.first.x + rightDefectLimit.first.x) / 2;
-    double y = (leftDefectLimit.first.y + rightDefectLimit.first.y) / 2;
+    double z = (leftDefectLimit.first.z + rightDefectLimit.first.z) / 2;
     for (int i = 0; i < defectSegments.size(); ++i) {
-        double l1 = distance(x, defectSegments[i].first.x, y, defectSegments[i].first.y);
-        double l2 = distance(x, defectSegments[i].second.x, y, defectSegments[i].second.y);
-        double l3 = distance(defectSegments[i].second.x, defectSegments[i].first.x,
-                             defectSegments[i].second.y, defectSegments[i].first.y);
+        double l1 = AREA_FACTOR * distance(x, defectSegments[i].first.x, z, defectSegments[i].first.z);
+        double l2 = AREA_FACTOR * distance(x, defectSegments[i].second.x, z, defectSegments[i].second.z);
+        double l3 = AREA_FACTOR * distance(defectSegments[i].second.x, defectSegments[i].first.x,
+                             defectSegments[i].second.z, defectSegments[i].first.z);
+        qDebug() << l1 << l2 << l3;
+        //qDebug() << areaTriangle(l1, l2, l3);
         area += areaTriangle(l1, l2, l3);
     }
     return area;
@@ -1068,7 +1062,6 @@ double PectusProcessor::volumeDefectIndex() {
     double defect_area = defectArea();
     // need to talk with Dr. Campbell about the ratio
     volumeDefectIndexValue = defect_area / (chest_area + defect_area);
-    qDebug() << "INTERMEDIATE VALUE: "<<volumeDefectIndexValue;
     return volumeDefectIndexValue;
 }
 
@@ -1079,7 +1072,7 @@ void PectusProcessor::asymmetricIndex() {
     double half_chest = chestArea(true);
     total_chest -= half_chest;
     qDebug() << half_chest/total_chest;
-    asymmetricIndexValue = half_chest/total_chest;
+    asymmetricIndexValue = fabs(1 - (half_chest/total_chest));
     emit asymmetricIndexValueChanged(asymmetricIndexValue);
 }
 
