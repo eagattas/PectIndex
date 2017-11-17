@@ -1061,6 +1061,8 @@ void PectusProcessor::volumeDefectIndex() {
     if (sliceSegments.isEmpty())
         return;
 
+    findDefectLine(false);
+    calculateHallerIndex();
     double chest_area = chestArea(false);
     double defect_area = defectArea();
     // need to talk with Dr. Campbell about the ratio
@@ -1074,6 +1076,8 @@ void PectusProcessor::asymmetricIndex() {
     if (sliceSegments.isEmpty())
         return;
 
+    findDefectLine(false);
+    calculateHallerIndex();
     asymmetricIndexVisible = true;
     asymmetricIndexVisibleChanged(asymmetricIndexVisible);
     double total_chest = chestArea(false);

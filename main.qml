@@ -442,12 +442,6 @@ ApplicationWindow {
                     }
                     anchors.verticalCenter: parent.verticalCenter
                 }
-                CheckBox {
-                    id: manualArmRemoval
-                    text: "Manual Arm Removal"
-                    checked: false
-                    anchors.verticalCenter: parent.verticalCenter
-                }
             }
 
             Row {
@@ -546,7 +540,6 @@ ApplicationWindow {
                     text: "Pen"
                     checked: true
                     onClicked: {
-                        sliceCanvas.mode = 0;
                         pen.checked = true;
                         eraser.checked = false;
                         armRemover.checked = false;
@@ -568,7 +561,6 @@ ApplicationWindow {
                     text: "Eraser"
                     checked: false
                     onClicked: {
-                        sliceCanvas.mode = 1;
                         pen.checked = false;
                         eraser.checked = true;
                         armRemover.checked = false;
@@ -590,7 +582,6 @@ ApplicationWindow {
                     text: "Arm Removal"
                     checked: false
                     onClicked: {
-                        //sliceCanvas.mode = 2;
                         pen.checked = false;
                         eraser.checked = false;
                         armRemover.checked = true;
