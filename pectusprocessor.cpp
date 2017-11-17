@@ -1058,6 +1058,8 @@ double PectusProcessor::defectArea() {
 }
 
 double PectusProcessor::volumeDefectIndex() {
+    findDefectLine(false);
+    calculateHallerIndex();
     double chest_area = chestArea(false);
     double defect_area = defectArea();
     // need to talk with Dr. Campbell about the ratio
@@ -1066,6 +1068,8 @@ double PectusProcessor::volumeDefectIndex() {
 }
 
 void PectusProcessor::asymmetricIndex() {
+    findDefectLine(false);
+    calculateHallerIndex();
     asymmetricIndexVisible = true;
     asymmetricIndexVisibleChanged(asymmetricIndexVisible);
     double total_chest = chestArea(false);
@@ -1143,7 +1147,6 @@ void PectusProcessor::selectBounds(double yPlane){
     double distanceBetweenSlices = 0.05, totalDistance = 0;
     while(upperBound + totalDistance < lowerBound){//loop through slices and get the defect for each
         calculateIntersection(upperBound + totalDistance);
-        findDefectLine(false);
         totalDefectIndex += volumeDefectIndex();
         totalDistance += distanceBetweenSlices;
     }
