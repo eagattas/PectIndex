@@ -42,8 +42,7 @@ Entity {
                 if(boundsModeButton.checked){
                     if(myProcessor.getFirstClickPressed()){
                         myProcessor.setFirstClickPressed(false)
-                        myProcessor.calculateIntersection(myProcessor.getFirstClickLocation())
-                        myProcessor.drawLineSegments()
+                        myProcessor.selectBounds(pick.localIntersection.y)
                         if (myProcessor.runAllIndexes){
                             myProcessor.calculateHallerIndex();
                             myProcessor.asymmetricIndex();

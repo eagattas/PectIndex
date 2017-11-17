@@ -90,7 +90,7 @@ public:
     Q_INVOKABLE void manualRemoveConnectedArms(double xStart, double zStart, double xEnd, double zEnd, double canvasWidth, double canvasHeight);
 
     // finds points of defect
-    Q_INVOKABLE void findDefectLine();
+    Q_INVOKABLE void findDefectLine(bool draw);
 
     Q_INVOKABLE double getAsymmetricIndexValue();
     Q_INVOKABLE bool getAsymmetricIndexVisable();
@@ -101,6 +101,7 @@ public:
     Q_INVOKABLE double getFirstClickLocation();
     Q_INVOKABLE void setFirstClickLocation(double yPlane);
     Q_INVOKABLE void setFirstClickPressed(bool pressed);
+    Q_INVOKABLE void selectBounds(double yPlane);
 
     Q_INVOKABLE void enableArmRemoval(bool arg);
     bool getArmRemovalEnabled();
@@ -139,6 +140,7 @@ private:
 
     bool firstClickPressed  = false;
     double firstClickLocation = 0;
+    double secondClickLocation = 0;
 
     bool runAllIndexes = false;
 
