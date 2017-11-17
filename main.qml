@@ -250,6 +250,9 @@ ApplicationWindow {
                                 radius: 1;
                             }
                    }
+                ToolTip.visible: hovered
+                ToolTip.delay: 800
+                ToolTip.text: qsTr("Left click and drag to rotate image. \nRight click and drag to pan the image. \nScroll to zoom in and out.")
             }
             Button {
                 id: sliceModeButton
@@ -270,6 +273,9 @@ ApplicationWindow {
                                 radius: 1;
                             }
                    }
+                ToolTip.visible: hovered
+                ToolTip.delay: 800
+                ToolTip.text: qsTr("Click a spot on the scan. This \nwill create a slice at this point on the \nbody, which will display on the canvas.")
             }
             Button {
                 id: boundsModeButton
@@ -289,6 +295,9 @@ ApplicationWindow {
                                 radius: 1;
                             }
                    }
+                ToolTip.visible: hovered
+                ToolTip.delay: 800
+                ToolTip.text: qsTr("Click two spots on the scan. They will \nbe the bounds for a range of slices starting \nat the first click and ending at the second click.")
             }
 
         }
@@ -385,6 +394,10 @@ ApplicationWindow {
                 onClicked: {
                     fileDialog.open();
                 }
+
+                ToolTip.visible: hovered
+                ToolTip.delay: 800
+                ToolTip.text: qsTr("Select a Wavefront .obj file to render in \nthe 3D Scan Viewer.")
             }
         }
 
@@ -436,6 +449,9 @@ ApplicationWindow {
                     onClicked: {
                         myProcessor.calculateHallerIndex();
                     }
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 800
+                    ToolTip.text: qsTr("Calculates the Haller Index \n(width / depth).")
                 }
                 Button {
                     id: defectLine
@@ -443,14 +459,19 @@ ApplicationWindow {
                     onClicked: {
                         myProcessor.findDefectLine();
                     }
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 800
+                    ToolTip.text: qsTr("Finds the line from the deepest \npoint of the defect to the spine")
                 }
                 Button {
                     id: chestArea
                     text: "Asymm Index"
                     onClicked: {
                         myProcessor.asymmetricIndex();
-
                     }
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 800
+                    ToolTip.text: qsTr("Calculates (Right Side Area) / (Left Side Area)")
                 }
 //                Button {
 //                    id: printSegments
@@ -472,6 +493,10 @@ ApplicationWindow {
                     onClicked: {
                         sliceCanvas.mode = 0
                     }
+
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 800
+                    ToolTip.text: qsTr("Use a pen on the canvas.")
                 }
 
                 Button {
@@ -480,6 +505,10 @@ ApplicationWindow {
                     onClicked: {
                         sliceCanvas.mode = 1
                     }
+
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 800
+                    ToolTip.text: qsTr("Use an eraser on the canvas.")
                 }
 
                 Button {
@@ -488,19 +517,34 @@ ApplicationWindow {
                    onClicked: {
                         sliceCanvas.clear()
                    }
+
+                   ToolTip.visible: hovered
+                   ToolTip.delay: 800
+                   ToolTip.text: qsTr("Erase everything on the canvas.")
                 }
 
                 Button {
                     id: reset
                     text: "Reset"
                     onClicked: {
+                        if (myProcessor.fileName == ""){
+                            return
+                        }
                         var armRemovalEnabled = myProcessor.armRemovalEnabled;
                         var lastYPlane = myProcessor.getLastYPlane();
                         myProcessor.enableArmRemoval(false);
+                        console.log("a")
                         myProcessor.calculateIntersection(lastYPlane);
+                        console.log("b")
                         myProcessor.drawLineSegments();
                         myProcessor.enableArmRemoval(armRemovalEnabled);
                     }
+
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 800
+                    ToolTip.text: qsTr("If attached arms were removed \n"
+                                   + "on the last slice, draws the same \n"
+                                   + "slice without connected arms removed.")
                 }
             }
 

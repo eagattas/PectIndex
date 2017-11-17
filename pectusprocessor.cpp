@@ -178,6 +178,8 @@ void PectusProcessor::calculateIntersection(double yPlane){
         QPair<Vertex, Vertex> segment = findSegment(intersectedFaces[i], yPlane);
         sliceSegments.push_back(segment);
     }
+    if (sliceSegments.isEmpty())
+        return;
 
     setLimits();
     sliceSegments = findLargestSet();
