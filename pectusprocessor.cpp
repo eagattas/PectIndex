@@ -1164,7 +1164,7 @@ void PectusProcessor::selectBounds(double yPlane){
         upperBound = secondClickLocation;
     }
 
-    double distanceBetweenSlices = 0.05, totalDistance = 0;
+    double distanceBetweenSlices = 0.01, totalDistance = 0;
     while(upperBound + totalDistance < lowerBound){//loop through slices and get the defect for each
         calculateIntersection(upperBound + totalDistance);
         findDefectLine(false);
