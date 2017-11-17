@@ -11,6 +11,8 @@ Canvas {
     property real manualLastX: 0
     property real manualLastY: 0
 
+    property var oldImageData
+
     function clear() {
         var ctx = getContext("2d");
         ctx.reset();
@@ -36,6 +38,17 @@ Canvas {
         root.requestPaint()
     }
 
+    function restoreOldImageData() {
+        eraseRect(0, 0, sliceCanvas.width, sliceCanvas.height)
+        var ctx = getContext("2d")
+        ctx.putImageData(oldImageData, 0, 0, 0, 0, sliceCanvas.width, sliceCanvas.height)
+    }
+
+    function setOldImageData() {
+        var ctx = getContext("2d");
+        oldImageData = ctx.getImageData(0, 0, sliceCanvas.width, sliceCanvas.height)
+    }
+
     onPaint: {
         var ctx = getContext("2d")
         ctx.beginPath()
@@ -59,10 +72,15 @@ Canvas {
     }
 
     MouseArea {
+
         id: area
         anchors.fill: parent
+
+        property var ctx
+
         onPressed: {
             if (armRemover.checked) {
+                sliceCanvas.setOldImageData()
                 manualFirstX = mouseX
                 manualFirstY = mouseY
             }

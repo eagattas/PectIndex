@@ -377,6 +377,9 @@ void PectusProcessor::manualRemoveConnectedArms(double xStart, double zStart, do
     // y = mx + b
     // b = y - mx
     double slopeOfLineDrawn = getSlopeOfLine(lineDrawn);
+    if (slopeOfLineDrawn < 0.00001 && slopeOfLineDrawn > -0.000001) {
+        slopeOfLineDrawn = 0.001;
+    }
     double bOfLineDrawn = (zStart - (slopeOfLineDrawn * xStart));
 
     QVector<QPair<Vertex, Vertex>> intersections;
@@ -397,14 +400,18 @@ void PectusProcessor::manualRemoveConnectedArms(double xStart, double zStart, do
         double maxZOfDrawn = zStart > zEnd ? zStart : zEnd;
         double minZOfDrawn = zStart < zEnd ? zStart : zEnd;
 
+
         if (minXOfSegment <= xIntersection && xIntersection <= maxXOfSegment &&
                 minZOfDrawn <= zIntersection && zIntersection <= maxZOfDrawn ) {
             intersections.push_back(sliceSegments[i]);
         }
     }
 
+    QObject *canvas = rootQmlObject->findChild<QObject*>("canvas");
+
     // assumption is made that to erase an arm the line drawn must cross at least two lines
     if (intersections.size() != 2) {
+        QMetaObject::invokeMethod(canvas, "restoreOldImageData");
         return;
     }
 
@@ -419,6 +426,7 @@ void PectusProcessor::manualRemoveConnectedArms(double xStart, double zStart, do
     }
     else {
         // the line drawn goes over both halves of the canvas, which probably isn't right
+        QMetaObject::invokeMethod(canvas, "restoreOldImageData");
         return;
     }
 
@@ -495,8 +503,6 @@ void PectusProcessor::manualRemoveConnectedArms(double xStart, double zStart, do
 
     QPair<Vertex, Vertex> newLine = { firstPoint, secondPoint };
     sliceSegments.push_back(newLine);
-
-    QObject *canvas = rootQmlObject->findChild<QObject*>("canvas");
 
     QMetaObject::invokeMethod(canvas, "eraseRect",
         Q_ARG(QVariant, 0), Q_ARG(QVariant, 0),
