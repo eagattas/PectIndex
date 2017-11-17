@@ -368,6 +368,12 @@ ApplicationWindow {
                     text: "Asymmetric Index: " + myProcessor.asymmetricIndexValue.toPrecision(4)
                     anchors.top: hallerText.bottom
                 }
+                Text {
+                    id: volumeText
+                    visible: myProcessor.volumeDefectIndexVisible
+                    text: "Defect Volume Index: " + myProcessor.volumeDefectIndexValue.toPrecision(4)
+                    anchors.top: asymmetricText.bottom
+                }
             }
 
             FileDialog {
@@ -453,16 +459,16 @@ ApplicationWindow {
                     ToolTip.delay: 800
                     ToolTip.text: qsTr("Calculates the Haller Index \n(width / depth).")
                 }
-                Button {
-                    id: defectLine
-                    text: "Defect"
-                    onClicked: {
-                        myProcessor.findDefectLine(false);
-                    }
-                    ToolTip.visible: hovered
-                    ToolTip.delay: 800
-                    ToolTip.text: qsTr("Finds the line from the deepest \npoint of the defect to the spine")
-                }
+//                Button {
+//                    id: defectLine
+//                    text: "Defect"
+//                    onClicked: {
+//                        myProcessor.findDefectLine(false);
+//                    }
+//                    ToolTip.visible: hovered
+//                    ToolTip.delay: 800
+//                    ToolTip.text: qsTr("Finds the line from the deepest \npoint of the defect to the spine")
+//                }
                 Button {
                     id: chestArea
                     text: "Asymm Index"
@@ -472,6 +478,16 @@ ApplicationWindow {
                     ToolTip.visible: hovered
                     ToolTip.delay: 800
                     ToolTip.text: qsTr("Calculates (Left Side Area) / (Right Side Area)")
+                }
+                Button {
+                    id: volumeDefect
+                    text: "Defect Volume Index"
+                    onClicked: {
+                        myProcessor.volumeDefectIndex();
+                    }
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 800
+                    ToolTip.text: qsTr("Calculates (Defect Area) / (Chest Area + Defect Area)")
                 }
                 Button {
                    id: clear

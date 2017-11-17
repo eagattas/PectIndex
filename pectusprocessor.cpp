@@ -508,12 +508,18 @@ void PectusProcessor::manualRemoveConnectedArms(double xStart, double zStart, do
         Q_ARG(QVariant, 0), Q_ARG(QVariant, 0),
         Q_ARG(QVariant, canvasWidth), Q_ARG(QVariant, canvasHeight));
 
-    for (QPair<Vertex, Vertex> & line : sliceSegments) {
+    /*for (QPair<Vertex, Vertex> & line : sliceSegments) {
         QMetaObject::invokeMethod(canvas, "drawLine",
             Q_ARG(QVariant, line.first.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, line.first.z*CANVAS_DRAWING_FACTOR),
             Q_ARG(QVariant, line.second.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, line.second.z*CANVAS_DRAWING_FACTOR));
 
-    }
+    }*/
+
+    setLimits();
+    connectOpenSegments();
+    orderSegments();
+    drawLineSegments();
+    calculateHallerIndex();
 
 }
 
@@ -1063,15 +1069,27 @@ double PectusProcessor::defectArea() {
     return area;
 }
 
-double PectusProcessor::volumeDefectIndex() {
+void PectusProcessor::volumeDefectIndex() {
+    if (sliceSegments.isEmpty())
+        return;
+
+    findDefectLine(false);
+    calculateHallerIndex();
     double chest_area = chestArea(false);
     double defect_area = defectArea();
     // need to talk with Dr. Campbell about the ratio
     volumeDefectIndexValue = defect_area / (chest_area + defect_area);
-    return volumeDefectIndexValue;
+    emit volumeDefectIndexChanged(volumeDefectIndexValue);
+    volumeDefectIndexVisible = true;
+    emit volumeDefectIndexVisibleChanged(true);
 }
 
 void PectusProcessor::asymmetricIndex() {
+    if (sliceSegments.isEmpty())
+        return;
+
+    findDefectLine(false);
+    calculateHallerIndex();
     asymmetricIndexVisible = true;
     asymmetricIndexVisibleChanged(asymmetricIndexVisible);
     double total_chest = chestArea(false);
@@ -1150,7 +1168,8 @@ void PectusProcessor::selectBounds(double yPlane){
     while(upperBound + totalDistance < lowerBound){//loop through slices and get the defect for each
         calculateIntersection(upperBound + totalDistance);
         findDefectLine(false);
-        totalDefectIndex += volumeDefectIndex();
+        volumeDefectIndex();
+        totalDefectIndex += volumeDefectIndexValue;
         totalDistance += distanceBetweenSlices;
     }
     double avgDefectIndex = totalDefectIndex/(totalDistance/distanceBetweenSlices + 1);

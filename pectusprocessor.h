@@ -56,6 +56,7 @@ class PectusProcessor : public QObject
     Q_PROPERTY(double firstClickLocation READ getFirstClickLocation NOTIFY firstClickLocationChanged)
     Q_PROPERTY(bool asymmetricIndexVisible READ getAsymmetricIndexVisible NOTIFY asymmetricIndexVisibleChanged)
     Q_PROPERTY(double asymmetricIndexValue READ getAsymmetricIndexValue NOTIFY asymmetricIndexValueChanged)
+    Q_PROPERTY(bool volumeDefectIndexVisible READ getVolumeDefectIndexVisible NOTIFY volumeDefectIndexVisibleChanged)
     Q_PROPERTY(double volumeDefectIndexValue READ getVolumeDefectIndexValue NOTIFY volumeDefectIndexChanged)
     Q_PROPERTY(bool runAllIndexes READ getRunAllIndexes NOTIFY runAllIndexesChanged)
 
@@ -79,7 +80,7 @@ public:
     Q_INVOKABLE bool getHallerIndexVisible();
     Q_INVOKABLE void calculateHallerIndex();
     //Q_INVOKABLE void getFixedIntersection();
-    Q_INVOKABLE double volumeDefectIndex();
+    Q_INVOKABLE void volumeDefectIndex();
     Q_INVOKABLE void asymmetricIndex();
 
     // Erases arms that are completely disconnected from the drawing
