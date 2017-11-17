@@ -463,7 +463,7 @@ ApplicationWindow {
                     id: defectLine
                     text: "Defect"
                     onClicked: {
-                        myProcessor.findDefectLine();
+                        myProcessor.findDefectLine(false);
                     }
                     ToolTip.visible: hovered
                     ToolTip.delay: 800
