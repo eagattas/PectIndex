@@ -454,7 +454,7 @@ ApplicationWindow {
                     id: chestArea
                     text: "Asymm Index"
                     onClicked: {
-                        myProcessor.asymmetricIndex();
+                        myProcessor.volumeDefectIndex();
 
                     }
                 }

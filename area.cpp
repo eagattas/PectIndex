@@ -22,6 +22,20 @@ double areaTrapezoid(double l1, double l2, double l3, double l4) {
     double temp2 = (l2 - l1 - l3 + l4);
     double temp3 = (l2 + l1 - l3 - l4);
     double temp4 = (-l2 + l1 + l3 + l4);
+
+    if (temp1 < .00001) {
+        temp1 = 0.0;
+    }
+    if (temp2 < .00001) {
+        temp2 = 0.0;
+    }
+    if (temp3 < .00001) {
+        temp3 = 0.0;
+    }
+    if (temp4 < .00001) {
+        temp4 = 0.0;
+    }
+
     double temp5 = temp1*temp2*temp3*temp4;
     if (temp5 < 0.0) {
         qDebug() << "Trapezoid area less than 0: " << l1 << l2 << l3 << l4;
@@ -36,9 +50,14 @@ double areaTrapezoid(double l1, double l2, double l3, double l4) {
 double areaTriangle(double l1, double l2, double l3) {
     double area = 0.0;
     double S = (l1 + l2 + l3) / 2;
-    area = S * (S - l1) * (S - l2) * (S - l3);
+    double temp1 = S - l1;
+    double temp2 = S - l2;
+    double temp3 = S - l3;
+
+    area = S * temp1 * temp2 * temp3;
+    qDebug() << S << temp1 << temp2 << temp3 << area;
     if (area < 0) {
-        qDebug() << "Area less than 0: " << l1 << l2 << l3;
+        qDebug() << "Area less than 0: " << l1 << l2 << l3 << area;
     }
     area = sqrt(area);
     return area;
