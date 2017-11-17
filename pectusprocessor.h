@@ -54,6 +54,7 @@ class PectusProcessor : public QObject
     Q_PROPERTY(bool armRemovalEnabled READ getArmRemovalEnabled NOTIFY armRemovalEnabledChanged)
     Q_PROPERTY(bool firstClickPressed READ getFirstClickPressed NOTIFY firstClickPressedChanged)
     Q_PROPERTY(double firstClickLocation READ getFirstClickLocation NOTIFY firstClickLocationChanged)
+    Q_PROPERTY(bool asymmetricIndexVisible READ getAsymmetricIndexVisible NOTIFY asymmetricIndexVisibleChanged)
     Q_PROPERTY(double asymmetricIndexValue READ getAsymmetricIndexValue NOTIFY asymmetricIndexValueChanged)
     Q_PROPERTY(double volumeDefectIndexValue READ getVolumeDefectIndexValue NOTIFY volumeDefectIndexChanged)
     Q_PROPERTY(bool runAllIndexes READ getRunAllIndexes NOTIFY runAllIndexesChanged)
@@ -93,7 +94,7 @@ public:
     Q_INVOKABLE void findDefectLine(bool draw);
 
     Q_INVOKABLE double getAsymmetricIndexValue();
-    Q_INVOKABLE bool getAsymmetricIndexVisable();
+    Q_INVOKABLE bool getAsymmetricIndexVisible();
     Q_INVOKABLE double getVolumeDefectIndexValue();
     Q_INVOKABLE bool getVolumeDefectIndexVisible();
 

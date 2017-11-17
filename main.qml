@@ -358,14 +358,14 @@ ApplicationWindow {
                 Text {
                     id: hallerText
                     visible: myProcessor.hallerIndexVisible
-                    text: "Haller Index: " + myProcessor.hallerIndex
+                    text: "Haller Index: " + myProcessor.hallerIndex.toPrecision(4)
                     anchors.top: indiceBox.top
                     anchors.topMargin: 10
                 }
                 Text {
                     id: asymmetricText
-                    visible: myProcessor.getAsymmetricIndexVisable()
-                    text: "Asymmetric Index: " + myProcessor.getAsymmetricIndexValue()
+                    visible: myProcessor.asymmetricIndexVisible
+                    text: "Asymmetric Index: " + myProcessor.asymmetricIndexValue.toPrecision(4)
                     anchors.top: hallerText.bottom
                 }
             }
@@ -477,7 +477,39 @@ ApplicationWindow {
                     }
                     ToolTip.visible: hovered
                     ToolTip.delay: 800
-                    ToolTip.text: qsTr("Calculates (Right Side Area) / (Left Side Area)")
+                    ToolTip.text: qsTr("Calculates (Left Side Area) / (Right Side Area)")
+                }
+                Button {
+                   id: clear
+                   text: "Clear"
+                   onClicked: {
+                        sliceCanvas.clear()
+                   }
+
+                   ToolTip.visible: hovered
+                   ToolTip.delay: 800
+                   ToolTip.text: qsTr("Erase everything on the canvas.")
+                }
+                Button {
+                    id: reset
+                    text: "Reset"
+                    onClicked: {
+                        if (myProcessor.fileName == ""){
+                            return
+                        }
+                        var armRemovalEnabled = myProcessor.armRemovalEnabled;
+                        var lastYPlane = myProcessor.getLastYPlane();
+                        myProcessor.enableArmRemoval(false);
+                        myProcessor.calculateIntersection(lastYPlane);
+                        myProcessor.drawLineSegments();
+                        myProcessor.enableArmRemoval(armRemovalEnabled);
+                    }
+
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 800
+                    ToolTip.text: qsTr("If attached arms were removed \n"
+                                   + "on the last slice, draws the same \n"
+                                   + "slice without connected arms removed.")
                 }
 //                Button {
 //                    id: printSegments
@@ -491,15 +523,23 @@ ApplicationWindow {
             Row {
                 id: sliceButtonRow
                 anchors.bottom: sliceCanvas.top
-                anchors.bottomMargin: 5
                 spacing: 3
                 Button {
                     id: pen
                     text: "Pen"
+                    checked: true
                     onClicked: {
-                        sliceCanvas.mode = 0
+                        sliceCanvas.mode = 0;
+                        pen.checked = true;
+                        eraser.checked = false;
                     }
-
+                    style: ButtonStyle {
+                           background:
+                                Rectangle {
+                                   color: pen.checked ? "#FFFFFF" : "#A9A9A9";
+                                    radius: 1;
+                                }
+                       }
                     ToolTip.visible: hovered
                     ToolTip.delay: 800
                     ToolTip.text: qsTr("Use a pen on the canvas.")
@@ -508,57 +548,30 @@ ApplicationWindow {
                 Button {
                     id: eraser
                     text: "Eraser"
+                    checked: false
                     onClicked: {
-                        sliceCanvas.mode = 1
+                        sliceCanvas.mode = 1;
+                        pen.checked = false;
+                        eraser.checked = true;
                     }
-
+                    style: ButtonStyle {
+                           background:
+                                Rectangle {
+                                   color: eraser.checked ? "#FFFFFF" : "#A9A9A9";
+                                    radius: 1;
+                                }
+                       }
                     ToolTip.visible: hovered
                     ToolTip.delay: 800
                     ToolTip.text: qsTr("Use an eraser on the canvas.")
                 }
-
-                Button {
-                   id: clear
-                   text: "Clear"
-                   onClicked: {
-                        sliceCanvas.clear()
-                   }
-
-                   ToolTip.visible: hovered
-                   ToolTip.delay: 800
-                   ToolTip.text: qsTr("Erase everything on the canvas.")
-                }
-
-                Button {
-                    id: reset
-                    text: "Reset"
-                    onClicked: {
-                        if (myProcessor.fileName == ""){
-                            return
-                        }
-                        var armRemovalEnabled = myProcessor.armRemovalEnabled;
-                        var lastYPlane = myProcessor.getLastYPlane();
-                        myProcessor.enableArmRemoval(false);
-                        console.log("a")
-                        myProcessor.calculateIntersection(lastYPlane);
-                        console.log("b")
-                        myProcessor.drawLineSegments();
-                        myProcessor.enableArmRemoval(armRemovalEnabled);
-                    }
-
-                    ToolTip.visible: hovered
-                    ToolTip.delay: 800
-                    ToolTip.text: qsTr("If attached arms were removed \n"
-                                   + "on the last slice, draws the same \n"
-                                   + "slice without connected arms removed.")
-                }
-                Button {
-                    id: defectLimits
-                    text: "Defect Segments"
-                    onClicked: {
-                        myProcessor.printDefectSegments()
-                    }
-                }
+//                Button {
+//                    id: defectLimits
+//                    text: "Defect Segments"
+//                    onClicked: {
+//                        myProcessor.printDefectSegments()
+//                    }
+//                }
             }
 
             SliceCanvas {

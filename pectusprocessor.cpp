@@ -1104,7 +1104,7 @@ double PectusProcessor::getAsymmetricIndexValue(){
     return asymmetricIndexValue;
 }
 
-bool PectusProcessor::getAsymmetricIndexVisable() {
+bool PectusProcessor::getAsymmetricIndexVisible() {
     return asymmetricIndexVisible;
 }
 
