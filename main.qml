@@ -250,6 +250,9 @@ ApplicationWindow {
                                 radius: 1;
                             }
                    }
+                ToolTip.visible: hovered
+                ToolTip.delay: 800
+                ToolTip.text: qsTr("Left click and drag to rotate image. \nRight click and drag to pan the image. \nScroll to zoom in and out.")
             }
             Button {
                 id: sliceModeButton
@@ -270,6 +273,9 @@ ApplicationWindow {
                                 radius: 1;
                             }
                    }
+                ToolTip.visible: hovered
+                ToolTip.delay: 800
+                ToolTip.text: qsTr("Click a spot on the scan. This \nwill create a slice at this point on the \nbody, which will display on the canvas.")
             }
             Button {
                 id: boundsModeButton
@@ -289,6 +295,9 @@ ApplicationWindow {
                                 radius: 1;
                             }
                    }
+                ToolTip.visible: hovered
+                ToolTip.delay: 800
+                ToolTip.text: qsTr("Click two spots on the scan. They will \nbe the bounds for a range of slices starting \nat the first click and ending at the second click.")
             }
 
         }
@@ -349,14 +358,14 @@ ApplicationWindow {
                 Text {
                     id: hallerText
                     visible: myProcessor.hallerIndexVisible
-                    text: "Haller Index: " + myProcessor.hallerIndex
+                    text: "Haller Index: " + myProcessor.hallerIndex.toPrecision(4)
                     anchors.top: indiceBox.top
                     anchors.topMargin: 10
                 }
                 Text {
                     id: asymmetricText
-                    visible: myProcessor.getAsymmetricIndexVisable()
-                    text: "Asymmetric Index: " + myProcessor.getAsymmetricIndexValue()
+                    visible: myProcessor.asymmetricIndexVisible
+                    text: "Asymmetric Index: " + myProcessor.asymmetricIndexValue.toPrecision(4)
                     anchors.top: hallerText.bottom
                 }
             }
@@ -385,6 +394,10 @@ ApplicationWindow {
                 onClicked: {
                     fileDialog.open();
                 }
+
+                ToolTip.visible: hovered
+                ToolTip.delay: 800
+                ToolTip.text: qsTr("Select a Wavefront .obj file to render in \nthe 3D Scan Viewer.")
             }
         }
 
@@ -442,21 +455,61 @@ ApplicationWindow {
                     onClicked: {
                         myProcessor.calculateHallerIndex();
                     }
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 800
+                    ToolTip.text: qsTr("Calculates the Haller Index \n(width / depth).")
                 }
                 Button {
                     id: defectLine
                     text: "Defect"
                     onClicked: {
-                        myProcessor.findDefectLine();
+                        myProcessor.findDefectLine(false);
                     }
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 800
+                    ToolTip.text: qsTr("Finds the line from the deepest \npoint of the defect to the spine")
                 }
                 Button {
                     id: chestArea
                     text: "Asymm Index"
                     onClicked: {
-                        myProcessor.volumeDefectIndex();
-
+                        myProcessor.asymmetricIndex();
                     }
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 800
+                    ToolTip.text: qsTr("Calculates (Left Side Area) / (Right Side Area)")
+                }
+                Button {
+                   id: clear
+                   text: "Clear"
+                   onClicked: {
+                        sliceCanvas.clear()
+                   }
+
+                   ToolTip.visible: hovered
+                   ToolTip.delay: 800
+                   ToolTip.text: qsTr("Erase everything on the canvas.")
+                }
+                Button {
+                    id: reset
+                    text: "Reset"
+                    onClicked: {
+                        if (myProcessor.fileName == ""){
+                            return
+                        }
+                        var armRemovalEnabled = myProcessor.armRemovalEnabled;
+                        var lastYPlane = myProcessor.getLastYPlane();
+                        myProcessor.enableArmRemoval(false);
+                        myProcessor.calculateIntersection(lastYPlane);
+                        myProcessor.drawLineSegments();
+                        myProcessor.enableArmRemoval(armRemovalEnabled);
+                    }
+
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 800
+                    ToolTip.text: qsTr("If attached arms were removed \n"
+                                   + "on the last slice, draws the same \n"
+                                   + "slice without connected arms removed.")
                 }
 //                Button {
 //                    id: printSegments
@@ -470,51 +523,55 @@ ApplicationWindow {
             Row {
                 id: sliceButtonRow
                 anchors.bottom: sliceCanvas.top
-                anchors.bottomMargin: 5
                 spacing: 3
                 Button {
                     id: pen
                     text: "Pen"
+                    checked: true
                     onClicked: {
-                        sliceCanvas.mode = 0
+                        sliceCanvas.mode = 0;
+                        pen.checked = true;
+                        eraser.checked = false;
                     }
+                    style: ButtonStyle {
+                           background:
+                                Rectangle {
+                                   color: pen.checked ? "#FFFFFF" : "#A9A9A9";
+                                    radius: 1;
+                                }
+                       }
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 800
+                    ToolTip.text: qsTr("Use a pen on the canvas.")
                 }
 
                 Button {
                     id: eraser
                     text: "Eraser"
+                    checked: false
                     onClicked: {
-                        sliceCanvas.mode = 1
+                        sliceCanvas.mode = 1;
+                        pen.checked = false;
+                        eraser.checked = true;
                     }
+                    style: ButtonStyle {
+                           background:
+                                Rectangle {
+                                   color: eraser.checked ? "#FFFFFF" : "#A9A9A9";
+                                    radius: 1;
+                                }
+                       }
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 800
+                    ToolTip.text: qsTr("Use an eraser on the canvas.")
                 }
-
-                Button {
-                   id: clear
-                   text: "Clear"
-                   onClicked: {
-                        sliceCanvas.clear()
-                   }
-                }
-
-                Button {
-                    id: reset
-                    text: "Reset"
-                    onClicked: {
-                        var armRemovalEnabled = myProcessor.armRemovalEnabled;
-                        var lastYPlane = myProcessor.getLastYPlane();
-                        myProcessor.enableArmRemoval(false);
-                        myProcessor.calculateIntersection(lastYPlane);
-                        myProcessor.drawLineSegments();
-                        myProcessor.enableArmRemoval(armRemovalEnabled);
-                    }
-                }
-                Button {
-                    id: defectLimits
-                    text: "Defect Segments"
-                    onClicked: {
-                        myProcessor.printDefectSegments()
-                    }
-                }
+//                Button {
+//                    id: defectLimits
+//                    text: "Defect Segments"
+//                    onClicked: {
+//                        myProcessor.printDefectSegments()
+//                    }
+//                }
             }
 
             SliceCanvas {

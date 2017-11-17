@@ -178,6 +178,8 @@ void PectusProcessor::calculateIntersection(double yPlane){
         QPair<Vertex, Vertex> segment = findSegment(intersectedFaces[i], yPlane);
         sliceSegments.push_back(segment);
     }
+    if (sliceSegments.isEmpty())
+        return;
 
     setLimits();
     sliceSegments = findLargestSet();
@@ -322,7 +324,7 @@ void PectusProcessor::calculateHallerIndex(){
         Q_ARG(QVariant, minx.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, minx.z*CANVAS_DRAWING_FACTOR),
         Q_ARG(QVariant, maxx.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, maxx.z*CANVAS_DRAWING_FACTOR));
 
-    findDefectLine();
+    findDefectLine(true);
 
     double horizontalDistance = std::sqrt(std::pow(maxx.x - minx.x, 2) + std::pow(maxx.z - minx.z, 2));
     double verticalDistance = std::sqrt(std::pow(hallerV2.x - hallerV1.x, 2) + std::pow(hallerV2.z - hallerV1.z, 2));
@@ -336,7 +338,7 @@ void PectusProcessor::calculateHallerIndex(){
 }
 
 
-void PectusProcessor::findDefectLine() {
+void PectusProcessor::findDefectLine(bool draw) {
     // Cannot run if sliceSegments is empty
     if (sliceSegments.isEmpty())
         return;
@@ -347,9 +349,12 @@ void PectusProcessor::findDefectLine() {
 
     QObject *canvas = rootQmlObject->findChild<QObject*>("canvas");
 
-    QMetaObject::invokeMethod(canvas, "drawLine",
-        Q_ARG(QVariant, topDefectPoint.x * CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, topDefectPoint.z * CANVAS_DRAWING_FACTOR),
-        Q_ARG(QVariant, bottomDefectPoint.x * CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, bottomDefectPoint.z * CANVAS_DRAWING_FACTOR));
+    if(draw){
+        QMetaObject::invokeMethod(canvas, "drawLine",
+            Q_ARG(QVariant, topDefectPoint.x * CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, topDefectPoint.z * CANVAS_DRAWING_FACTOR),
+            Q_ARG(QVariant, bottomDefectPoint.x * CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, bottomDefectPoint.z * CANVAS_DRAWING_FACTOR));
+
+    }
 
 }
 
@@ -1040,7 +1045,6 @@ double PectusProcessor::defectArea() {
     double area = 0.0;
     double x = (leftDefectLimit.first.x + rightDefectLimit.first.x) / 2;
     double z = (leftDefectLimit.first.z + rightDefectLimit.first.z) / 2;
-
     for (int i = 0; i < defectSegments.size(); ++i) {
         double l1 = AREA_FACTOR * distance(x, defectSegments[i].first.x, z, defectSegments[i].first.z);
         double l2 = AREA_FACTOR * distance(x, defectSegments[i].second.x, z, defectSegments[i].second.z);
@@ -1057,8 +1061,14 @@ double PectusProcessor::volumeDefectIndex() {
     double chest_area = chestArea(false);
     double defect_area = defectArea();
     // need to talk with Dr. Campbell about the ratio
+<<<<<<< HEAD
     qDebug() << defect_area;
     return defect_area / (chest_area + defect_area);
+=======
+    volumeDefectIndexValue = defect_area / (chest_area + defect_area);
+    qDebug() << "INTERMEDIATE VALUE: "<<volumeDefectIndexValue;
+    return volumeDefectIndexValue;
+>>>>>>> 6a4f11bcad11b36b3d3edd451b1f1d2c3fd7bceb
 }
 
 void PectusProcessor::asymmetricIndex() {
@@ -1093,7 +1103,7 @@ double PectusProcessor::getAsymmetricIndexValue(){
     return asymmetricIndexValue;
 }
 
-bool PectusProcessor::getAsymmetricIndexVisable() {
+bool PectusProcessor::getAsymmetricIndexVisible() {
     return asymmetricIndexVisible;
 }
 
@@ -1120,6 +1130,32 @@ void PectusProcessor::setFirstClickPressed(bool pressed){
 
 void PectusProcessor::setFirstClickLocation(double yPlane){
     firstClickLocation = yPlane;
+}
+
+void PectusProcessor::selectBounds(double yPlane){
+    secondClickLocation = yPlane;
+    double totalDefectIndex = 0;
+    double upperBound, lowerBound;
+
+    if(firstClickLocation < secondClickLocation){
+        upperBound = firstClickLocation;
+        lowerBound = secondClickLocation;
+    }
+    else{
+        lowerBound = firstClickLocation;
+        upperBound = secondClickLocation;
+    }
+
+    double distanceBetweenSlices = 0.05, totalDistance = 0;
+    while(upperBound + totalDistance < lowerBound){//loop through slices and get the defect for each
+        calculateIntersection(upperBound + totalDistance);
+        findDefectLine(false);
+        totalDefectIndex += volumeDefectIndex();
+        totalDistance += distanceBetweenSlices;
+    }
+    double avgDefectIndex = totalDefectIndex/(totalDistance/distanceBetweenSlices + 1);
+    qDebug() << firstClickLocation<< " "<<secondClickLocation;
+    qDebug() << "Defect Index for Bounds: " << avgDefectIndex;
 }
 
 // Removing connected arms from 2D slice.
