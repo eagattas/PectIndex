@@ -46,6 +46,7 @@ Entity {
                         if (myProcessor.runAllIndexes){
                             myProcessor.calculateHallerIndex();
                             myProcessor.asymmetricIndex();
+                            myProcessor.volumeDefectIndex();
                         }
                     }
                     else{
@@ -59,6 +60,7 @@ Entity {
                     if (myProcessor.runAllIndexes){
                         myProcessor.calculateHallerIndex();
                         myProcessor.asymmetricIndex();
+                        myProcessor.volumeDefectIndex();
                     }
                 }
             }
