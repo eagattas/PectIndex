@@ -1061,14 +1061,8 @@ double PectusProcessor::volumeDefectIndex() {
     double chest_area = chestArea(false);
     double defect_area = defectArea();
     // need to talk with Dr. Campbell about the ratio
-<<<<<<< HEAD
-    qDebug() << defect_area;
-    return defect_area / (chest_area + defect_area);
-=======
     volumeDefectIndexValue = defect_area / (chest_area + defect_area);
-    qDebug() << "INTERMEDIATE VALUE: "<<volumeDefectIndexValue;
     return volumeDefectIndexValue;
->>>>>>> 6a4f11bcad11b36b3d3edd451b1f1d2c3fd7bceb
 }
 
 void PectusProcessor::asymmetricIndex() {
