@@ -436,6 +436,12 @@ ApplicationWindow {
                     }
                     anchors.verticalCenter: parent.verticalCenter
                 }
+                CheckBox {
+                    id: manualArmRemoval
+                    text: "Manual Arm Removal"
+                    checked: false
+                    anchors.verticalCenter: parent.verticalCenter
+                }
             }
 
             Row {
@@ -545,6 +551,13 @@ ApplicationWindow {
                     ToolTip.text: qsTr("If attached arms were removed \n"
                                    + "on the last slice, draws the same \n"
                                    + "slice without connected arms removed.")
+                }
+                Button {
+                    id: defectLimits
+                    text: "Defect Segments"
+                    onClicked: {
+                        myProcessor.printDefectSegments()
+                    }
                 }
             }
 

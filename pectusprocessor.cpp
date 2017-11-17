@@ -355,10 +355,163 @@ void PectusProcessor::findDefectLine() {
 
 }
 
+void PectusProcessor::printDefectSegments() {
+
+    QObject *canvas = rootQmlObject->findChild<QObject*>("canvas");
+    for (int i = 0; i < defectSegments.size(); i++) {
+        QMetaObject::invokeMethod(canvas, "drawLine",
+            Q_ARG(QVariant, defectSegments[i].first.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, defectSegments[i].first.z*CANVAS_DRAWING_FACTOR),
+            Q_ARG(QVariant, defectSegments[i].second.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, defectSegments[i].second.z*CANVAS_DRAWING_FACTOR));
+    }
+
+}
+
+void PectusProcessor::manualRemoveConnectedArms(double xStart, double zStart, double xEnd, double zEnd, double canvasWidth, double canvasHeight) {
+
+    // the line that was drawn
+    QPair<Vertex, Vertex> lineDrawn = { { xStart, 0, zStart }, { xEnd, 0, zEnd } };
+
+    // y = mx + b
+    // b = y - mx
+    double slopeOfLineDrawn = getSlopeOfLine(lineDrawn);
+    double bOfLineDrawn = (zStart - (slopeOfLineDrawn * xStart));
+
+    QVector<QPair<Vertex, Vertex>> intersections;
+    for (int i = 0; i < sliceSegments.size(); i++) {
+
+        // mSeg * x + bSeg = mDrawn * x + bDrawn
+        // mSeg * x - mDrawn * x = bDrawn - bSeg
+        // (mSeg - mDrawn) * x = bDrawn - bSeg
+        // x = (bDrawn - bSeg) / (mSeg - mDrawn)
+
+        double slopeOfSliceSegment = getSlopeOfLine(sliceSegments[i]);
+        double bOfSegment = (sliceSegments[i].first.z * CANVAS_DRAWING_FACTOR) - (slopeOfSliceSegment * sliceSegments[i].first.x * CANVAS_DRAWING_FACTOR);
+        double xIntersection = (bOfLineDrawn - bOfSegment) / (slopeOfSliceSegment - slopeOfLineDrawn);
+        double zIntersection = slopeOfLineDrawn * xIntersection + bOfLineDrawn;
+
+        double minXOfSegment = getMinXofLine(sliceSegments[i]) * CANVAS_DRAWING_FACTOR;
+        double maxXOfSegment = getMaxXofLine(sliceSegments[i]) * CANVAS_DRAWING_FACTOR;
+        double maxZOfDrawn = zStart > zEnd ? zStart : zEnd;
+        double minZOfDrawn = zStart < zEnd ? zStart : zEnd;
+
+        if (minXOfSegment <= xIntersection && xIntersection <= maxXOfSegment &&
+                minZOfDrawn <= zIntersection && zIntersection <= maxZOfDrawn ) {
+            intersections.push_back(sliceSegments[i]);
+        }
+    }
+
+    // assumption is made that to erase an arm the line drawn must cross at least two lines
+    if (intersections.size() != 2) {
+        return;
+    }
+
+    double minXofDrawn = getMinXofLine(lineDrawn);
+    double maxXofDrawn = getMaxXofLine(lineDrawn);
+    bool isLeft;
+    if (minXofDrawn < canvasWidth / 2 && maxXofDrawn < canvasWidth / 2) {
+        isLeft = true;
+    }
+    else if (minXofDrawn > canvasWidth / 2 && maxXofDrawn > canvasWidth / 2) {
+        isLeft = false;
+    }
+    else {
+        // the line drawn goes over both halves of the canvas, which probably isn't right
+        return;
+    }
+
+    for (int i = 0; i < sliceSegments.size(); i++) {
+
+        Vertex vertexOfLineClosestToDrawn;
+        if (isLeft) {
+            if (sliceSegments[i].first.x < sliceSegments[i].second.x) {
+                vertexOfLineClosestToDrawn = sliceSegments[i].second;
+            }
+            else {
+                vertexOfLineClosestToDrawn = sliceSegments[i].first;
+            }
+        }
+        else {
+            if (sliceSegments[i].first.x > sliceSegments[i].second.x) {
+                vertexOfLineClosestToDrawn = sliceSegments[i].second;
+            }
+            else {
+                vertexOfLineClosestToDrawn = sliceSegments[i].first;
+            }
+        }
+
+        // y = mx + b
+        // (y - b) / m = x
+        double xOfDrawnToEraseFrom = (vertexOfLineClosestToDrawn.z * CANVAS_DRAWING_FACTOR - bOfLineDrawn) / slopeOfLineDrawn;
+
+        if (isLeft) {
+            if (vertexOfLineClosestToDrawn.x * CANVAS_DRAWING_FACTOR < xOfDrawnToEraseFrom) {
+                sliceSegments.erase(sliceSegments.begin() + i);
+                i--;
+            }
+        }
+        else {
+            if (vertexOfLineClosestToDrawn.x * CANVAS_DRAWING_FACTOR > xOfDrawnToEraseFrom) {
+                sliceSegments.erase(sliceSegments.begin() + i);
+                i--;
+            }
+        }
+    }
+
+    // connect the intersection
+    Vertex firstPoint;
+    Vertex secondPoint;
+
+    if (isLeft) {
+        if (intersections[0].first.x < intersections[0].second.x) {
+            firstPoint = intersections[0].first;
+        }
+        else {
+            firstPoint = intersections[0].second;
+        }
+        if (intersections[1].first.x < intersections[1].second.x) {
+            secondPoint = intersections[1].first;
+        }
+        else {
+            secondPoint = intersections[1].second;
+        }
+    }
+    else {
+        if (intersections[0].first.x > intersections[0].second.x) {
+            firstPoint = intersections[0].first;
+        }
+        else {
+            firstPoint = intersections[0].second;
+        }
+        if (intersections[1].first.x > intersections[1].second.x) {
+            secondPoint = intersections[1].first;
+        }
+        else {
+            secondPoint = intersections[1].second;
+        }
+    }
+
+    QPair<Vertex, Vertex> newLine = { firstPoint, secondPoint };
+    sliceSegments.push_back(newLine);
+
+    QObject *canvas = rootQmlObject->findChild<QObject*>("canvas");
+
+    QMetaObject::invokeMethod(canvas, "eraseRect",
+        Q_ARG(QVariant, 0), Q_ARG(QVariant, 0),
+        Q_ARG(QVariant, canvasWidth), Q_ARG(QVariant, canvasHeight));
+
+    for (QPair<Vertex, Vertex> & line : sliceSegments) {
+        QMetaObject::invokeMethod(canvas, "drawLine",
+            Q_ARG(QVariant, line.first.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, line.first.z*CANVAS_DRAWING_FACTOR),
+            Q_ARG(QVariant, line.second.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, line.second.z*CANVAS_DRAWING_FACTOR));
+
+    }
+
+}
+
 // Finds the point of deepest defect respective to the bottom or top of the torso
 Vertex PectusProcessor::findDefectPoint(bool isTop, double & defectLimitAndPointDiff) {
 
-    QVector<QPair<Vertex, Vertex>> possible_points;
+    QVector<QPair<Vertex, Vertex>> possiblePoints;
     double max = std::numeric_limits<double>::max();
     QPair<Vertex, Vertex> minXSegment = { {max, max, max}, {max, max, max} };
     QPair<Vertex, Vertex> maxXSegment = { {-1, -1, -1}, {-1, -1, -1} };
@@ -432,13 +585,13 @@ Vertex PectusProcessor::findDefectPoint(bool isTop, double & defectLimitAndPoint
             }
         }
 
-        possible_points.push_back(sliceSegments[i]);
+        possiblePoints.push_back(sliceSegments[i]);
         visited.insert(i);
     }
 
     // find right and left most segments
-    getDefectLeftRightLimits(visited, possible_points, true, isTop, minXSegment, minMaxZSegment);
-    getDefectLeftRightLimits(visited, possible_points, false, isTop, maxXSegment, minMaxZSegment);
+    getDefectLeftRightLimits(visited, possiblePoints, true, isTop, minXSegment, minMaxZSegment);
+    getDefectLeftRightLimits(visited, possiblePoints, false, isTop, maxXSegment, minMaxZSegment);
 
     double xOfDefect;
     if (isTop) {
@@ -477,6 +630,7 @@ Vertex PectusProcessor::findDefectPoint(bool isTop, double & defectLimitAndPoint
         // these lines represent the "peaks" of the chest
         leftDefectLimit = minXSegment;
         rightDefectLimit = maxXSegment;
+        defectSegments = possiblePoints;
     }
 
     return { xOfDefect, minMaxZSegment.first.y, zOfDefect };
@@ -484,7 +638,7 @@ Vertex PectusProcessor::findDefectPoint(bool isTop, double & defectLimitAndPoint
 }
 
 // Extends the points that could be the defect, also retrieves left and right most point from defect
-void PectusProcessor::getDefectLeftRightLimits(QSet<int> &visited, QVector<QPair<Vertex, Vertex>> &possible_points,
+void PectusProcessor::getDefectLeftRightLimits(QSet<int> &visited, QVector<QPair<Vertex, Vertex>> &possiblePoints,
                                                bool isLeft, bool isTop, QPair<Vertex, Vertex> & leftRightX,
                                                QPair<Vertex, Vertex> & minMaxZSegment)
 {
@@ -554,16 +708,27 @@ void PectusProcessor::getDefectLeftRightLimits(QSet<int> &visited, QVector<QPair
             }
         }
 
-        possible_points.push_back(sliceSegments[bestIndex]);
+        possiblePoints.push_back(sliceSegments[bestIndex]);
         leftRightX = sliceSegments[bestIndex];
         visited.insert(bestIndex);
+    }
+
+    // erase the last segment (which will be equal to left or right defect limit
+    if (!possiblePoints.isEmpty()) {
+        possiblePoints.removeLast();
     }
 }
 
 
 double PectusProcessor::getSlopeOfLine(QPair<Vertex, Vertex> &segment)
 {
-    return (segment.second.z - segment.first.z) / (segment.second.x - segment.first.x);
+    if (std::fabs(segment.second.x - segment.first.x) < 0.000001) {
+        return 1000000000;
+    }
+    else {
+        return (segment.second.z - segment.first.z) / (segment.second.x - segment.first.x);
+    }
+
 }
 
 double PectusProcessor::getMinXofLine(QPair<Vertex, Vertex> &segment)
@@ -881,10 +1046,10 @@ double PectusProcessor::chestArea(bool asymmetric) {
     return area;
 }
 
-double PectusProcessor::defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments) {
+double PectusProcessor::defectArea() {
     double area = 0.0;
-    double x = (v1.x + v2.x) / 2;
-    double y = (v1.y + v2.y) / 2;
+    double x = (leftDefectLimit.first.x + rightDefectLimit.first.x) / 2;
+    double y = (leftDefectLimit.first.y + rightDefectLimit.first.y) / 2;
 
     for (int i = 0; i < defectSegments.size(); ++i) {
         double l1 = distance(x, defectSegments[i].first.x, y, defectSegments[i].first.y);
@@ -896,9 +1061,9 @@ double PectusProcessor::defectArea(Vertex v1, Vertex v2, QVector<QPair<Vertex, V
     return area;
 }
 
-double PectusProcessor::volumeDefectIndex(Vertex v1, Vertex v2, QVector<QPair<Vertex, Vertex>> defectSegments) {
+double PectusProcessor::volumeDefectIndex() {
     double chest_area = chestArea(false);
-    double defect_area = defectArea(v1, v2, defectSegments);
+    double defect_area = defectArea();
     // need to talk with Dr. Campbell about the ratio
     return defect_area / (chest_area + defect_area);
 }
@@ -912,6 +1077,13 @@ void PectusProcessor::asymmetricIndex() {
     qDebug() << half_chest/total_chest;
     asymmetricIndexValue = half_chest/total_chest;
     emit asymmetricIndexValueChanged(asymmetricIndexValue);
+}
+
+double PectusProcessor::getVolumeDefectIndexValue() {
+    return volumeDefectIndexValue;
+}
+bool PectusProcessor::getVolumeDefectIndexVisible() {
+    return volumeDefectIndexVisible;
 }
 
 // Prints all values of line segments to the console
