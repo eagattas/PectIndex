@@ -4,7 +4,6 @@ Canvas {
     id: root
     property real lastX: 0
     property real lastY: 0
-    property int mode: 0
     property color sliceColor: "blue"
 
     property real manualFirstX: 0
@@ -40,7 +39,7 @@ Canvas {
     onPaint: {
         var ctx = getContext("2d")
         ctx.beginPath()
-        if (mode == 0) {
+        if (pen.checked || armRemover.checked) {
             ctx.globalCompositeOperation="source-over";
             ctx.lineWidth = 2
             ctx.strokeStyle = root.sliceColor
@@ -49,7 +48,7 @@ Canvas {
             ctx.lineTo(area.mouseX, area.mouseY)
             ctx.stroke()
         }
-        else if (mode == 1) {
+        else if (eraser.checked) {
             ctx.globalCompositeOperation="destination-out";
             ctx.arc(lastX,lastY,8,0,Math.PI*2,false);
             ctx.fill();
@@ -63,7 +62,7 @@ Canvas {
         id: area
         anchors.fill: parent
         onPressed: {
-            if (manualArmRemoval.checked) {
+            if (armRemover.checked) {
                 manualFirstX = mouseX
                 manualFirstY = mouseY
             }
@@ -75,7 +74,7 @@ Canvas {
             root.requestPaint()
         }
         onReleased: {
-            if (manualArmRemoval.checked) {
+            if (armRemover.checked) {
                 manualLastX = mouseX
                 manualLastY = mouseY
                 myProcessor.manualRemoveConnectedArms(manualFirstX, manualFirstY, manualLastX, manualLastY, sliceCanvas.width, sliceCanvas.height)
