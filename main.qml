@@ -419,7 +419,7 @@ ApplicationWindow {
 
                 CheckBox {
                     id: armRemovalEnabled
-                    text: "Enable Arm Removal"
+                    text: "Automatic Arm Removal"
                     checked: myProcessor.armRemovalEnabled
                     onClicked: {
                         myProcessor.enableArmRemoval(!myProcessor.armRemovalEnabled);
@@ -523,6 +523,7 @@ ApplicationWindow {
             Row {
                 id: sliceButtonRow
                 anchors.bottom: sliceCanvas.top
+                anchors.left: sliceCanvas.left
                 spacing: 3
                 Button {
                     id: pen
@@ -532,6 +533,7 @@ ApplicationWindow {
                         sliceCanvas.mode = 0;
                         pen.checked = true;
                         eraser.checked = false;
+                        armRemover.checked = false;
                     }
                     style: ButtonStyle {
                            background:
@@ -553,6 +555,7 @@ ApplicationWindow {
                         sliceCanvas.mode = 1;
                         pen.checked = false;
                         eraser.checked = true;
+                        armRemover.checked = false;
                     }
                     style: ButtonStyle {
                            background:
@@ -565,6 +568,26 @@ ApplicationWindow {
                     ToolTip.delay: 800
                     ToolTip.text: qsTr("Use an eraser on the canvas.")
                 }
+
+                Button {
+                    id: armRemover
+                    text: "Arm Removal"
+                    checked: false
+                    onClicked: {
+                        //sliceCanvas.mode = 2;
+                        pen.checked = false;
+                        eraser.checked = false;
+                        armRemover.checked = true;
+                    }
+                    style: ButtonStyle {
+                           background:
+                                Rectangle {
+                                   color: armRemover.checked ? "#FFFFFF" : "#A9A9A9";
+                                    radius: 1;
+                                }
+                       }
+                }
+
 //                Button {
 //                    id: defectLimits
 //                    text: "Defect Segments"
