@@ -12,4 +12,8 @@
         <file>blur.vert</file>
         <file>glow.frag</file>
     </qresource>
+    <qresource prefix="/icons">
+        <file>eraser.ico</file>
+        <file>pen.ico</file>
+    </qresource>
 </RCC>
