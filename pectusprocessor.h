@@ -71,6 +71,8 @@ public:
     void createSurfaceModel(const QVector<Vertex> & vertices, const QVector<Face> & faces);
 
     Q_INVOKABLE void drawLineSegments();
+    Q_INVOKABLE void drawLineSegmentsWithoutRotation();
+
 
     Q_INVOKABLE void setFileName(const QString & filename);
     Q_INVOKABLE void calculateIntersection(double yPlane);
@@ -183,6 +185,7 @@ private:
     void orderSegments();
     void findRemovalPoints();
     void removeArms(QPair<Vertex, Vertex> & points);
+    void disableAllIndexVisibilities();
 
 signals:
     void fileNameChanged(const QString & arg);

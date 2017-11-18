@@ -309,7 +309,7 @@ ApplicationWindow {
             anchors.right: parent.right
             anchors.top: parent.top
             anchors.rightMargin: 160
-            anchors.topMargin: 75
+            anchors.topMargin: 50
             color: "white"
             border.color: "black"
             border.width: 1
@@ -354,25 +354,51 @@ ApplicationWindow {
             Rectangle {
                 id: indiceBox
                 anchors.top: renderScanButton.bottom
+                anchors.topMargin: 20
 
                 Text {
                     id: hallerText
-                    visible: myProcessor.hallerIndexVisible
-                    text: "Haller Index: " + myProcessor.hallerIndex.toPrecision(4)
+                    text: "Haller Index: "
+                    font.pointSize: 10
                     anchors.top: indiceBox.top
                     anchors.topMargin: 10
                 }
+                Text{
+                    id: hallerTextValue
+                    visible: myProcessor.hallerIndexVisible
+                    anchors.top: hallerText.top
+                    anchors.left: hallerText.right
+                    text: myProcessor.hallerIndex.toPrecision(4)
+                    font.pointSize: 10
+                }
+
                 Text {
                     id: asymmetricText
-                    visible: myProcessor.asymmetricIndexVisible
-                    text: "Asymmetric Index: " + myProcessor.asymmetricIndexValue.toPrecision(4)
+                    text: "Asymmetric Index: "
+                    font.pointSize: 10
                     anchors.top: hallerText.bottom
+                }
+                Text{
+                    id: asymmetricTextValue
+                    visible: myProcessor.asymmetricIndexVisible
+                    anchors.top: asymmetricText.top
+                    anchors.left: asymmetricText.right
+                    text: myProcessor.asymmetricIndexValue.toPrecision(4)
+                    font.pointSize: 10
                 }
                 Text {
                     id: volumeText
-                    visible: myProcessor.volumeDefectIndexVisible
-                    text: "Defect Volume Index: " + myProcessor.volumeDefectIndexValue.toPrecision(4)
+                    text: "Defect Volume Index: "
+                    font.pointSize: 10
                     anchors.top: asymmetricText.bottom
+                }
+                Text{
+                    id: volumeTextValue
+                    visible: myProcessor.volumeDefectIndexVisible
+                    anchors.top: volumeText.top
+                    anchors.left: volumeText.right
+                    text: myProcessor.volumeDefectIndexValue.toPrecision(4)
+                    font.pointSize: 10
                 }
             }
 
@@ -381,6 +407,7 @@ ApplicationWindow {
                 title: "Choose a 3D Model File"
                 folder: shortcuts.home
                 nameFilters: ["3D Scan Files (*.obj)"]
+
                 onAccepted: {
                     myViewer.setVisibleFileName(fileDialog.fileUrl);
                     this.close();

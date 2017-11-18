@@ -132,7 +132,56 @@ void PectusProcessor::drawLineSegments()
              Q_ARG(QVariant, sliceSegments[i].second.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, sliceSegments[i].second.z*CANVAS_DRAWING_FACTOR));
      }
 
+     disableAllIndexVisibilities();
+}
 
+void PectusProcessor::drawLineSegmentsWithoutRotation()
+{
+    QObject *canvas = rootQmlObject->findChild<QObject*>("canvas");
+    double midpoint = (minx.x + maxx.x) / 2;
+    Vertex v1, v2;//v1 and v2 will be two vertices that have the same x value (+- .01)
+                 //as the midpoint of the horizontal distance, one will be at top of chest, one at bottom
+    for (int i = 0; i < sliceSegments.size(); i++) {
+        if((sliceSegments[i].first.x < midpoint && sliceSegments[i].first.x + .005 > midpoint) ||
+           (sliceSegments[i].first.x > midpoint && sliceSegments[i].first.x - .005 < midpoint)){
+            if(v1.x != 0)
+                v2 = sliceSegments[i].first;
+            else v1 = sliceSegments[i].first;
+        }
+
+    }
+    minx.x = std::numeric_limits<double>::max();
+    maxx.x = std::numeric_limits<double>::min();
+     for (int i = 0; i < sliceSegments.size(); i++) {
+         if (sliceSegments[i].first.x < minx.x) {
+             minx = sliceSegments[i].first;
+         } if (sliceSegments[i].first.x > maxx.x) {
+             maxx = sliceSegments[i].first;
+         }
+         if (sliceSegments[i].second.x < minx.x) {
+             minx = sliceSegments[i].second;
+         } if (sliceSegments[i].first.x > maxx.x) {
+             maxx = sliceSegments[i].second;
+         }
+         if (sliceSegments[i].first.x > 1.0 || sliceSegments[i].first.y > 1.0 || sliceSegments[i].second.x > 1.0 || sliceSegments[i].second.y > 1.0) {
+             qDebug() << "Vertex value greater than 1: " << sliceSegments[i].first.x << sliceSegments[i].first.y << sliceSegments[i].second.x << sliceSegments[i].second.y;
+         }
+         QMetaObject::invokeMethod(canvas, "drawLine",
+             Q_ARG(QVariant, sliceSegments[i].first.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, sliceSegments[i].first.z*CANVAS_DRAWING_FACTOR),
+             Q_ARG(QVariant, sliceSegments[i].second.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, sliceSegments[i].second.z*CANVAS_DRAWING_FACTOR));
+     }
+
+     disableAllIndexVisibilities();
+}
+
+
+void PectusProcessor::disableAllIndexVisibilities(){
+    hallerIndexVisible = false;
+    asymmetricIndexVisible = false;
+    volumeDefectIndexVisible = false;
+    emit volumeDefectIndexVisibleChanged(false);
+    emit asymmetricIndexVisibleChanged(false);
+    emit hallerIndexVisibleChanged(false);
 }
 
 QString PectusProcessor::getFileName(){
@@ -508,18 +557,10 @@ void PectusProcessor::manualRemoveConnectedArms(double xStart, double zStart, do
         Q_ARG(QVariant, 0), Q_ARG(QVariant, 0),
         Q_ARG(QVariant, canvasWidth), Q_ARG(QVariant, canvasHeight));
 
-    /*for (QPair<Vertex, Vertex> & line : sliceSegments) {
-        QMetaObject::invokeMethod(canvas, "drawLine",
-            Q_ARG(QVariant, line.first.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, line.first.z*CANVAS_DRAWING_FACTOR),
-            Q_ARG(QVariant, line.second.x*CANVAS_DRAWING_FACTOR), Q_ARG(QVariant, line.second.z*CANVAS_DRAWING_FACTOR));
-
-    }*/
-
     setLimits();
     connectOpenSegments();
     orderSegments();
-    drawLineSegments();
-    calculateHallerIndex();
+    drawLineSegmentsWithoutRotation();
 
 }
 
@@ -1074,7 +1115,6 @@ void PectusProcessor::volumeDefectIndex() {
         return;
 
     findDefectLine(false);
-    calculateHallerIndex();
     double chest_area = chestArea(false);
     double defect_area = defectArea();
     // need to talk with Dr. Campbell about the ratio
@@ -1089,14 +1129,13 @@ void PectusProcessor::asymmetricIndex() {
         return;
 
     findDefectLine(false);
-    calculateHallerIndex();
     asymmetricIndexVisible = true;
     asymmetricIndexVisibleChanged(asymmetricIndexVisible);
     double total_chest = chestArea(false);
     double half_chest = chestArea(true);
-    total_chest -= half_chest;
-    qDebug() << half_chest/total_chest;
-    asymmetricIndexValue = fabs(1 - (half_chest/total_chest));
+    //total_chest -= half_chest;
+    //asymmetricIndexValue = fabs(1 - (half_chest/total_chest));
+    asymmetricIndexValue = half_chest / (total_chest-half_chest);
     emit asymmetricIndexValueChanged(asymmetricIndexValue);
 }
 
