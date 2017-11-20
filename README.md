@@ -34,27 +34,19 @@ Lastly, load the project in Qt (using pectindex.pro), build and run it.
 
 The same tutorial can be found inside the program, but is also pasted here for your convenience
 
-###### Opening a File
+##### Opening a File:
+To open a file, either click File > Open or the [...] button on the right side of the screen. Then select an .obj file and click the <b>Render 3D Model</b> button below the file name.
+                
+##### 3D Viewer: 
+The 3D viewer can be found on the left half of the window. The name of the file can be found above the viewer, as well as the three different modes the 3D viewer can be in. If you would like to change the model color this can be done in the settings page of this application. 
+**Camera Mode:** In this mode, you can left-click and drag to rotate the model right-click and drag to pan the model, and scroll to zoom in and out of the model. 
+**Slice Mode:** In this mode, left-click on the model to select a slice, and the slice will appear in the Canvas area on the right side of the screen. 
+**Bounds Mode:** This mode is similar to slice mode, except you will pick two points on the model. The application will automatically calculate all of the indexes on all of the slices between the range, as well as a 3D volume defect index.
 
-When opening a file in PectIndex you can either go the the menu and select File>Open or you can select the [...] button on the right side of the screen. Once either option is completed, a dialog box will appear asking you to select a file (This application only supports '.obj' files).  Once a file is selected, click the 'Open' button on the dialog box and then click the 'Render 3D Scan' button which is under the file name.
-
-
-###### 3D Viewer
-
-Once the 3D image is rendered, it will appear in the 3D Viewer on the left of screen. If the mouse is over the 3D Viewing area you will be able to left-click to change the position of the model or you can scroll to zoom in and zoom out.  Furthermore, there are sliders on the right of the 3D Viewer that contol rotation in the X, Y, and Z axes and zoom.  If you would like to change the color of the 3D model, this can be done in the settings page.
-
-###### Canvas
-
-The canvas is located in the bottom right of the application, and can be used to view the slices of the 3D model. To view a slice use the Slice slider found above the Canvas Area and then click Plot Slice. To draw on the Canvas area, click the Pen button found above it, and then left-click to draw. To erase part of the slice or any lines that are drawn, you can click the eraser button and left-click to erase. To clear all of the drawn lines on the canvas, click the clear button. You can change the color of the pen in Settings.
+##### Canvas: 
+The canvas is located in the bottom right of the application, and is used to view slices after the 3D model is clicked in slice mode. There are two checkboxes above the Canvas Automatic Arm Removal and Run All Indexes. The **Automatic Arm Removal** checkbox will attempt to remove arms that are connected from the body. Arms that are disconnected from the body are already removed. The **Run All Indexes** checkbox will automatically run all of the indexes when the slice is selected. There are also 5 buttons above the canvas area. The first three buttons are **Haller Index**, **Asymmetric Index**, and **Volume Defect Index**. When either of these buttons are pressed, the corresponding index will be computed on the slice that is selected.  If a slice is not selected, these buttons will not do anything. The next two buttons are **Clear** and **Reset**.  **Clear** will remove any drawing from the Canvas and **Reset** will reset a slice to what it was before any arm removal occurs. 
+**Modes:** The Canvas has 3 modes **Pen**, **Eraser**, and **Arm Removal**. **Pen Mode:** it allows you to left-click and drag on the canvas to draw a line. **Eraser Mode:** you can left-click and drag to erase any line on the Canvas. **Arm Removal Mode:** you can draw a line through a connected arm to remove it. Lastly, if you would like to change the color of the pen, you can choose a color in the Settings page.
 
 ###### Taking Notes
 
 To take notes, click the Notes button on the top right of the application. Left-click the text area that appears after the button is clicked, and begin typing. Click the notes button to disable the text area.
-
-###### Erasing Arms
-
-After plotting the slice on the canvas, you may notice that the arms of the model appear. To fix this issue, click on the Erase Arms button to remove them. Currently, this button will only remove arms that are completely disconnected from the torso.
-
-###### Haller Index
-
-To generate the Haller Index for the slice (the width of the chest divided its depth), click on the Haller Index button after you have selected your slice. Please note that this functionality it not complete, and may be inaccurate due to arms.
