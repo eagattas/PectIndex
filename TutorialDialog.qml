@@ -32,7 +32,7 @@ Rectangle {
                   "In this mode, left-click on the model to select a slice, and the slice will appear in the Canvas area on the right side of the screen. " +
                   "<b>Bounds Mode:</b> This mode is similar to slice mode, except you will pick two points on the model. " +
                   "The application will automatically calculate all of the indexes on all of the slices between the range, as well as a 3D volume defect index.</p>" +
-                  "<br><p><b>Canvas:</b> The canvas is located in the bottom right of the application. This is the location that slices can be found after the model is " +
+                  "<br><p><b>Canvas:</b> The canvas is located in the bottom right of the application, and is used to view slices after the 3D model is " +
                   "clicked in slice mode. There are two checkboxes above the Canvas Automatic Arm Removal and Run All Indexes. " +
                   "The <b>Automatic Arm Removal</b> checkbox will attempt to remove arms that are connected from the body. Arms that are disconnected from the body are already removed. " +
                   "The <b>Run All Indexes</b> checkbox will automatically run all of the indexes when the slice is selected. " +
