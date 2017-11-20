@@ -10,8 +10,8 @@ Team Members:
 PectIndex is a desktop application for doctors to analyze scans of patients with Pectus Excavatum deformities. It allows the doctor to upload a scan of a patient, render the image, and select a slice or range of slices to analyze for different medical indexes. The application is designed for Windows 10 only.
 
 ## Alpha Release Screenshot
-Adi requested that we add a screenshot of our UI. A screenshot of our Alpha Release is Images/PectIndex\_Screenshot\_0.png
-![PectIndex Screenshot](https://github.com/eagattas/PectIndex/blob/master/Images/PectIndex_Screenshot_0.png)
+Adi requested that we add a screenshot of our UI. A screenshot of our Alpha Release is Images/Beta\_Screenshot.JPG
+![PectIndex Screenshot](https://github.com/eagattas/PectIndex/blob/master/Images/Beta_Screenshot.JPG)
 Format: ![Alt Text](url)
 
 ## Running the Program
