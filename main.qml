@@ -548,13 +548,21 @@ ApplicationWindow {
                                    + "on the last slice, draws the same \n"
                                    + "slice without connected arms removed.")
                 }
-//                Button {
-//                    id: printSegments
-//                    text: "Print Segments"
-//                    onClicked: {
-//                        myProcessor.printSegments();
-//                    }
-//                }
+                Button {
+                    id: pdf
+                    text: "PDF"
+                    onClicked: {
+                        sliceCanvas.setOldImageData()
+                        console.log(sliceCanvas.oldImageData.data.length)
+
+                        //for (var i = 0; i < sliceCanvas.oldImageData.data.length; i++) {
+                        //    myPDF.fillImageData(sliceCanvas.oldImageData.data[i])
+                       // }
+
+                        myPDF.createPDF(sliceCanvas.width, sliceCanvas.height)
+                        console.log("Done")
+                    }
+                }
             }
 
             Row {

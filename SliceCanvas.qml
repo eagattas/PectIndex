@@ -19,6 +19,12 @@ Canvas {
         root.requestPaint()
     }
 
+    function fillRect() {
+        var ctx = getContext("2d");
+        ctx.fillRect(0, 0, width, height)
+        root.requestPaint()
+    }
+
     function eraseRect(x, y, width, height) {
         var ctx = getContext("2d");
         ctx.clearRect(x, y, width, height)

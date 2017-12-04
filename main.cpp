@@ -7,6 +7,7 @@
 
 #include "pectusviewer.h"
 #include "pectusprocessor.h"
+#include "pectuspdf.h"
 
 #include <QDebug>
 
@@ -21,6 +22,7 @@ int main(int argc, char *argv[])
 
     PectusProcessor myProcessor;
     PectusViewer myViewer;
+    PectusPDF myPDF;
 
     QQmlContext* context = engine.rootContext();
 
@@ -30,9 +32,13 @@ int main(int argc, char *argv[])
     context->setContextProperty("myProcessor", &myProcessor);
     qmlRegisterUncreatableType<PectusProcessor>("PectusProcessor", 1, 1, "PectusProcessor", "Do not instantiate");
 
+    context->setContextProperty("myPDF", &myPDF);
+    qmlRegisterUncreatableType<PectusPDF>("PectusPDF", 1, 1, "PectusPDF", "Do not instantiate");
+
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
     myProcessor.setRootQmlObject(engine.rootObjects().first());
+    myPDF.setRootQmlObject(engine.rootObjects().first());
 
     if (engine.rootObjects().isEmpty())
         return -1;

@@ -1,4 +1,4 @@
-QT += 3dcore 3drender 3dinput 3dquick qml quick 3dquickextras datavisualization
+QT += printsupport 3dcore 3drender 3dinput 3dquick qml quick 3dquickextras datavisualization
 CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
@@ -15,7 +15,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp \
     pectusviewer.cpp \
     pectusprocessor.cpp \
-    area.cpp
+    area.cpp \
+    pectuspdf.cpp
 
 RESOURCES += qml.qrc
 
@@ -33,4 +34,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     pectusviewer.h \
     pectusprocessor.h \
-    area.h
+    area.h \
+    pectuspdf.h
