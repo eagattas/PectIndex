@@ -6,11 +6,13 @@
 #include <QImage>
 #include <QPixmap>
 #include <QWidget>
+#include <QGuiApplication>
 
-void PectusPDF::createPDF(int width, int height)
+void PectusPDF::createPDF(int width, int height, int x, int y)
 {
 
     qDebug() << "Creating pdf";
+    QObject *canvas = rootQmlObject->findChild<QObject*>("canvas");
 
     QPrinter pdf;
     pdf.setOutputFormat(QPrinter::PdfFormat);
@@ -18,42 +20,25 @@ void PectusPDF::createPDF(int width, int height)
 
     QPainter painter;
 
+    QQuickWindow* window = qobject_cast<QQuickWindow*>(rootQmlObject);
+    QImage image;
+    if (window) {
+        image = window->grabWindow();
+        image = image.copy(x, y, width, height);
+        //image.save("C:/Users/dillo/Desktop/img.png");
+    }
+
     painter.begin(&pdf);
     painter.drawText(50, 50, "Hello PDF");
-
-    //QImage imageData(imageData.data(), width, height, QImage::Format::Format_RGB32);
-
-    //imageData.save("C:/Users/dillo/Desktop/test.png");
-
-
-
-    QSharedPointer<QQuickItemGrabResult> r = canvasQItem->grabToImage();
-
-    //QObject::connect(canvasQItem->grabToImage().data(), &QQuickItemGrabResult::ready,
-      //               this, &PectusPDF::finished2Dimage);
+    painter.drawImage(0, 250, image);
 
     painter.end();
 
 }
 
-void PectusPDF::fillImageData(uchar d)
-{
-    imageData.push_back(255 - d);
-}
-
-void PectusPDF::finished2Dimage()
-{
-    qDebug() << "done grabbing";
-    grabbedResult->saveToFile("C:/Users/dillo/Desktop/test2.png");
-}
 
 PectusPDF::PectusPDF(QObject *parent) : QObject(parent)
 {
-    QObject *canvas = rootQmlObject->findChild<QObject*>("canvas");
-    canvasQItem = qobject_cast<QQuickItem*>(canvas);
-
-
-
 }
 
 void PectusPDF::setRootQmlObject(QObject *obj)

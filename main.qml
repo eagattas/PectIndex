@@ -553,13 +553,8 @@ ApplicationWindow {
                     text: "PDF"
                     onClicked: {
                         sliceCanvas.setOldImageData()
-                        console.log(sliceCanvas.oldImageData.data.length)
-
-                        //for (var i = 0; i < sliceCanvas.oldImageData.data.length; i++) {
-                        //    myPDF.fillImageData(sliceCanvas.oldImageData.data[i])
-                       // }
-
-                        myPDF.createPDF(sliceCanvas.width, sliceCanvas.height)
+                        //myPDF.createPDF(sliceRect.width, sliceRect.height, sliceRect.x, sliceRect.y + sliceButtonRow.height)
+                        myPDF.createPDF(viewerContainer.width, viewerContainer.height, viewerContainer.x, viewerContainer.y + scene3dControls.height)
                         console.log("Done")
                     }
                 }
@@ -645,6 +640,7 @@ ApplicationWindow {
                 anchors.fill: parent
                 sliceColor: settingsDialog.canvasColor
             }
+
         }
 
         NotesTab {

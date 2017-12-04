@@ -17,17 +17,10 @@ public:
 
     void setRootQmlObject(QObject* obj);
 
-    Q_INVOKABLE void createPDF(int width, int height);
-    Q_INVOKABLE void fillImageData(uchar d);
-
-public slots:
-    void finished2Dimage();
+    Q_INVOKABLE void createPDF(int width, int height, int x, int y);
 
 private:
     QObject* rootQmlObject;
-    QQuickItem* canvasQItem;
-    QVector<uchar> imageData;
-    QSharedPointer<QQuickItemGrabResult> grabbedResult;
 
 };
 
