@@ -18,6 +18,10 @@ ApplicationWindow {
     visible: true
     width: 1000
     height: 600
+    minimumHeight: 600
+    maximumHeight: 600
+    minimumWidth: 1000
+    maximumWidth: 1000
     title: qsTr("PectIndex")
 
     menuBar: MenuBar {
