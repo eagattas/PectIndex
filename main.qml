@@ -38,7 +38,11 @@ ApplicationWindow {
                 MenuItem {
                     text: "Create PDF"
                     onTriggered: {
-                        sliceCanvas.setOldImageData()
+                        var filename = fileDialog.fileUrl.toString().split('/');
+                        filename = filename[filename.length - 1]
+                        if (filename !== "") {
+                            pdfSuccessPopup.filename = filename
+                        }
                         //myPDF.createPDF(sliceRect.width, sliceRect.height, sliceRect.x, sliceRect.y + sliceButtonRow.height)
                         myPDF.createPDF(viewerContainer.width, viewerContainer.height, viewerContainer.x, viewerContainer.y + scene3dControls.height)
                         console.log("Done")
@@ -109,8 +113,8 @@ ApplicationWindow {
 
     MessageDialog {
         id: pdfSuccessPopup
-        informativeText: "PDF created successfully"
-
+        property string filename: "Pectus.pdf"
+        informativeText: filename + " created successfully in Downloads folder"
 
     }
 
