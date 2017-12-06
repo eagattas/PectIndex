@@ -35,6 +35,15 @@ ApplicationWindow {
                     text: "Close"
                     onTriggered: Qt.quit()
                 }
+                MenuItem {
+                    text: "Create PDF"
+                    onTriggered: {
+                        sliceCanvas.setOldImageData()
+                        //myPDF.createPDF(sliceRect.width, sliceRect.height, sliceRect.x, sliceRect.y + sliceButtonRow.height)
+                        myPDF.createPDF(viewerContainer.width, viewerContainer.height, viewerContainer.x, viewerContainer.y + scene3dControls.height)
+                        console.log("Done")
+                    }
+                }
             }
 
             Menu {
@@ -555,16 +564,6 @@ ApplicationWindow {
                                    + "on the last slice, draws the same \n"
                                    + "slice without connected arms removed.")
                 }
-                Button {
-                    id: pdf
-                    text: "PDF"
-                    onClicked: {
-                        sliceCanvas.setOldImageData()
-                        //myPDF.createPDF(sliceRect.width, sliceRect.height, sliceRect.x, sliceRect.y + sliceButtonRow.height)
-                        myPDF.createPDF(viewerContainer.width, viewerContainer.height, viewerContainer.x, viewerContainer.y + scene3dControls.height)
-                        console.log("Done")
-                    }
-                }
             }
 
             Row {
@@ -631,14 +630,6 @@ ApplicationWindow {
                                 }
                        }
                 }
-
-//                Button {
-//                    id: defectLimits
-//                    text: "Defect Segments"
-//                    onClicked: {
-//                        myProcessor.printDefectSegments()
-//                    }
-//                }
             }
 
             SliceCanvas {
