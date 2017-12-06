@@ -42,6 +42,7 @@ ApplicationWindow {
                         //myPDF.createPDF(sliceRect.width, sliceRect.height, sliceRect.x, sliceRect.y + sliceButtonRow.height)
                         myPDF.createPDF(viewerContainer.width, viewerContainer.height, viewerContainer.x, viewerContainer.y + scene3dControls.height)
                         console.log("Done")
+                        pdfSuccessPopup.open()
                     }
                 }
             }
@@ -104,6 +105,13 @@ ApplicationWindow {
                 tutorialDialogContainer.close()
             }
         }
+    }
+
+    MessageDialog {
+        id: pdfSuccessPopup
+        informativeText: "PDF created successfully"
+
+
     }
 
     Settings {
