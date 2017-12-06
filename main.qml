@@ -246,6 +246,7 @@ ApplicationWindow {
                     sliceModeButton.checked = false
                     boundsModeButton.checked = false
                     myProcessor.setFirstClickPressed(false)
+                    volumeText.text = "Defect Volume Index: "
                 }
                 style: ButtonStyle {
                        background:
@@ -269,6 +270,7 @@ ApplicationWindow {
                     cameraModeButton.checked = false
                     boundsModeButton.checked = false
                     myProcessor.setFirstClickPressed(false)
+                    volumeText.text = "Defect Volume Index: "
                 }
                 style: ButtonStyle {
                        background:
@@ -291,6 +293,7 @@ ApplicationWindow {
                     cameraModeButton.checked = false
                     sliceModeButton.checked = false
                     boundsModeButton.checked = true
+                    volumeText.text = "Average Defect Volume Index: "
                 }
                 style: ButtonStyle {
                        background:
@@ -301,7 +304,7 @@ ApplicationWindow {
                    }
                 ToolTip.visible: hovered
                 ToolTip.delay: 800
-                ToolTip.text: qsTr("Click two spots on the scan. They will \nbe the bounds for a range of slices starting \nat the first click and ending at the second click.")
+                ToolTip.text: qsTr("Click two spots on the scan. They will \nbe the bounds for a range of slices starting \nat the first click and ending at the second click.\nThe average defect volume index for the range\nwill be computed and the slice with the worst\nhaller index will be displayed.")
             }
 
         }
