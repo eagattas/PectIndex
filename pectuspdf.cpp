@@ -145,10 +145,7 @@ void PectusPDF::addSummary(QPainter & painter){
         painter.setFont(font);
         painter.drawText(40, 670, "Worst Case Haller Index: \t\t" + QString::number(processor->getHallerIndex()));
         painter.drawText(40, 685, "Worst Case Asymmetric index: \t" + QString::number(processor->getAsymmetricIndexValue()));
-        painter.drawText(40, 700, "Worst Case Defect Volume Index: \t" + QString::number(processor->getVolumeDefectIndexValue()));
-        painter.drawText(40, 715, "Average Haller Index: \t\t" + QString::number(processor->getHallerIndex()));
-        painter.drawText(40, 730, "Average Asymmetric index: \t\t" + QString::number(processor->getAsymmetricIndexValue()));
-        painter.drawText(40, 745, "Average Defect Volume Index: \t" + QString::number(processor->getVolumeDefectIndexValue()));
+        painter.drawText(40, 700, "Average Defect Volume Index: \t" + QString::number(processor->getVolumeDefectIndexValue()));
     }
 }
 
