@@ -14,7 +14,15 @@ void PectusPDF::createPDF()
 
     QPrinter pdf;
     pdf.setOutputFormat(QPrinter::PdfFormat);
-    pdf.setOutputFileName(QDir::homePath() + "/test.pdf");
+
+    QString fileName = processor->getFileName();
+    fileName = fileName.split('/').back();
+
+    if (fileName.isEmpty()){
+        fileName = "No_Scan_Loaded";
+    }
+
+    pdf.setOutputFileName(QDir::homePath() + "/Downloads/" + fileName.split(".")[0] + ".pdf");
 
     QPainter painter;
     QQuickWindow* window = qobject_cast<QQuickWindow*>(rootQmlObject);
@@ -25,8 +33,6 @@ void PectusPDF::createPDF()
         font.setPointSize(16);
         painter.setFont(font);
 
-        QString fileName = processor->getFileName();
-        fileName = fileName.split('/').back();
         painter.drawText(40, 65, "Summary for: " + fileName);
 
         font.setBold(false);
@@ -47,8 +53,16 @@ void PectusPDF::createPDF()
 // Adds the user's notes to the PDF
 void PectusPDF::addNotes(QPainter & painter){
 //    qDebug() << viewer->getNotes();
+    QString notes = viewer->getNotes();
+    if (notes.size() > 1000){
+        QString newString = "";
+        for (int i = 0; i < 999; i++){
+            newString.push_back(notes[i]);
+        }
+        notes = newString;
+    }
     QRectF rect(40, 80, 500, 212);
-    painter.drawText(rect, viewer->getNotes());
+    painter.drawText(rect, notes);
 }
 
 // Adds the contents of the 3D Scan Viewer to the PDF

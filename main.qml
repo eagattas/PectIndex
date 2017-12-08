@@ -38,13 +38,13 @@ ApplicationWindow {
                 MenuItem {
                     text: "Create PDF"
                     onTriggered: {
-                        var filename = fileDialog.fileUrl.toString().split('/');
-                        filename = filename[filename.length - 1]
+                        var filename = myProcessor.fileName.split("/")
+                        filename = filename[filename.length - 1].split(".")[0]
                         if (filename !== "") {
+                            filename = filename + ".pdf"
                             pdfSuccessPopup.filename = filename
                         }
-                        //myPDF.createPDF(sliceRect.width, sliceRect.height, sliceRect.x, sliceRect.y + sliceButtonRow.height)
-                        myPDF.createPDF(viewerContainer.width, viewerContainer.height, viewerContainer.x, viewerContainer.y + scene3dControls.height)
+                        myPDF.createPDF()
                         console.log("Done")
                         pdfSuccessPopup.open()
                     }
@@ -113,7 +113,7 @@ ApplicationWindow {
 
     MessageDialog {
         id: pdfSuccessPopup
-        property string filename: "Pectus.pdf"
+        property string filename: "No_Scan_Loaded.pdf"
         informativeText: filename + " created successfully in Downloads folder"
 
     }
@@ -578,16 +578,6 @@ ApplicationWindow {
                     ToolTip.text: qsTr("If attached arms were removed \n"
                                    + "on the last slice, draws the same \n"
                                    + "slice without connected arms removed.")
-                }
-                Button {
-                    id: pdf
-                    text: "PDF"
-                    onClicked: {
-                        sliceCanvas.setOldImageData()
-                        //myPDF.createPDF(sliceRect.width, sliceRect.height, sliceRect.x, sliceRect.y + sliceButtonRow.height)
-                        myPDF.createPDF()
-                        console.log("Done")
-                    }
                 }
             }
 
