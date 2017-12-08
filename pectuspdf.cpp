@@ -153,7 +153,7 @@ void PectusPDF::addSummary(QPainter & painter){
 }
 
 
-PectusPDF::PectusPDF(PectusViewer * viewer_input, PectusProcessor * processor_input, QObject *parent) : viewer(viewer_input), processor(processor_input), QObject(parent)
+PectusPDF::PectusPDF(PectusViewer * viewer_input, PectusProcessor * processor_input, QObject *parent) :  QObject(parent), viewer(viewer_input), processor(processor_input)
 {
 
 }

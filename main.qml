@@ -172,7 +172,7 @@ ApplicationWindow {
                     }
                     else if (pressedButtons == Qt.RightButton) {
                         if (viewerContainer.previousX !== 0) {
-                            viewerContainer.xCamera += mouseX - viewerContainer.previousX
+                            viewerContainer.xCamera -= mouseX - viewerContainer.previousX
                             //mainCamera.translate(Qt.vector3d(-1 * (mouseX - viewerContainer.previousX) / 750, 0, 0))
                         }
                     }
@@ -187,7 +187,7 @@ ApplicationWindow {
                     }
                     else if (pressedButtons == Qt.RightButton) {
                         if (viewerContainer.previousY !== 0) {
-                            viewerContainer.yCamera += mouseY - viewerContainer.previousY
+                            viewerContainer.yCamera -= mouseY - viewerContainer.previousY
                             //mainCamera.translate(Qt.vector3d(0, (mouseY - viewerContainer.previousY) / 750, 0), Camera.TranslateViewCenter)
                         }
                     }
