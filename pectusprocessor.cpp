@@ -363,6 +363,19 @@ bool PectusProcessor::getHallerIndexVisible() {
     return hallerIndexVisible;
 }
 
+double PectusProcessor::calculateHallerIndexWithoutDrawing(){
+    if (sliceSegments.isEmpty())
+        return -1;
+
+    findDefectLine(false);
+
+    double horizontalDistance = std::sqrt(std::pow(maxx.x - minx.x, 2) + std::pow(maxx.z - minx.z, 2));
+    double verticalDistance = std::sqrt(std::pow(hallerV2.x - hallerV1.x, 2) + std::pow(hallerV2.z - hallerV1.z, 2));
+    return horizontalDistance / verticalDistance;
+
+}
+
+
 void PectusProcessor::calculateHallerIndex(){
     if (sliceSegments.isEmpty())
         return;
@@ -1203,17 +1216,30 @@ void PectusProcessor::selectBounds(double yPlane){
         upperBound = secondClickLocation;
     }
 
-    double distanceBetweenSlices = 0.01, totalDistance = 0;
+    double distanceBetweenSlices = 0.01, totalDistance = 0, worstHaller = 0, worstHallerLocation = -1;
     while(upperBound + totalDistance < lowerBound){//loop through slices and get the defect for each
         calculateIntersection(upperBound + totalDistance);
         findDefectLine(false);
         volumeDefectIndex();
+        double currentHaller = calculateHallerIndexWithoutDrawing();
+        if(currentHaller > worstHaller){
+            worstHaller = currentHaller;
+            worstHallerLocation = upperBound + totalDistance;
+        }
         totalDefectIndex += volumeDefectIndexValue;
         totalDistance += distanceBetweenSlices;
     }
     double avgDefectIndex = totalDefectIndex/(totalDistance/distanceBetweenSlices + 1);
-    qDebug() << firstClickLocation<< " "<<secondClickLocation;
-    qDebug() << "Defect Index for Bounds: " << avgDefectIndex;
+
+    enableArmRemoval(true);
+    calculateIntersection(worstHallerLocation);
+    drawLineSegments();
+    calculateHallerIndex();
+    asymmetricIndex();
+    volumeDefectIndexValue = avgDefectIndex;
+    emit volumeDefectIndexChanged(avgDefectIndex);
+    volumeDefectIndexVisible = true;
+    emit volumeDefectIndexVisibleChanged(true);
 }
 
 // Removing connected arms from 2D slice.

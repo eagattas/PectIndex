@@ -35,6 +35,20 @@ ApplicationWindow {
                     text: "Close"
                     onTriggered: Qt.quit()
                 }
+                MenuItem {
+                    text: "Create PDF"
+                    onTriggered: {
+                        var filename = fileDialog.fileUrl.toString().split('/');
+                        filename = filename[filename.length - 1]
+                        if (filename !== "") {
+                            pdfSuccessPopup.filename = filename
+                        }
+                        //myPDF.createPDF(sliceRect.width, sliceRect.height, sliceRect.x, sliceRect.y + sliceButtonRow.height)
+                        myPDF.createPDF(viewerContainer.width, viewerContainer.height, viewerContainer.x, viewerContainer.y + scene3dControls.height)
+                        console.log("Done")
+                        pdfSuccessPopup.open()
+                    }
+                }
             }
 
             Menu {
@@ -95,6 +109,13 @@ ApplicationWindow {
                 tutorialDialogContainer.close()
             }
         }
+    }
+
+    MessageDialog {
+        id: pdfSuccessPopup
+        property string filename: "Pectus.pdf"
+        informativeText: filename + " created successfully in Downloads folder"
+
     }
 
     Settings {
@@ -248,6 +269,7 @@ ApplicationWindow {
                     sliceModeButton.checked = false
                     boundsModeButton.checked = false
                     myProcessor.setFirstClickPressed(false)
+                    volumeText.text = "Defect Volume Index: "
                 }
                 style: ButtonStyle {
                        background:
@@ -271,6 +293,7 @@ ApplicationWindow {
                     cameraModeButton.checked = false
                     boundsModeButton.checked = false
                     myProcessor.setFirstClickPressed(false)
+                    volumeText.text = "Defect Volume Index: "
                 }
                 style: ButtonStyle {
                        background:
@@ -293,6 +316,7 @@ ApplicationWindow {
                     cameraModeButton.checked = false
                     sliceModeButton.checked = false
                     boundsModeButton.checked = true
+                    volumeText.text = "Average Defect Volume Index: "
                 }
                 style: ButtonStyle {
                        background:
@@ -303,7 +327,7 @@ ApplicationWindow {
                    }
                 ToolTip.visible: hovered
                 ToolTip.delay: 800
-                ToolTip.text: qsTr("Click two spots on the scan. They will \nbe the bounds for a range of slices starting \nat the first click and ending at the second click.")
+                ToolTip.text: qsTr("Click two spots on the scan. They will \nbe the bounds for a range of slices starting \nat the first click and ending at the second click.\nThe average defect volume index for the range\nwill be computed and the slice with the worst\nhaller index will be displayed.")
             }
 
         }
@@ -631,14 +655,6 @@ ApplicationWindow {
                                 }
                        }
                 }
-
-//                Button {
-//                    id: defectLimits
-//                    text: "Defect Segments"
-//                    onClicked: {
-//                        myProcessor.printDefectSegments()
-//                    }
-//                }
             }
 
             SliceCanvas {

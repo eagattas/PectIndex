@@ -198,6 +198,7 @@ private:
     void findRemovalPoints();
     void removeArms(QPair<Vertex, Vertex> & points);
     void disableAllIndexVisibilities();
+    double calculateHallerIndexWithoutDrawing();
 
 signals:
     void fileNameChanged(const QString & arg);
