@@ -59,8 +59,16 @@ class PectusProcessor : public QObject
     Q_PROPERTY(bool volumeDefectIndexVisible READ getVolumeDefectIndexVisible NOTIFY volumeDefectIndexVisibleChanged)
     Q_PROPERTY(double volumeDefectIndexValue READ getVolumeDefectIndexValue NOTIFY volumeDefectIndexChanged)
     Q_PROPERTY(bool runAllIndexes READ getRunAllIndexes NOTIFY runAllIndexesChanged)
+    Q_PROPERTY(OperationType lastOperation READ getLastOperation NOTIFY lastOperationChanged)
 
 public:
+
+    enum class OperationType {
+        NoOperation = 0,
+        SliceMode,
+        BoundsMode
+    };
+    Q_ENUM(OperationType)
 
     explicit PectusProcessor(QObject *parent = nullptr);
 
@@ -114,6 +122,9 @@ public:
     bool getRunAllIndexes();
     Q_INVOKABLE void setRunAllIndexes(bool arg);
 
+    OperationType getLastOperation();
+    Q_INVOKABLE void setLastOperation(OperationType arg);
+
 private:
     // rootQmlObject - allows interaction with QML
     QObject* rootQmlObject;
@@ -148,6 +159,7 @@ private:
 
     bool runAllIndexes = false;
 
+    OperationType lastOperation = OperationType::NoOperation;
 
     // These two lines describe the furthest lines
     // from the defect where the slope has not changed signs
@@ -199,6 +211,7 @@ signals:
     void firstClickLocationChanged(const double & arg);
     void firstClickPressedChanged(const bool arg);
     void runAllIndexesChanged(const bool arg);
+    void lastOperationChanged(const OperationType arg);
 
 public slots:
 

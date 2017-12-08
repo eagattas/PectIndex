@@ -3,7 +3,7 @@ import Qt3D.Core 2.0
 import Qt3D.Render 2.0
 import Qt3D.Input 2.0
 import Qt3D.Extras 2.0
-
+import PectusProcessor 1.1
 
 Entity {
     id: root
@@ -43,6 +43,7 @@ Entity {
                     if(myProcessor.getFirstClickPressed()){
                         myProcessor.setFirstClickPressed(false)
                         myProcessor.selectBounds(pick.localIntersection.y)
+                        myProcessor.setLastOperation(PectusProcessor.BoundsMode)
                         if (myProcessor.runAllIndexes){
                             myProcessor.calculateHallerIndex();
                             myProcessor.asymmetricIndex();
@@ -57,6 +58,7 @@ Entity {
                 else{
                     myProcessor.calculateIntersection(pick.localIntersection.y)
                     myProcessor.drawLineSegments()
+                    myProcessor.setLastOperation(PectusProcessor.SliceMode)
                     if (myProcessor.runAllIndexes){
                         myProcessor.calculateHallerIndex();
                         myProcessor.asymmetricIndex();

@@ -5,6 +5,7 @@ import PectusViewer 1.1
 
 Item {
     id: root
+    property string notes : notesText.text
 
     Rectangle {
         id: tab
@@ -40,10 +41,14 @@ Item {
         visible: myViewer.notesActive
 
         TextArea {
+            id: notesText
             anchors.fill: parent
             text: myViewer.notes
 
             onEditingFinished: {
+                myViewer.updateNotes(this.text)
+            }
+            onTextChanged: {
                 myViewer.updateNotes(this.text)
             }
         }

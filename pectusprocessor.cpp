@@ -1456,3 +1456,12 @@ void PectusProcessor::setRunAllIndexes(bool arg){
     runAllIndexes = arg;
     emit runAllIndexesChanged(arg);
 }
+
+PectusProcessor::OperationType PectusProcessor::getLastOperation(){
+    return lastOperation;
+}
+
+void PectusProcessor::setLastOperation(OperationType arg){
+    lastOperation = arg;
+    emit lastOperationChanged(arg);
+}

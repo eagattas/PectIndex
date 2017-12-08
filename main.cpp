@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 
     PectusProcessor myProcessor;
     PectusViewer myViewer;
-    PectusPDF myPDF;
+    PectusPDF myPDF(&myViewer, &myProcessor);
 
     QQmlContext* context = engine.rootContext();
 

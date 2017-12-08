@@ -111,12 +111,14 @@ ApplicationWindow {
             anchors.fill: parent
             onClicked: {
                 if (myViewer.notesActive){
+                    myViewer.updateNotes(notesTab.notes);
                     myViewer.toggleNotesActive();
                 }
             }
         }
         Rectangle {
             id: viewerContainer
+            objectName: "viewerContainer"
             width: (parent.width / 2) - 40
             height: parent.height - 50
             anchors.left: parent.left
@@ -351,7 +353,7 @@ ApplicationWindow {
                     myViewer.setScanFileName(myViewer.visibleFileName);
                     myViewer.renderScan();
                     myProcessor.setFileName(fileDialog.fileUrl);
-
+                    myProcessor.setLastOperation(PectusProcessor.NoOperation)
                 }
             }
 
@@ -440,6 +442,7 @@ ApplicationWindow {
 
         Rectangle {
             id: sliceRect
+            objectName: "sliceRect"
             anchors.bottom: parent.bottom
             anchors.left: viewerContainer.right
             anchors.leftMargin: 20
@@ -482,7 +485,7 @@ ApplicationWindow {
                 spacing: 3
                 Button {
                     id: hallerIndex
-                    text: "Haller Index"
+                    text: "Haller"
                     onClicked: {
                         myProcessor.calculateHallerIndex();
                     }
@@ -502,7 +505,7 @@ ApplicationWindow {
 //                }
                 Button {
                     id: chestArea
-                    text: "Asymm Index"
+                    text: "Asymmetric"
                     onClicked: {
                         myProcessor.asymmetricIndex();
                     }
@@ -512,7 +515,7 @@ ApplicationWindow {
                 }
                 Button {
                     id: volumeDefect
-                    text: "Defect Volume Index"
+                    text: "Defect Volume"
                     onClicked: {
                         myProcessor.volumeDefectIndex();
                     }
@@ -558,7 +561,7 @@ ApplicationWindow {
                     onClicked: {
                         sliceCanvas.setOldImageData()
                         //myPDF.createPDF(sliceRect.width, sliceRect.height, sliceRect.x, sliceRect.y + sliceButtonRow.height)
-                        myPDF.createPDF(viewerContainer.width, viewerContainer.height, viewerContainer.x, viewerContainer.y + scene3dControls.height)
+                        myPDF.createPDF()
                         console.log("Done")
                     }
                 }
@@ -648,6 +651,7 @@ ApplicationWindow {
         }
 
         NotesTab {
+            id: notesTab
             x: background.width - 80
             y: 0
         }
