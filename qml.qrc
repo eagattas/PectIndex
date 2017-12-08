@@ -7,13 +7,4 @@
         <file>SettingsDialog.qml</file>
         <file>TutorialDialog.qml</file>
     </qresource>
-    <qresource prefix="/QtQuick/Controls/Shaders">
-        <file>blur.frag</file>
-        <file>blur.vert</file>
-        <file>glow.frag</file>
-    </qresource>
-    <qresource prefix="/icons">
-        <file>eraser.ico</file>
-        <file>pen.ico</file>
-    </qresource>
 </RCC>

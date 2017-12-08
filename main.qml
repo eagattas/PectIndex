@@ -55,58 +55,85 @@ ApplicationWindow {
                 title: "Help"
                 MenuItem {
                     text: "Tutorial"
-                    onTriggered: tutorialDialogContainer.open()
+                    onTriggered: {
+                        var d = tutorialComponent.createObject(null)
+                        d.open()
+                    }
                 }
-                //MenuItem { text: "Project ReadME" }
             }
             Menu {
                 title: "Preferences"
                 MenuItem {
                     text: "Settings"
-                    onTriggered: settingsDialogContainer.open()
+                    onTriggered: {
+                        var d = settingsComponent.createObject(null)
+                        d.open()
+                    }
                 }
                 MenuItem {
                     text: "Color"
-                    onTriggered: colorDialog.open()
+                    onTriggered: {
+                        var d = colorComponent.createObject(null)
+                        d.open()
+                    }
                 }
             }
     }
 
-    ColorDialog {
-        id: colorDialog
+    Component {
+        id: colorComponent
+        ColorDialog {
+            id: colorDialog
 
-        onAccepted: {
-            sliceCanvas.sliceColor = color
+            onAccepted: {
+                sliceCanvas.sliceColor = color
+                colorDialog.destroy()
+            }
+
+            onRejected: {
+                colorDialog.destroy()
+            }
+
         }
-
-        onRejected: {
-
-        }
-
     }
 
-    Dialog {
-        id: settingsDialogContainer
-        visible: false
-        title: "Settings"
-        contentItem: SettingsDialog {
-            id: settingsDialog
-            modelColor: "gray"
-            canvasColor: "blue"
-            onClosePressed: {
-                settingsDialogContainer.close();
+    Component {
+        id: settingsComponent
+        Dialog {
+            id: settingsDialogContainer
+            visible: false
+            title: "Settings"
+            contentItem: SettingsDialog {
+                id: settingsDialog
+                modelColor: "gray"
+                canvasColor: "blue"
+                onClosePressed: {
+                    settingsDialogContainer.close();
+                    settingsDialogContainer.destroy()
+                }
+                onModelColorChanged: {
+                    scene3d.mColor = this.modelColor
+                }
+
+                onCanvasColorChanged: {
+                    sliceCanvas.sliceColor = this.canvasColor
+                }
             }
         }
     }
 
-    Dialog {
-        id: tutorialDialogContainer
-        visible: false
-        title: "Tutorial"
-        contentItem: TutorialDialog {
-            id: tutorialContainer
-            onClosePressed: {
-                tutorialDialogContainer.close()
+    Component {
+        id: tutorialComponent
+        Dialog {
+            id: tutorialDialogContainer
+            visible: false
+            title: "Tutorial"
+            contentItem: TutorialDialog {
+                id: tutorialContainer
+                onClosePressed: {
+                    tutorialDialogContainer.close()
+                    tutorialDialogContainer.destroy()
+                }
             }
         }
     }
@@ -218,6 +245,9 @@ ApplicationWindow {
             anchors.topMargin: 30
             z: 0
 
+
+            property color mColor: "gray"
+
             aspects: ["input", "logic"]
 
             ChestModel {
@@ -230,7 +260,7 @@ ApplicationWindow {
                 }
                 id: chestModel
                 scanSource: myViewer.renderStatus ? myViewer.scanFileName : ""
-                modelColor: settingsDialog.modelColor
+                modelColor: scene3d.mColor
             }
         }
 
@@ -651,7 +681,7 @@ ApplicationWindow {
                 id: sliceCanvas
                 objectName: "canvas"
                 anchors.fill: parent
-                sliceColor: settingsDialog.canvasColor
+                sliceColor: "blue"
             }
 
         }
