@@ -24,6 +24,8 @@ ApplicationWindow {
     maximumWidth: 1000
     title: qsTr("PectIndex")
 
+    property string patientFilename: "No_File_Loaded"
+
     menuBar: MenuBar {
             Menu {
                 title: "File"
@@ -42,11 +44,12 @@ ApplicationWindow {
                         filename = filename[filename.length - 1].split(".")[0]
                         if (filename !== "") {
                             filename = filename + ".pdf"
-                            pdfSuccessPopup.filename = filename
+                            root.patientFilename = filename
                         }
                         myPDF.createPDF()
-                        console.log("Done")
-                        pdfSuccessPopup.open()
+
+                        var d = pdfComponent.createObject(null)
+                        d.open()
                     }
                 }
             }
@@ -138,11 +141,46 @@ ApplicationWindow {
         }
     }
 
-    MessageDialog {
-        id: pdfSuccessPopup
-        property string filename: "No_Scan_Loaded.pdf"
-        informativeText: filename + " created successfully in Downloads folder"
+    Component {
+        id: pdfComponent
+        Dialog {
+            id: pdfPopUp
 
+            contentItem: Rectangle {
+
+                implicitWidth: 300
+                implicitHeight: 75
+                color: "lightGray"
+
+                Rectangle {
+                    height: parent.height - 10
+                    width: parent.width - 10
+                    anchors.centerIn: parent
+                    color: "lightGrey"
+                    Text {
+                        id: tutorialContent
+                        width: parent.width
+                        anchors.top: parent.top
+                        wrapMode: Text.WordWrap
+                        text: root.patientFilename + " created successfully in Downloads folder"
+                    }
+                }
+
+                Button{
+                    id: closeTutorial
+                    width: 50
+                    height: 20
+                    anchors.bottom: parent.bottom
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottomMargin: 20
+                    text: "Ok"
+                    onClicked: {
+                        pdfPopUp.close()
+                        pdfPopUp.destroy()
+                    }
+                }
+            }
+        }
     }
 
     Settings {
@@ -283,6 +321,7 @@ ApplicationWindow {
 
         Row {
             id: scene3dControls
+            objectName: "scene3dControls"
             spacing: 3
             anchors.right: viewerContainer.right
             anchors.bottom: viewerContainer.top
@@ -613,6 +652,7 @@ ApplicationWindow {
 
             Row {
                 id: sliceButtonRow
+                objectName: "sliceButtonRow"
                 anchors.bottom: sliceCanvas.top
                 anchors.left: sliceCanvas.left
                 spacing: 3

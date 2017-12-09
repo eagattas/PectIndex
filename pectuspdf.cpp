@@ -12,7 +12,7 @@ void PectusPDF::createPDF()
 {
     qDebug() << "Creating pdf";
 
-    QPrinter pdf;
+    QPrinter pdf(QPrinter::HighResolution);
     pdf.setOutputFormat(QPrinter::PdfFormat);
 
     QString fileName = processor->getFileName();
@@ -33,7 +33,7 @@ void PectusPDF::createPDF()
         font.setPointSize(16);
         painter.setFont(font);
 
-        painter.drawText(40, 65, "Summary for: " + fileName);
+        painter.drawText(200, 300, "Summary for: " + fileName);
 
         font.setBold(false);
         font.setPointSize(12);
@@ -54,19 +54,32 @@ void PectusPDF::createPDF()
 void PectusPDF::addNotes(QPainter & painter){
 //    qDebug() << viewer->getNotes();
     QString notes = viewer->getNotes();
-    if (notes.size() > 1000){
+    if (notes.size() > 5000){
         QString newString = "";
         for (int i = 0; i < 999; i++){
             newString.push_back(notes[i]);
         }
         notes = newString;
     }
-    QRectF rect(40, 80, 500, 212);
+    //QRectF rect(200, 500, 9300, 5000);
+
+    QFont font;
+    font.setPointSize(16);
+    painter.setFont(font);
+
+    painter.drawText(200, 7200, "Notes:");
+
+    font.setBold(false);
+    font.setPointSize(12);
+    painter.setFont(font);
+
+    QRectF rect(200, 7500, 9300, 4500);
     painter.drawText(rect, notes);
 }
 
 // Adds the contents of the 3D Scan Viewer to the PDF
 void PectusPDF::addScanViewer(QPainter & painter, QQuickWindow * window){
+
     QObject * scanObject = rootQmlObject->findChild<QObject*>("viewerContainer");
     QQuickItem * scan = qobject_cast<QQuickItem *>(scanObject);
 
@@ -75,19 +88,26 @@ void PectusPDF::addScanViewer(QPainter & painter, QQuickWindow * window){
         QImage image;
         image = window->grabWindow();
 
+        QObject * scene3dControlsObject = rootQmlObject->findChild<QObject*>("scene3dControls");
+        QQuickItem * scene3dControls = qobject_cast<QQuickItem *>(scene3dControlsObject);
+
         double x = scan->x() * ratio;
-        double y = scan->y() * ratio;
+        double y = (scan->y() + scene3dControls->height()) * ratio;
         double width = scan->width() * ratio;
         double height = scan->height() * ratio;
 
         qDebug() << x << y << width << height;
         image = image.copy(x, y, width, height);
-        image = image.scaled(475, 570, Qt::AspectRatioMode::KeepAspectRatio);
+        //image = image.scaled(475, 570, Qt::AspectRatioMode::KeepAspectRatio);
+        image = image.scaled(4500, 4500, Qt::AspectRatioMode::KeepAspectRatio);
+
 //        image.save(QDir::homePath() + "/scanViewer.png");
 
 //        qDebug() << image.width() << image.height();
 
-        QPointF point(40, 300);
+        //QPointF point(40, 6000);
+
+        QPointF point(200, 1700);
         painter.drawImage(point, image);
     }
 }
@@ -102,18 +122,24 @@ void PectusPDF::addSlice(QPainter & painter, QQuickWindow * window){
         QImage image;
         image = window->grabWindow();
 
+        QObject * sliceButtonRowObject = canvasObject->findChild<QObject*>("sliceButtonRow");
+        QQuickItem * sliceButtonRow = qobject_cast<QQuickItem *>(sliceButtonRowObject);
+
         double x = canvas->x() * ratio;
-        double y = canvas->y() * ratio;
+        double y = (canvas->y() + sliceButtonRow->height()) * ratio;
         double width = canvas->width() * ratio;
         double height = canvas->height() * ratio;
 
         image = image.copy(x, y, width, height);
-        image = image.scaled(480, 300, Qt::AspectRatioMode::KeepAspectRatio);
+        //image = image.scaled(480, 300, Qt::AspectRatioMode::KeepAspectRatio);
+        image = image.scaled(4500, 4500, Qt::AspectRatioMode::KeepAspectRatio);
+
 //        image.save(QDir::homePath() + "/sliceCanvas.png");
 
 //        qDebug() << image.width() << image.height();
 
-        QPointF point(300, 375);
+        //QPointF point(4600, 6000);
+        QPointF point(4600, 1700);
         painter.drawImage(point, image);
     }
 }
@@ -128,24 +154,24 @@ void PectusPDF::addSummary(QPainter & painter){
     qDebug() << lastOperation;
     // If the program has not performed an operation on this scan, there is no data to print.
     if (lastOperation == PectusProcessor::OperationType::NoOperation){
-        painter.drawText(40, 650, "No Data Generated");
+        painter.drawText(200, 700, "No Data Generated");
     }
     else if (lastOperation == PectusProcessor::OperationType::SliceMode){
-        painter.drawText(40, 650, "Slice Index Data:");
+        painter.drawText(200, 700, "Slice Index Data:");
         font.setPointSize(12);
         painter.setFont(font);
-        painter.drawText(40, 670, "Haller Index: \t\t" + QString::number(processor->getHallerIndex()));
-        painter.drawText(40, 685, "Asymmetric index: \t" + QString::number(processor->getAsymmetricIndexValue()));
-        painter.drawText(40, 700, "Defect Volume Index: \t" + QString::number(processor->getVolumeDefectIndexValue()));
+        painter.drawText(200, 950, "Haller Index: \t" + QString::number(processor->getHallerIndex()));
+        painter.drawText(200, 1200, "Asymmetric index: \t" + QString::number(processor->getAsymmetricIndexValue()));
+        painter.drawText(200, 1450, "Defect Volume Index: \t" + QString::number(processor->getVolumeDefectIndexValue()));
     }
     else {
         // TODO: Update with chosen values from Bounds mode calculation
-        painter.drawText(40, 650, "Bounds Index Data:");
+        painter.drawText(200, 700, "Bounds Index Data:");
         font.setPointSize(12);
         painter.setFont(font);
-        painter.drawText(40, 670, "Worst Case Haller Index: \t\t" + QString::number(processor->getHallerIndex()));
-        painter.drawText(40, 685, "Worst Case Asymmetric index: \t" + QString::number(processor->getAsymmetricIndexValue()));
-        painter.drawText(40, 700, "Average Defect Volume Index: \t" + QString::number(processor->getVolumeDefectIndexValue()));
+        painter.drawText(200, 950, "Worst Case Haller Index: \t\t" + QString::number(processor->getHallerIndex()));
+        painter.drawText(200, 1200, "Worst Case Asymmetric index: \t" + QString::number(processor->getAsymmetricIndexValue()));
+        painter.drawText(200, 1450, "Average Defect Volume Index: \t" + QString::number(processor->getVolumeDefectIndexValue()));
     }
 }
 
