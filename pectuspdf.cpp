@@ -88,18 +88,21 @@ void PectusPDF::addScanViewer(QPainter & painter, QQuickWindow * window){
         QImage image;
         image = window->grabWindow();
 
+        double x = scan->x() * ratio;
+#if defined(Q_OS_WIN)
         QObject * scene3dControlsObject = rootQmlObject->findChild<QObject*>("scene3dControls");
         QQuickItem * scene3dControls = qobject_cast<QQuickItem *>(scene3dControlsObject);
-
-        double x = scan->x() * ratio;
         double y = (scan->y() + scene3dControls->height()) * ratio;
+#else
+        double y = scan->y() * ratio;
+#endif
         double width = scan->width() * ratio;
         double height = scan->height() * ratio;
 
         qDebug() << x << y << width << height;
         image = image.copy(x, y, width, height);
         //image = image.scaled(475, 570, Qt::AspectRatioMode::KeepAspectRatio);
-        image = image.scaled(4500, 4500, Qt::AspectRatioMode::KeepAspectRatio);
+        image = image.scaled(4500 * ratio, 4500 * ratio, Qt::AspectRatioMode::KeepAspectRatio);
 
 //        image.save(QDir::homePath() + "/scanViewer.png");
 
@@ -122,17 +125,21 @@ void PectusPDF::addSlice(QPainter & painter, QQuickWindow * window){
         QImage image;
         image = window->grabWindow();
 
-        QObject * sliceButtonRowObject = canvasObject->findChild<QObject*>("sliceButtonRow");
-        QQuickItem * sliceButtonRow = qobject_cast<QQuickItem *>(sliceButtonRowObject);
 
         double x = canvas->x() * ratio;
+#if defined(Q_OS_WIN)
+        QObject * sliceButtonRowObject = canvasObject->findChild<QObject*>("sliceButtonRow");
+        QQuickItem * sliceButtonRow = qobject_cast<QQuickItem *>(sliceButtonRowObject);
         double y = (canvas->y() + sliceButtonRow->height()) * ratio;
+#else
+        double y = canvas->y() * ratio;
+#endif
         double width = canvas->width() * ratio;
         double height = canvas->height() * ratio;
 
         image = image.copy(x, y, width, height);
         //image = image.scaled(480, 300, Qt::AspectRatioMode::KeepAspectRatio);
-        image = image.scaled(4500, 4500, Qt::AspectRatioMode::KeepAspectRatio);
+        image = image.scaled(4500 * ratio, 4500 * ratio, Qt::AspectRatioMode::KeepAspectRatio);
 
 //        image.save(QDir::homePath() + "/sliceCanvas.png");
 

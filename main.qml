@@ -24,7 +24,7 @@ ApplicationWindow {
     maximumWidth: 1000
     title: qsTr("PectIndex")
 
-    property string patientFilename: "No_File_Loaded"
+    property string patientFilename: "No_Scan_Loaded.pdf"
 
     menuBar: MenuBar {
             Menu {
