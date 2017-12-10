@@ -448,6 +448,9 @@ ApplicationWindow {
                     myProcessor.setFileName(fileDialog.fileUrl);
                     myProcessor.setLastOperation(PectusProcessor.NoOperation)
                 }
+                ToolTip.visible: hovered
+                ToolTip.delay: 800
+                ToolTip.text: qsTr("Render the .obj file in the 3D scan viewer.")
             }
 
             Rectangle {
@@ -558,6 +561,9 @@ ApplicationWindow {
                         myProcessor.enableArmRemoval(!myProcessor.armRemovalEnabled);
                     }
                     anchors.verticalCenter: parent.verticalCenter
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 800
+                    ToolTip.text: qsTr("Automatically remove connected arms \nwhen a slice is created.")
                 }
 
                 CheckBox {
@@ -568,6 +574,9 @@ ApplicationWindow {
                         myProcessor.setRunAllIndexes(!myProcessor.runAllIndexes);
                     }
                     anchors.verticalCenter: parent.verticalCenter
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 800
+                    ToolTip.text: qsTr("Calculate all indexes when a slice \nis created.")
                 }
             }
 
@@ -714,6 +723,9 @@ ApplicationWindow {
                                     radius: 1;
                                 }
                        }
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 800
+                    ToolTip.text: qsTr("Remove connected arms from the slice.")
                 }
             }
 
